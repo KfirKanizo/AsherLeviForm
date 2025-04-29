@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insurance Renewal Form</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <form id="insuranceForm" dir="rtl">
+      <h1>טופס חידוש ביטוח</h1>
+      
+      <!-- Basic Fields -->
+      <div class="form-group">
+        <label for="gardenName">שם הגן *</label>
+        <input type="text" id="gardenName" name="gardenName" required>
+      </div>
+      <div class="form-group">
+        <label for="address">כתובת *</label>
+        <input type="text" id="address" name="address" required>
+      </div>
+      <div class="form-group">
+        <label for="policyNumber">מספר פוליסה *</label>
+        <input type="text" id="policyNumber" name="policyNumber" required>
+      </div>
+      <div class="form-group">
+        <label for="childrenCount">מספר ילדים *</label>
+        <input type="number" id="childrenCount" name="childrenCount" min="1" required>
+      </div>
+      <div class="form-group">
+        <label for="policyEndDate">תאריך סיום הפוליסה *</label>
+        <input type="date" id="policyEndDate" name="policyEndDate" required>
+      </div>
+
+      <!-- Checkboxes -->
+      <div class="form-group">
+        <label>אפשרויות ביטוח:</label>
+        <label><input type="checkbox" name="insuranceOptions" value="contentBuilding"> ביטוח תכולה ומבנה</label>
+        <label><input type="checkbox" name="insuranceOptions" value="thirdParty"> צד ג</label>
+        <label><input type="checkbox" name="insuranceOptions" value="deductibleCancellation"> ביטול השתתפות עצמי</label>
+        <label><input type="checkbox" name="insuranceOptions" value="teacherAccidents"> תאונות אישיות לגננת</label>
+        <label><input type="checkbox" name="insuranceOptions" value="professionalLiability"> אחריות מקצועית</label>
+        <label><input type="checkbox" name="insuranceOptions" value="employerLiability"> חבות מעבידים</label>
+      </div>
+
+      <!-- Conditional Sections -->
+      <div id="contentBuildingSection" class="conditional-section" style="display: none;">
+        <h2>ביטוח תכולה ומבנה</h2>
+        <div class="form-group">
+          <label for="contentSum">סכום ביטוח תכולה *</label>
+          <input type="text" id="contentSum" name="contentSum">
+        </div>
+        <div class="form-group">
+          <label for="buildingSum">סכום ביטוח מבנה *</label>
+          <input type="text" id="buildingSum" name="buildingSum">
+        </div>
+        <div class="form-group">
+          <label for="yardContentSum">סכום ביטוח תכולת חצר *</label>
+          <input type="text" id="yardContentSum" name="yardContentSum">
+        </div>
+        <div class="form-group">
+          <label for="buildingType">סוג המבנה *</label>
+          <input type="text" id="buildingType" name="buildingType">
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" id="hasLien" name="hasLien"> האם קיים שעיבוד</label>
+        </div>
+        <div id="lienSection" class="form-group" style="display: none;">
+          <label for="lienHolder">משועבד ל *</label>
+          <input type="text" id="lienHolder" name="lienHolder">
+        </div>
+      </div>
+
+      <div id="thirdPartySection" class="conditional-section" style="display: none;">
+        <h2>צד ג</h2>
+        <div class="form-group">
+          <label for="thirdPartyCoverage">סכום כיסוי *</label>
+          <input type="text" id="thirdPartyCoverage" name="thirdPartyCoverage">
+        </div>
+      </div>
+
+      <div id="teacherAccidentsSection" class="conditional-section" style="display: none;">
+        <h2>תאונות אישיות לגננת</h2>
+        <div class="form-group">
+          <label for="teacherAccidentsCoverage">סכום כיסוי *</label>
+          <input type="text" id="teacherAccidentsCoverage" name="teacherAccidentsCoverage">
+        </div>
+      </div>
+
+      <div id="employerLiabilitySection" class="conditional-section" style="display: none;">
+        <h2>חבות מעבידים</h2>
+        <div class="form-group">
+          <label for="employerLiabilityCoverage">סכום כיסוי *</label>
+          <input type="text" id="employerLiabilityCoverage" name="employerLiabilityCoverage">
+        </div>
+      </div>
+
+      <button type="submit">שלח</button>
+    </form>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
