@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (input && input.type === 'checkbox') {
         const isChecked = ['true', '1', field].includes(value.toLowerCase());
         input.checked = isChecked;
-        input.style.backgroundColor = '#f1f1f1';
+        input.style.backgroundColor = '#bed5ea';
       }
     }
   });
@@ -198,12 +198,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const tooltip = document.createElement('div');
       tooltip.className = 'tooltip';
       tooltip.innerHTML = tooltipText;
-      document.body.appendChild(tooltip);
+      form.appendChild(tooltip);
 
       // Position tooltip
       const buttonRect = button.getBoundingClientRect();
-      tooltip.style.right = `${document.documentElement.clientWidth - buttonRect.right + 30}px`;
-      tooltip.style.top = `${buttonRect.top + buttonRect.height / 2}px`;
+      const formRect = form.getBoundingClientRect();
+      tooltip.style.left = `${buttonRect.left - formRect.left - 170}px`; // 160px tooltip width + 10px gap
+      tooltip.style.top = `${buttonRect.top - formRect.top + buttonRect.height / 2}px`;
       tooltip.style.transform = 'translateY(-50%)';
     });
 

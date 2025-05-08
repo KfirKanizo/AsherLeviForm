@@ -39,6 +39,9 @@ h2 {
   color: #333;
   margin-top: 20px;
   font-size: 1.2em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .form-group {
@@ -117,7 +120,7 @@ button[type="submit"]:hover {
   border-radius: 50%;
   width: 18px;
   height: 18px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -142,11 +145,16 @@ button[type="submit"]:hover {
   padding: 10px;
   color: #333;
   font-size: 0.9em;
-  width: 200px;
+  max-width: 160px;
   z-index: 10;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   line-height: 1.4;
   text-align: right;
+}
+
+.tooltip strong,
+.popup-content strong {
+  font-weight: 700;
 }
 
 /* Popup Button Hover Text */
@@ -270,7 +278,7 @@ button[type="submit"]:hover {
   }
 
   .tooltip {
-    width: 160px;
+    max-width: 140px;
     font-size: 0.8em;
     padding: 8px;
   }
