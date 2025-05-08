@@ -7,11 +7,13 @@ body {
   justify-content: center;
   align-items: center;
   padding: 20px;
+  box-sizing: border-box;
 }
 
 .container {
   max-width: 800px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 form {
@@ -19,15 +21,18 @@ form {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
-  padding: 30px;
+  padding: 20px;
   box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
   direction: rtl;
+  position: relative;
+  box-sizing: border-box;
 }
 
 h1 {
   text-align: center;
   color: #333;
   margin-bottom: 20px;
+  font-size: 1.8em;
 }
 
 h2 {
@@ -45,11 +50,15 @@ label {
   margin-bottom: 5px;
   color: #333;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 input[type="text"],
 input[type="number"],
-input[type="date"] {
+input[type="date"],
+select {
   width: 100%;
   padding: 10px;
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -71,7 +80,20 @@ input[type="checkbox"] {
   border-radius: 10px;
 }
 
-button {
+#premiumDisplay {
+  text-align: center;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+#premiumAmount {
+  color: #4a69bd;
+  font-weight: 700;
+}
+
+button[type="submit"] {
   width: 100%;
   padding: 12px;
   background: #4a69bd;
@@ -83,26 +105,200 @@ button {
   transition: background 0.3s;
 }
 
-button:hover {
+button[type="submit"]:hover {
   background: #6a89cc;
 }
 
+/* Info Button Styling */
+.info-button {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8em;
+  color: #555;
+  padding: 0;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.info-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Dynamic Tooltip Styling */
+.tooltip {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 10px;
+  color: #333;
+  font-size: 0.9em;
+  width: 200px;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  line-height: 1.4;
+  text-align: right;
+}
+
+/* Popup Button Hover Text */
+.info-button[data-popup]:hover::before {
+  content: 'לחץ למידע נוסף';
+  position: absolute;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 5px 10px;
+  color: #333;
+  font-size: 0.85em;
+  z-index: 10;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: right;
+}
+
+/* Popup Styling */
+.popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  padding: 15px;
+  max-width: 300px;
+  width: 90%;
+  z-index: 100;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+  text-align: right;
+  color: #333;
+  font-size: 0.95em;
+  box-sizing: border-box;
+}
+
+.popup-content {
+  margin-bottom: 15px;
+  line-height: 1.4;
+  text-align: right;
+}
+
+.popup-close {
+  background: #4a69bd;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9em;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.popup-close:hover {
+  background: #6a89cc;
+}
+
+.popup-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
 @media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  .container {
+    max-width: 100%;
+  }
+
   form {
-    padding: 20px;
+    padding: 15px;
   }
 
   h1 {
     font-size: 1.5em;
   }
 
-  input[type="text"],
-  input[type="number"],
-  input[type="date"] {
-    font-size: 0.9em;
+  h2 {
+    font-size: 1.1em;
   }
 
-  button {
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select {
+    font-size: 0.9em;
+    padding: 8px;
+  }
+
+  button[type="submit"] {
     font-size: 1em;
+    padding: 10px;
+  }
+
+  .info-button {
+    width: 16px;
+    height: 16px;
+    font-size: 0.7em;
+  }
+
+  .info-button[data-popup]:hover::before {
+    width: 120px;
+    font-size: 0.75em;
+    right: 20px;
+    padding: 4px 8px;
+  }
+
+  .tooltip {
+    width: 160px;
+    font-size: 0.8em;
+    padding: 8px;
+  }
+
+  .popup {
+    max-width: 260px;
+    padding: 12px;
+    font-size: 0.85em;
+  }
+
+  .popup-content {
+    margin-bottom: 10px;
+  }
+
+  .popup-close {
+    padding: 6px 12px;
+    font-size: 0.85em;
+  }
+
+  .form-group {
+    margin-bottom: 10px;
+  }
+
+  .conditional-section {
+    padding: 10px;
+  }
+
+  #premiumDisplay {
+    padding: 10px;
   }
 }
