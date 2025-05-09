@@ -60,6 +60,14 @@ h2 {
   gap: 5px;
 }
 
+.form-section {
+  display: none;
+}
+
+.form-section.active {
+  display: block;
+}
+
 .form-group {
   margin-bottom: 15px;
 }
@@ -114,8 +122,17 @@ input[type="checkbox"] {
   font-weight: 700;
 }
 
-button[type="submit"] {
-  width: 100%;
+.navigation-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: space-between;
+}
+
+.next-button,
+.back-button,
+.submit-button {
+  flex: 1;
   padding: 12px;
   background: #4a69bd;
   color: white;
@@ -126,8 +143,17 @@ button[type="submit"] {
   transition: background 0.3s;
 }
 
-button[type="submit"]:hover {
+.back-button {
   background: #6a89cc;
+}
+
+.next-button:hover,
+.submit-button:hover {
+  background: #6a89cc;
+}
+
+.back-button:hover {
+  background: #4a69bd;
 }
 
 /* Info Button Styling */
@@ -285,7 +311,9 @@ button[type="submit"]:hover {
     padding: 8px;
   }
 
-  button[type="submit"] {
+  .next-button,
+  .back-button,
+  .submit-button {
     font-size: 1em;
     padding: 10px;
   }
@@ -330,6 +358,11 @@ button[type="submit"]:hover {
 
   .conditional-section {
     padding: 10px;
+  }
+
+  .navigation-buttons {
+    flex-direction: column;
+    gap: 10px;
   }
 
   #premiumDisplay {

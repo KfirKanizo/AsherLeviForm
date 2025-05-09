@@ -18,9 +18,9 @@
       </div>
 
       <h1>טופס חידוש ביטוח</h1>
-      
-      <!-- Contact Details -->
-      <div class="form-group">
+
+      <!-- Section 1: Contact Details -->
+      <div id="contactDetails" class="form-section active">
         <h2>פרטי קשר</h2>
         <div class="form-group">
           <label for="customerName">שם הלקוח * <button type="button" class="info-button" data-tooltip="<strong>הזן את שם הלקוח המלא</strong><br>לצורך זיהוי והתקשרות">ℹ️</button></label>
@@ -34,10 +34,13 @@
           <label for="phoneNumber">מספר טלפון * <button type="button" class="info-button" data-tooltip="<strong>הזן מספר טלפון תקין, כולל קידומת</strong><br>לצורך התקשרות במקרה הצורך">ℹ️</button></label>
           <input type="tel" id="phoneNumber" name="phoneNumber" required>
         </div>
+        <div class="navigation-buttons">
+          <button type="button" class="next-button">למעבר לפרטי הביטוח</button>
+        </div>
       </div>
 
-      <!-- Insurance Details -->
-      <div class="form-group">
+      <!-- Section 2: Insurance Details -->
+      <div id="insuranceDetails" class="form-section">
         <h2>פרטי ביטוח</h2>
         <div class="form-group">
           <label for="gardenName">שם הגן * <button type="button" class="info-button" data-tooltip="<strong>הזן את שם הגן כפי שמופיע ברישיון משרד החינוך או ברישיון הפעלת הגן</strong>">ℹ️</button></label>
@@ -70,6 +73,15 @@
           <label for="policyEndDate">תאריך סיום הפוליסה * <button type="button" class="info-button" data-tooltip="<strong>תאריך שבו מסתיימת הפוליסה הנוכחית</strong><br>חיוני כדי להבטיח כיסוי רציף">ℹ️</button></label>
           <input type="date" id="policyEndDate" name="policyEndDate" required>
         </div>
+        <div class="navigation-buttons">
+          <button type="button" class="back-button">חזור לפרטי קשר</button>
+          <button type="button" class="next-button">מעבר לתוספות כיסויים</button>
+        </div>
+      </div>
+
+      <!-- Section 3: Coverage Add-ons -->
+      <div id="coverageAddons" class="form-section">
+        <h2>תוספות כיסוי</h2>
         <div class="form-group">
           <label>אפשרויות ביטוח:</label>
           <label><input type="checkbox" name="insuranceOptions" value="contentBuilding"> ביטוח תכולה ומבנה <button type="button" class="info-button" data-popup="<strong>ביטוח למבנה ולציוד הפנימי של הגן</strong><br>כיסוי עד 200,000 שח לתכולה – כלול<br>מעל 200,000 שח – בתוספת תשלום<br>נדרש לציין תכולת חצר וסוג המבנה (עץ, קבע, נייד)">ℹ️</button></label>
@@ -82,97 +94,105 @@
           <label><input type="checkbox" name="insuranceOptions" value="incomeLoss"> אובדן הכנסות <button type="button" class="info-button" data-popup="<strong>פיצוי על השבתת פעילות זמנית של הגן (למשל בעקבות שריפה)</strong><br>3 חודשים – 5,000 שח – 500 שח<br>6 חודשים – 900 שח<br>12 חודשים – 1500 שח">ℹ️</button></label>
           <label><input type="checkbox" name="insuranceOptions" value="afterSchoolProgram"> צהרון <button type="button" class="info-button" data-popup="<strong>מאפשר להרחיב את הביטוח לפעילות הצהרון</strong><br>כולל פעילות בשעות שונות, צוות נוסף ולעיתים מבנה נפרד<br>עד 20 ילדים – 500 שח<br>מעל 20 ילדים – 500 שח + 25 שח לכל ילד נוסף<br>זמין במסלולים 1–6 בלבד">ℹ️</button></label>
         </div>
+
+        <!-- Conditional Sections -->
+        <div id="contentBuildingSection" class="conditional-section" style="display: none;">
+          <h2>ביטוח תכולה ומבנה</h2>
+          <div class="form-group">
+            <label for="contentSum">סכום ביטוח תכולה * <button type="button" class="info-button" data-popup="<strong>הזן את השווי הכולל של הציוד בתוך הגן</strong><br>לדוגמה – מחשבים, שולחנות, צעצועים">ℹ️</button></label>
+            <input type="text" id="contentSum" name="contentSum">
+          </div>
+          <div class="form-group">
+            <label for="buildingSum">סכום ביטוח מבנה * <button type="button" class="info-button" data-popup="<strong>ציין את ערך המבנה לביתוח, אם הוא בבעלותך</strong>">ℹ️</button></label>
+            <input type="text" id="buildingSum" name="buildingSum">
+          </div>
+          <div class="form-group">
+            <label for="yardContentSum">סכום ביטוח תכולת חצר * <button type="button" class="info-button" data-popup="<strong>ציין את שווי הציוד בחצר</strong><br>לדוגמה – מתקנים, נדנדות, ג'ימבורי">ℹ️</button></label>
+            <input type="text" id="yardContentSum" name="yardContentSum">
+          </div>
+          <div class="form-group">
+            <label for="buildingType">סוג המבנה * <button type="button" class="info-button" data-popup="<strong>ציין את סוג המבנה</strong><br>לדוגמה – קבע, נייד, קראוון">ℹ️</button></label>
+            <input type="text" id="buildingType" name="buildingType">
+          </div>
+          <div class="form-group">
+            <label><input type="checkbox" id="hasLien" name="hasLien"> האם קיים שעבוד <button type="button" class="info-button" data-popup="<strong>סמן אם המבנה ממושכן לגוף כלשהו</strong><br>לדוגמה – בנק">ℹ️</button></label>
+          </div>
+          <div id="lienSection" class="form-group" style="display: none;">
+            <label for="lienHolder">משועבד ל * <button type="button" class="info-button" data-popup="<strong>ציין למי משועבד המבנה</strong><br>חיוני לצורכי ביטוח">ℹ️</button></label>
+            <input type="text" id="lienHolder" name="lienHolder">
+          </div>
+        </div>
+
+        <div id="thirdPartySection" class="conditional-section" style="display: none;">
+          <h2>צד ג</h2>
+          <div class="form-group">
+            <label for="thirdPartyCoverage">סכום כיסוי צד ג' * <button type="button" class="info-button" data-popup="<strong>בחר את רמת הכיסוי</strong><br>5, 8, או 10 מיליון שח">ℹ️</button></label>
+            <select id="thirdPartyCoverage" name="thirdPartyCoverage">
+              <option value="5M">5 מיליון שח למקרה / 10 מיליון לתקופה</option>
+              <option value="8M">8 מיליון שח למקרה</option>
+              <option value="10M">10 מיליון שח למקרה</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="teacherAccidentsSection" class="conditional-section" style="display: none;">
+          <h2>תאונות אישיות לגננת</h2>
+          <div class="form-group">
+            <label for="teacherAccidentsCoverage">מסלול כיסוי * <button type="button" class="info-button" data-popup="<strong>בחר את המסלול</strong><br>א – 250,000 שח מוות/נכות<br>ב – 150,000 שח + פיצוי שבועי 1,000 שח<br>ג – 300,000 שח + פיצוי שבועי 2,000 שח">ℹ️</button></label>
+            <select id="teacherAccidentsCoverage" name="teacherAccidentsCoverage">
+              <option value="A">מסלול א: 250,000 שח מוות/נכות</option>
+              <option value="B">מסלול ב: 150,000 שח + פיצוי שבועי 1,000 שח</option>
+              <option value="C">מסלול ג: 300,000 שח + פיצוי שבועי 2,000 שח</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="employerLiabilitySection" class="conditional-section" style="display: none;">
+          <h2>חבות מעבידים</h2>
+          <div class="form-group">
+            <label for="employerLiabilityCoverage">סוג עובד * <button type="button" class="info-button" data-popup="<strong>בחר את סוג העובד</strong><br>עובד רגיל<br>עובד עם תעודת מקצוע (מטפלת מוסמכת, גננת מוסמכת)">ℹ️</button></label>
+            <select id="employerLiabilityCoverage" name="employerLiabilityCoverage">
+              <option value="regular">עובד ללא תעודת מקצוע</option>
+              <option value="certified">עובד עם תעודת מקצוע</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="incomeLossSection" class="conditional-section" style="display: none;">
+          <h2>אובדן הכנסות</h2>
+          <div class="form-group">
+            <label for="incomeLossDuration">משך הכיסוי * <button type="button" class="info-button" data-popup="<strong>בחר את משך הכיסוי</strong><br>3, 6, או 12 חודשים">ℹ️</button></label>
+            <select id="incomeLossDuration" name="incomeLossDuration">
+              <option value="3">3 חודשים</option>
+              <option value="6">6 חודשים</option>
+              <option value="12">12 חודשים</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="afterSchoolProgramSection" class="conditional-section" style="display: none;">
+          <h2>צהרון</h2>
+          <div class="form-group">
+            <label for="afterSchoolChildrenCount">מספר ילדים בצהרון * <button type="button" class="info-button" data-popup="<strong>ציין את מספר הילדים הרשומים לצהרון</strong><br>משפיע על חישוב הפרמיה">ℹ️</button></label>
+            <input type="number" id="afterSchoolChildrenCount" name="afterSchoolChildrenCount" min="1">
+          </div>
+        </div>
+        <div class="navigation-buttons">
+          <button type="button" class="back-button">חזור לפרטי ביטוח</button>
+          <button type="button" class="next-button">לצפייה בסכום ואישור</button>
+        </div>
       </div>
 
-      <!-- Conditional Sections -->
-      <div id="contentBuildingSection" class="conditional-section" style="display: none;">
-        <h2>ביטוח תכולה ומבנה</h2>
-        <div class="form-group">
-          <label for="contentSum">סכום ביטוח תכולה * <button type="button" class="info-button" data-popup="<strong>הזן את השווי הכולל של הציוד בתוך הגן</strong><br>לדוגמה – מחשבים, שולחנות, צעצועים">ℹ️</button></label>
-          <input type="text" id="contentSum" name="contentSum">
+      <!-- Section 4: Premium Review & Submission -->
+      <div id="premiumReview" class="form-section">
+        <div id="premiumDisplay" class="form-group">
+          <h2><button type="button" class="info-button" data-popup="<strong>הסכום הכולל לתשלום, מחושב על בסיס</strong><br>סוג הגן ומספר הילדים<br>תוספות שנבחרו (צד ג', תאונות אישיות, סייבר וכו')<br>הנחות בהתאם לכיסויים שנבחרו<br>הפרמיה לא תרד מתחת למחיר המינימום גם אם יש הנחות">ℹ️</button> סכום הפרמיה: <span id="premiumAmount">0 שח</span></h2>
         </div>
-        <div class="form-group">
-          <label for="buildingSum">סכום ביטוח מבנה * <button type="button" class="info-button" data-popup="<strong>ציין את ערך המבנה לביטוח, אם הוא בבעלותך</strong>">ℹ️</button></label>
-          <input type="text" id="buildingSum" name="buildingSum">
-        </div>
-        <div class="form-group">
-          <label for="yardContentSum">סכום ביטוח תכולת חצר * <button type="button" class="info-button" data-popup="<strong>ציין את שווי הציוד בחצר</strong><br>לדוגמה – מתקנים, נדנדות, ג'ימבורי">ℹ️</button></label>
-          <input type="text" id="yardContentSum" name="yardContentSum">
-        </div>
-        <div class="form-group">
-          <label for="buildingType">סוג המבנה * <button type="button" class="info-button" data-popup="<strong>ציין את סוג המבנה</strong><br>לדוגמה – קבע, נייד, קראוון">ℹ️</button></label>
-          <input type="text" id="buildingType" name="buildingType">
-        </div>
-        <div class="form-group">
-          <label><input type="checkbox" id="hasLien" name="hasLien"> האם קיים שעבוד <button type="button" class="info-button" data-popup="<strong>סמן אם המבנה ממושכן לגוף כלשהו</strong><br>לדוגמה – בנק">ℹ️</button></label>
-        </div>
-        <div id="lienSection" class="form-group" style="display: none;">
-          <label for="lienHolder">משועבד ל * <button type="button" class="info-button" data-popup="<strong>ציין למי משועבד המבנה</strong><br>חיוני לצורכי ביטוח">ℹ️</button></label>
-          <input type="text" id="lienHolder" name="lienHolder">
+        <div class="navigation-buttons">
+          <button type="button" class="back-button">חזור לתוספות כיסויים</button>
+          <button type="submit" class="submit-button">שלח</button>
         </div>
       </div>
-
-      <div id="thirdPartySection" class="conditional-section" style="display: none;">
-        <h2>צד ג</h2>
-        <div class="form-group">
-          <label for="thirdPartyCoverage">סכום כיסוי צד ג' * <button type="button" class="info-button" data-popup="<strong>בחר את רמת הכיסוי</strong><br>5, 8, או 10 מיליון שח">ℹ️</button></label>
-          <select id="thirdPartyCoverage" name="thirdPartyCoverage">
-            <option value="5M">5 מיליון שח למקרה / 10 מיליון לתקופה</option>
-            <option value="8M">8 מיליון שח למקרה</option>
-            <option value="10M">10 מיליון שח למקרה</option>
-          </select>
-        </div>
-      </div>
-
-      <div id="teacherAccidentsSection" class="conditional-section" style="display: none;">
-        <h2>תאונות אישיות לגננת</h2>
-        <div class="form-group">
-          <label for="teacherAccidentsCoverage">מסלול כיסוי * <button type="button" class="info-button" data-popup="<strong>בחר את המסלול</strong><br>א – 250,000 שח מוות/נכות<br>ב – 150,000 שח + פיצוי שבועי 1,000 שח<br>ג – 300,000 שח + פיצוי שבועי 2,000 שח">ℹ️</button></label>
-          <select id="teacherAccidentsCoverage" name="teacherAccidentsCoverage">
-            <option value="A">מסלול א: 250,000 שח מוות/נכות</option>
-            <option value="B">מסלול ב: 150,000 שח + פיצוי שבועי 1,000 שח</option>
-            <option value="C">מסלול ג: 300,000 שח + פיצוי שבועי 2,000 שח</option>
-          </select>
-        </div>
-      </div>
-
-      <div id="employerLiabilitySection" class="conditional-section" style="display: none;">
-        <h2>חבות מעבידים</h2>
-        <div class="form-group">
-          <label for="employerLiabilityCoverage">סוג עובד * <button type="button" class="info-button" data-popup="<strong>בחר את סוג העובד</strong><br>עובד רגיל<br>עובד עם תעודת מקצוע (מטפלת מוסמכת, גננת מוסמכת)">ℹ️</button></label>
-          <select id="employerLiabilityCoverage" name="employerLiabilityCoverage">
-            <option value="regular">עובד רגיל</option>
-            <option value="certified">עובד עם תעודת מקצוע</option>
-          </select>
-        </div>
-      </div>
-
-      <div id="incomeLossSection" class="conditional-section" style="display: none;">
-        <h2>אובדן הכנסות</h2>
-        <div class="form-group">
-          <label for="incomeLossDuration">משך הכיסוי * <button type="button" class="info-button" data-popup="<strong>בחר את משך הכיסוי</strong><br>3, 6, או 12 חודשים">ℹ️</button></label>
-          <select id="incomeLossDuration" name="incomeLossDuration">
-            <option value="3">3 חודשים</option>
-            <option value="6">6 חודשים</option>
-            <option value="12">12 חודשים</option>
-          </select>
-        </div>
-      </div>
-
-      <div id="afterSchoolProgramSection" class="conditional-section" style="display: none;">
-        <h2>צהרון</h2>
-        <div class="form-group">
-          <label for="afterSchoolChildrenCount">מספר ילדים בצהרון * <button type="button" class="info-button" data-popup="<strong>ציין את מספר הילדים הרשומים לצהרון</strong><br>משפיע על חישוב הפרמיה">ℹ️</button></label>
-          <input type="number" id="afterSchoolChildrenCount" name="afterSchoolChildrenCount" min="1">
-        </div>
-      </div>
-
-      <!-- Premium Display -->
-      <div id="premiumDisplay" class="form-group">
-        <h2><button type="button" class="info-button" data-popup="<strong>הסכום הכולל לתשלום, מחושב על בסיס</strong><br>סוג הגן ומספר הילדים<br>תוספות שנבחרו (צד ג', תאונות אישיות, סייבר וכו')<br>הנחות בהתאם לכיסויים שנבחרו<br>הפרמיה לא תרד מתחת למחיר המינימום גם אם יש הנחות">ℹ️</button> סכום הפרמיה: <span id="premiumAmount">0 שח</span></h2>
-      </div>
-
-      <button type="submit">שלח</button>
     </form>
   </div>
   <script src="script.js"></script>

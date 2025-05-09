@@ -1,6 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Form Elements
   const form = document.getElementById('insuranceForm');
+  const sections = [
+    document.getElementById('contactDetails'),
+    document.getElementById('insuranceDetails'),
+    document.getElementById('coverageAddons'),
+    document.getElementById('premiumReview')
+  ];
+  let currentSectionIndex = 0;
+
   const gardenType = document.getElementById('gardenType');
   const childrenCount = document.getElementById('childrenCount');
   const insuranceOptions = document.querySelectorAll('input[name="insuranceOptions"]');
@@ -13,6 +21,78 @@ document.addEventListener('DOMContentLoaded', () => {
   const hasLienCheckbox = document.getElementById('hasLien');
   const lienSection = document.getElementById('lienSection');
   const premiumAmount = document.getElementById('premiumAmount');
+
+  // Navigation Button Text
+  const nextButtonText = [
+    'למעבר לפרטי הביטוח',
+    'מעבר לתוספות כיסויים',
+    'לצפייה בסכום ואישור'
+  ];
+  const backButtonText = [
+    'חזור לפרטי קשר',
+    'חזור לפרטי ביטוח',
+    'חזור לתוספות כיסויים'
+  ];
+
+  // Show current section
+  function showSection(index) {
+    console.log('Showing section index:', index);
+    sections.forEach((section, i) => {
+      section.classList.toggle('active', i === index);
+      console.log(`Section ${i} display:`, section.classList.contains('active') ? 'block' : 'none');
+    });
+    const nextButton = sections[index].querySelector('.next-button');
+    const backButton = sections[index].querySelector('.back-button');
+    if (nextButton) {
+      nextButton.textContent = nextButtonText[index];
+    }
+    if (backButton) {
+      backButton.textContent = backButtonText[index - 1];
+    }
+    calculatePremium();
+  }
+
+  // Navigation Event Listeners
+  document.querySelectorAll('.next-button').forEach(button => {
+    button.addEventListener('click', () => {
+      console.log('Next button clicked, currentSectionIndex:', currentSectionIndex);
+      if (currentSectionIndex < sections.length - 1) {
+        let isValid = true;
+        const currentInputs = sections[currentSectionIndex].querySelectorAll('input:required, select:required');
+        console.log('Required inputs:', currentInputs.length);
+        currentInputs.forEach(input => {
+          const value = input.value.trim();
+          if (value === '') {
+            isValid = false;
+            input.setCustomValidity('אנא מלא את שדה החובה.');
+            input.reportValidity();
+            input.style.borderColor = 'red';
+            console.log(`Invalid input: ${input.id}, value: "${value}"`);
+          } else {
+            input.setCustomValidity('');
+            input.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+          }
+        });
+        if (isValid) {
+          currentSectionIndex++;
+          console.log('Moving to section:', currentSectionIndex);
+          showSection(currentSectionIndex);
+        } else {
+          alert('אנא מלא את כל השדות הנדרשים.');
+        }
+      }
+    });
+  });
+
+  document.querySelectorAll('.back-button').forEach(button => {
+    button.addEventListener('click', () => {
+      if (currentSectionIndex > 0) {
+        currentSectionIndex--;
+        console.log('Moving back to section:', currentSectionIndex);
+        showSection(currentSectionIndex);
+      }
+    });
+  });
 
   // Conditional Sections Logic
   insuranceOptions.forEach(option => {
@@ -436,8 +516,8 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.values({ contentBuildingSection, thirdPartySection, teacherAccidentsSection, employerLiabilitySection, incomeLossSection, afterSchoolProgramSection }).forEach(section => section.style.display = 'none');
         lienSection.style.display = 'none';
         premiumAmount.textContent = '0 שח';
-        popup.style.display = 'none';
-        popupOverlay.style.display = 'none';
+        currentSectionIndex = 0;
+        showSection(currentSectionIndex);
       } catch (error) {
         alert('שגיאה בשליחת הטופס. אנא נסה שוב.');
       }
@@ -454,6 +534,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Initialize
   updateInsuranceOptions();
   calculatePremium();
+  showSection(currentSectionIndex);
 });
