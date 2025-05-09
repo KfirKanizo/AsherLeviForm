@@ -5,75 +5,83 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Insurance Renewal Form</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700 whispering=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="container">
     <form id="insuranceForm" dir="rtl">
-      <h1>טופס חידוש ביטוח</h1>
-      
-      <!-- Basic Fields -->
-      <div class="form-group">
-        <label for="gardenName">שם הגן * <button type="button" class="info-button" data-tooltip="<strong>הזן את שם הגן כפי שמופיע ברישיון משרד החינוך או ברישיון הפעלת הגן</strong>">ℹ️</button></label>
-        <input type="text" id="gardenName" name="gardenName" required>
-      </div>
-      <div class="form-group">
-        <label for="gardenType">סוג הגן * <button type="button" class="info-button" data-tooltip="<strong>בחר את סוג המסגרת</strong><br>תמ&quot;ת – מסגרת מסובסדת על ידי המדינה<br>משפחתון פרטי – עד 6–9 ילדים<br>גן עד גיל 3 – כולל מבנה ותכולה<br>גן מעל גיל 3 – עם או בלי מבנה<br>צהרון בלבד – מעט ילדים ושעות פעילות מצומצמות">ℹ️</button></label>
-        <select id="gardenType" name="gardenType" required>
-          <option value="">בחר סוג גן</option>
-          <option value="tamah">תמ"ת</option>
-          <option value="privateFamily">משפחתון פרטי</option>
-          <option value="upTo3">גן עד גיל 3</option>
-          <option value="over3">גן מעל גיל 3</option>
-          <option value="afterSchool">צהרון בלבד</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="address">כתובת * <button type="button" class="info-button" data-tooltip="<strong>הכנס את כתובת הגן המדויקת, כולל רחוב, מספר, עיר</strong><br>חיוני לצורכי ביטוח, במיוחד עבור ביטוח מבנה">ℹ️</button></label>
-        <input type="text" id="address" name="address" required>
-      </div>
-      <div class="form-group">
-        <label for="policyNumber">מספר פוליסה * <button type="button" class="info-button" data-tooltip="<strong>מספר הפוליסה מהשנה שעברה (אם קיים)</strong><br>מאפשר חידוש בהתאמה לפוליסה הקודמת">ℹ️</button></label>
-        <input type="text" id="policyNumber" name="policyNumber" required>
-      </div>
-      <div class="form-group">
-        <label for="childrenCount">מספר ילדים * <button type="button" class="info-button" data-tooltip="<strong>ציין את מספר הילדים בגן</strong><br>משפיע על חישוב הפרמיה וסוגי הכיסויים הזמינים">ℹ️</button></label>
-        <input type="number" id="childrenCount" name="childrenCount" min="1" required>
-      </div>
-      <div class="form-group">
-        <label for="policyEndDate">תאריך סיום הפוליסה * <button type="button" class="info-button" data-tooltip="<strong>תאריך שבו מסתיימת הפוליסה הנוכחית</strong><br>חיוני כדי להבטיח כיסוי רציף">ℹ️</button></label>
-        <input type="date" id="policyEndDate" name="policyEndDate" required>
+      <!-- Logo -->
+      <div class="logo-container">
+        <a href="https://asherlevi.com/" target="_blank">
+          <img src="https://asherlevi.com/wp-content/uploads/2022/07/%D7%9C%D7%95%D7%92%D7%95-%D7%9E%D7%97%D7%95%D7%93%D7%A9-%D7%A6%D7%91%D7%A2%D7%95%D7%A0%D7%99%D7%95%D7%AA-01-1-768x477.png" alt="Asher Levi Logo">
+        </a>
       </div>
 
+      <h1>טופס חידוש ביטוח</h1>
+      
       <!-- Contact Details -->
       <div class="form-group">
         <h2>פרטי קשר</h2>
         <div class="form-group">
-          <label for="customerName">שם הלקוח * <button type="button" class="info-button" data-popup="<strong>הזן את שם הלקוח המלא</strong><br>לצורך זיהוי והתקשרות">ℹ️</button></label>
+          <label for="customerName">שם הלקוח * <button type="button" class="info-button" data-tooltip="<strong>הזן את שם הלקוח המלא</strong><br>לצורך זיהוי והתקשרות">ℹ️</button></label>
           <input type="text" id="customerName" name="customerName" required>
         </div>
         <div class="form-group">
-          <label for="emailAddress">כתובת דוא"ל * <button type="button" class="info-button" data-popup="<strong>הכנס כתובת דוא&quot;ל תקינה</strong><br>לצורך התקשרות ושליחת אישורי פוליסה">ℹ️</button></label>
+          <label for="emailAddress">כתובת דוא"ל * <button type="button" class="info-button" data-tooltip="<strong>הכנס כתובת דואל תקינה</strong><br>לצורך התקשרות ושליחת אישורי פוליסה">ℹ️</button></label>
           <input type="email" id="emailAddress" name="emailAddress" required>
         </div>
         <div class="form-group">
-          <label for="phoneNumber">מספר טלפון * <button type="button" class="info-button" data-popup="<strong>הזן מספר טלפון תקין, כולל קידומת</strong><br>לצורך התקשרות במקרה הצורך">ℹ️</button></label>
+          <label for="phoneNumber">מספר טלפון * <button type="button" class="info-button" data-tooltip="<strong>הזן מספר טלפון תקין, כולל קידומת</strong><br>לצורך התקשרות במקרה הצורך">ℹ️</button></label>
           <input type="tel" id="phoneNumber" name="phoneNumber" required>
         </div>
       </div>
 
-      <!-- Checkboxes -->
+      <!-- Insurance Details -->
       <div class="form-group">
-        <label>אפשרויות ביטוח:</label>
-        <label><input type="checkbox" name="insuranceOptions" value="contentBuilding"> ביטוח תכולה ומבנה <button type="button" class="info-button" data-popup="<strong>ביטוח למבנה ולציוד הפנימי של הגן</strong><br>כיסוי עד 200,000 שח לתכולה – כלול<br>מעל 200,000 שח – בתוספת תשלום<br>נדרש לציין תכולת חצר וסוג המבנה (עץ, קבע, נייד)">ℹ️</button></label>
-        <label><input type="checkbox" name="insuranceOptions" value="thirdParty"> צד ג <button type="button" class="info-button" data-popup="<strong>מכסה נזקים לגורמים חיצוניים (הורים, ספקים, עוברי אורח)</strong><br>5 מיליון שח למקרה / 10 מיליון לתקופה – 300 שח<br>8 מיליון שח למקרה – 1000 שח<br>10 מיליון שח למקרה – 2000 שח<br>עד 20 ילדים – תעריף מוזל – 200 שח">ℹ️</button></label>
-        <label><input type="checkbox" name="insuranceOptions" value="deductibleCancellation"> ביטול השתתפות עצמי <button type="button" class="info-button" data-popup="<strong>מאפשר כיסוי מלא ללא השתתפות עצמית במקרה של נזק</strong><br>עד 20 ילדים – 200 שח<br>מעל 20 ילדים – 300 שח">ℹ️</button></label>
-        <label><input type="checkbox" name="insuranceOptions" value="teacherAccidents"> תאונות אישיות לגננת <button type="button" class="info-button" data-popup="<strong>כולל נכות, מוות, אשפוז, שברים, כוויות</strong><br>מסלול א – 250,000 שח מוות/נכות – 200 שח<br>מסלול ב – 150,000 שח + פיצוי שבועי 1,000 שח עד 24 חודשים – 600 שח<br>מסלול ג – 300,000 שח + פיצוי שבועי 2,000 שח עד 24 חודשים – 800 שח">ℹ️</button></label>
-        <label><input type="checkbox" name="insuranceOptions" value="professionalLiability"> אחריות מקצועית <button type="button" class="info-button" data-popup="<strong>כיסוי לרשלנות מקצועית מול הורים או גורמים חיצוניים</strong><br>לדוגמה – תביעה על טיפול לא הולם או נזק נפשי לילד – 250 שח">ℹ️</button></label>
-        <label><input type="checkbox" name="insuranceOptions" value="employerLiability"> חבות מעבידים <button type="button" class="info-button" data-popup="<strong>כיסוי לתביעות מצד עובדים (גננת נוספת, סייעת) בגין פציעות או מחלות בעבודה</strong><br>עובד רגיל – 105 שח<br>עובד עם תעודת מקצוע (מטפלת מוסמכת, גננת מוסמכת) – 500 שח">ℹ️</button></label>
-        <label><input type="checkbox" name="insuranceOptions" value="cyberInsurance"> תוספת ביטוח סייבר <button type="button" class="info-button" data-popup="<strong>כיסוי לחדירה למחשב או דליפת מידע אישי של הורים</strong><br>כולל הוצאות תיקון וניהול משבר – 450 שח">ℹ️</button></label>
-        <label><input type="checkbox" name="insuranceOptions" value="incomeLoss"> אובדן הכנסות <button type="button" class="info-button" data-popup="<strong>פיצוי על השבתת פעילות זמנית של הגן (למשל בעקבות שריפה)</strong><br>3 חודשים – 5,000 שח – 500 שח<br>6 חודשים – 900 שח<br>12 חודשים – 1500 שח">ℹ️</button></label>
-        <label><input type="checkbox" name="insuranceOptions" value="afterSchoolProgram"> צהרון <button type="button" class="info-button" data-popup="<strong>מאפשר להרחיב את הביטוח לפעילות הצהרון</strong><br>כולל פעילות בשעות שונות, צוות נוסף ולעיתים מבנה נפרד<br>עד 20 ילדים – 500 שח<br>מעל 20 ילדים – 500 שח + 25 שח לכל ילד נוסף<br>זמין במסלולים 1–6 בלבד">ℹ️</button></label>
+        <h2>פרטי ביטוח</h2>
+        <div class="form-group">
+          <label for="gardenName">שם הגן * <button type="button" class="info-button" data-tooltip="<strong>הזן את שם הגן כפי שמופיע ברישיון משרד החינוך או ברישיון הפעלת הגן</strong>">ℹ️</button></label>
+          <input type="text" id="gardenName" name="gardenName" required>
+        </div>
+        <div class="form-group">
+          <label for="gardenType">סוג הגן * <button type="button" class="info-button" data-popup="<strong>בחר את סוג המסגרת</strong><br>תמ&quot;ת – מסגרת מסובסדת על ידי המדינה<br>משפחתון פרטי – עד 6–9 ילדים<br>גן עד גיל 3 – כולל מבנה ותכולה<br>גן מעל גיל 3 – עם או בלי מבנה<br>צהרון בלבד – מעט ילדים ושעות פעילות מצומצמות">ℹ️</button></label>
+          <select id="gardenType" name="gardenType" required>
+            <option value="">בחר סוג גן</option>
+            <option value="tamah">תמ"ת</option>
+            <option value="privateFamily">משפחתון פרטי</option>
+            <option value="upTo3">גן עד גיל 3</option>
+            <option value="over3">גן מעל גיל 3</option>
+            <option value="afterSchool">צהרון בלבד</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="address">כתובת * <button type="button" class="info-button" data-tooltip="<strong>הכנס את כתובת הגן המדויקת, כולל רחוב, מספר, עיר</strong><br>חיוני לצורכי ביטוח, במיוחד עבור ביטוח מבנה">ℹ️</button></label>
+          <input type="text" id="address" name="address" required>
+        </div>
+        <div class="form-group">
+          <label for="policyNumber">מספר פוליסה * <button type="button" class="info-button" data-tooltip="<strong>מספר הפוליסה מהשנה שעברה (אם קיים)</strong><br>מאפשר חידוש בהתאמה לפוליסה הקודמת">ℹ️</button></label>
+          <input type="text" id="policyNumber" name="policyNumber" required>
+        </div>
+        <div class="form-group">
+          <label for="childrenCount">מספר ילדים * <button type="button" class="info-button" data-tooltip="<strong>ציין את מספר הילדים בגן</strong><br>משפיע על חישוב הפרמיה וסוגי הכיסויים הזמינים">ℹ️</button></label>
+          <input type="number" id="childrenCount" name="childrenCount" min="1" required>
+        </div>
+        <div class="form-group">
+          <label for="policyEndDate">תאריך סיום הפוליסה * <button type="button" class="info-button" data-tooltip="<strong>תאריך שבו מסתיימת הפוליסה הנוכחית</strong><br>חיוני כדי להבטיח כיסוי רציף">ℹ️</button></label>
+          <input type="date" id="policyEndDate" name="policyEndDate" required>
+        </div>
+        <div class="form-group">
+          <label>אפשרויות ביטוח:</label>
+          <label><input type="checkbox" name="insuranceOptions" value="contentBuilding"> ביטוח תכולה ומבנה <button type="button" class="info-button" data-popup="<strong>ביטוח למבנה ולציוד הפנימי של הגן</strong><br>כיסוי עד 200,000 שח לתכולה – כלול<br>מעל 200,000 שח – בתוספת תשלום<br>נדרש לציין תכולת חצר וסוג המבנה (עץ, קבע, נייד)">ℹ️</button></label>
+          <label><input type="checkbox" name="insuranceOptions" value="thirdParty"> צד ג <button type="button" class="info-button" data-popup="<strong>מכסה נזקים לגורמים חיצוניים (הורים, ספקים, עוברי אורח)</strong><br>5 מיליון שח למקרה / 10 מיליון לתקופה – 300 שח<br>8 מיליון שח למקרה – 1000 שח<br>10 מיליון שח למקרה – 2000 שח<br>עד 20 ילדים – תעריף מוזל – 200 שח">ℹ️</button></label>
+          <label><input type="checkbox" name="insuranceOptions" value="deductibleCancellation"> ביטול השתתפות עצמי <button type="button" class="info-button" data-popup="<strong>מאפשר כיסוי מלא ללא השתתפות עצמית במקרה של נזק</strong><br>עד 20 ילדים – 200 שח<br>מעל 20 ילדים – 300 שח">ℹ️</button></label>
+          <label><input type="checkbox" name="insuranceOptions" value="teacherAccidents"> תאונות אישיות לגננת <button type="button" class="info-button" data-popup="<strong>כולל נכות, מוות, אשפוז, שברים, כוויות</strong><br>מסלול א – 250,000 שח מוות/נכות – 200 שח<br>מסלול ב – 150,000 שח + פיצוי שבועי 1,000 שח עד 24 חודשים – 600 שח<br>מסלול ג – 300,000 שח + פיצוי שבועי 2,000 שח עד 24 חודשים – 800 שח">ℹ️</button></label>
+          <label><input type="checkbox" name="insuranceOptions" value="professionalLiability"> אחריות מקצועית <button type="button" class="info-button" data-popup="<strong>כיסוי לרשלנות מקצועית מול הורים או גורמים חיצוניים</strong><br>לדוגמה – תביעה על טיפול לא הולם או נזק נפשי לילד – 250 שח">ℹ️</button></label>
+          <label><input type="checkbox" name="insuranceOptions" value="employerLiability"> חבות מעבידים <button type="button" class="info-button" data-popup="<strong>כיסוי לתביעות מצד עובדים (גננת נוספת, סייעת) בגין פציעות או מחלות בעבודה</strong><br>עובד רגיל – 105 שח<br>עובד עם תעודת מקצוע (מטפלת מוסמכת, גננת מוסמכת) – 500 שח">ℹ️</button></label>
+          <label><input type="checkbox" name="insuranceOptions" value="cyberInsurance"> תוספת ביטוח סייבר <button type="button" class="info-button" data-popup="<strong>כיסוי לחדירה למחשב או דליפת מידע אישי של הורים</strong><br>כולל הוצאות תיקון וניהול משבר – 450 שח">ℹ️</button></label>
+          <label><input type="checkbox" name="insuranceOptions" value="incomeLoss"> אובדן הכנסות <button type="button" class="info-button" data-popup="<strong>פיצוי על השבתת פעילות זמנית של הגן (למשל בעקבות שריפה)</strong><br>3 חודשים – 5,000 שח – 500 שח<br>6 חודשים – 900 שח<br>12 חודשים – 1500 שח">ℹ️</button></label>
+          <label><input type="checkbox" name="insuranceOptions" value="afterSchoolProgram"> צהרון <button type="button" class="info-button" data-popup="<strong>מאפשר להרחיב את הביטוח לפעילות הצהרון</strong><br>כולל פעילות בשעות שונות, צוות נוסף ולעיתים מבנה נפרד<br>עד 20 ילדים – 500 שח<br>מעל 20 ילדים – 500 שח + 25 שח לכל ילד נוסף<br>זמין במסלולים 1–6 בלבד">ℹ️</button></label>
+        </div>
       </div>
 
       <!-- Conditional Sections -->
