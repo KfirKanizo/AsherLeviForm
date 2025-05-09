@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     thirdParty: document.getElementById('thirdPartySection'),
     teacherAccidents: document.getElementById('teacherAccidentsSection'),
     employerLiability: document.getElementById('employerLiabilitySection'),
-    incomeLoss: document.getElementById('incomeLossSection')
+    incomeLoss: document.getElementById('incomeLossSection'),
+    afterSchoolProgram: document.getElementById('afterSchoolProgramSection')
   };
   const hasLienCheckbox = document.getElementById('hasLien');
   const lienSection = document.getElementById('lienSection');
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const teacherAccidentsCoverageSelect = document.getElementById('teacherAccidentsCoverage');
   const employerLiabilityCoverageSelect = document.getElementById('employerLiabilityCoverage');
   const incomeLossDurationSelect = document.getElementById('incomeLossDuration');
+  const afterSchoolChildrenCountInput = document.getElementById('afterSchoolChildrenCount');
 
   // Prefill form fields from URL parameters
   const params = new URLSearchParams(window.location.search);
@@ -35,7 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
     'thirdPartyCoverage',
     'teacherAccidentsCoverage',
     'employerLiabilityCoverage',
-    'incomeLossDuration'
+    'incomeLossDuration',
+    'afterSchoolChildrenCount'
   ];
   const checkboxFields = [
     'hasLien',
@@ -46,7 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
     'professionalLiability',
     'employerLiability',
     'cyberInsurance',
-    'incomeLoss'
+    'incomeLoss',
+    'afterSchoolProgram'
   ];
 
   fieldsToPrefill.forEach(field => {
@@ -113,7 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
       professionalLiability: false,
       employerLiability: false,
       cyberInsurance: false,
-      incomeLoss: false
+      incomeLoss: false,
+      afterSchoolProgram: false
     };
 
     // Define available options per garden type
@@ -121,6 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'tamah': // מסלול 1
         options.deductibleCancellation = true;
         options.teacherAccidents = true;
+        options.afterSchoolProgram = true;
         break;
       case 'privateFamily': // מסלול 2, 3, 4
         options.thirdParty = true;
@@ -129,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         options.professionalLiability = true;
         options.employerLiability = true;
         options.cyberInsurance = true;
+        options.afterSchoolProgram = true;
         break;
       case 'upTo3': // מסלול 7
         options.contentBuilding = true;
@@ -149,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         options.professionalLiability = true;
         options.employerLiability = true;
         options.cyberInsurance = true;
+        options.afterSchoolProgram = true;
         break;
     }
 
@@ -190,6 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
   teacherAccidentsCoverageSelect.addEventListener('change', calculatePremium);
   employerLiabilityCoverageSelect.addEventListener('change', calculatePremium);
   incomeLossDurationSelect.addEventListener('change', calculatePremium);
+  afterSchoolChildrenCountInput.addEventListener('input', calculatePremium);
 
   // Tooltip Handling
   document.querySelectorAll('.info-button[data-tooltip]').forEach(button => {
@@ -347,6 +356,15 @@ document.addEventListener('DOMContentLoaded', () => {
       premium += duration === '3' ? 500 : duration === '6' ? 900 : 1500;
     }
 
+    if (document.querySelector('input[value="afterSchoolProgram"]').checked) {
+      const afterSchoolChildren = parseInt(document.getElementById('afterSchoolChildrenCount').value) || 0;
+      if (afterSchoolChildren <= 20) {
+        premium += 500;
+      } else {
+        premium += 500 + (afterSchoolChildren - 20) * 25;
+      }
+    }
+
     premiumAmountSpan.textContent = `${premium.toLocaleString()} שח`;
     return premium;
   }
@@ -368,7 +386,8 @@ document.addEventListener('DOMContentLoaded', () => {
         professionalLiability: document.querySelector('input[value="professionalLiability"]').checked,
         employerLiability: document.querySelector('input[value="employerLiability"]').checked,
         cyberInsurance: document.querySelector('input[value="cyberInsurance"]').checked,
-        incomeLoss: document.querySelector('input[value="incomeLoss"]').checked
+        incomeLoss: document.querySelector('input[value="incomeLoss"]').checked,
+        afterSchoolProgram: document.querySelector('input[value="afterSchoolProgram"]').checked
       },
       premium: parseInt(premiumAmountSpan.textContent.replace(/[^0-9]/g, '')) || 0
     };
@@ -409,13 +428,19 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     }
 
+    if (formData.insuranceOptions.afterSchoolProgram) {
+      formData.afterSchoolProgramDetails = {
+        afterSchoolChildrenCount: document.getElementById('afterSchoolChildrenCount').value
+      };
+    }
+
     return formData;
   }
 
   // Function to send POST request to webhook
   async function sendToWebhook(data) {
     try {
-      const response = await fetch('https://hook.eu2.make.com/1wc3bucwe6cbv19s7lhnwdws7tfgk5g3', {
+      const response = await fetch('https://hook.eu2.make.com/c8jk8qsq7mnwtdg5aevxvxhdg8m3yocw', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

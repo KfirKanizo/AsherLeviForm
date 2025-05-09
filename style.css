@@ -150,6 +150,7 @@ button[type="submit"]:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   line-height: 1.4;
   text-align: right;
+  direction: rtl;
 }
 
 .tooltip strong,
@@ -201,6 +202,7 @@ button[type="submit"]:hover {
   margin-bottom: 15px;
   line-height: 1.4;
   text-align: right;
+  direction: rtl;
 }
 
 .popup-close {

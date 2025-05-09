@@ -56,6 +56,7 @@
         <label><input type="checkbox" name="insuranceOptions" value="employerLiability"> חבות מעבידים <button type="button" class="info-button" data-popup="<strong>כיסוי לתביעות מצד עובדים (גננת נוספת, סייעת) בגין פציעות או מחלות בעבודה</strong><br>עובד רגיל – 105 שח<br>עובד עם תעודת מקצוע (מטפלת מוסמכת, גננת מוסמכת) – 500 שח">ℹ️</button></label>
         <label><input type="checkbox" name="insuranceOptions" value="cyberInsurance"> תוספת ביטוח סייבר <button type="button" class="info-button" data-popup="<strong>כיסוי לחדירה למחשב או דליפת מידע אישי של הורים</strong><br>כולל הוצאות תיקון וניהול משבר – 450 שח">ℹ️</button></label>
         <label><input type="checkbox" name="insuranceOptions" value="incomeLoss"> אובדן הכנסות <button type="button" class="info-button" data-popup="<strong>פיצוי על השבתת פעילות זמנית של הגן (למשל בעקבות שריפה)</strong><br>3 חודשים – 5,000 שח – 500 שח<br>6 חודשים – 900 שח<br>12 חודשים – 1500 שח">ℹ️</button></label>
+        <label><input type="checkbox" name="insuranceOptions" value="afterSchoolProgram"> צהרון <button type="button" class="info-button" data-popup="<strong>מאפשר להרחיב את הביטוח לפעילות הצהרון</strong><br>כולל פעילות בשעות שונות, צוות נוסף ולעיתים מבנה נפרד<br>עד 20 ילדים – 500 שח<br>מעל 20 ילדים – 500 שח + 25 שח לכל ילד נוסף<br>זמין במסלולים 1–6 בלבד">ℹ️</button></label>
       </div>
 
       <!-- Conditional Sections -->
@@ -75,7 +76,7 @@
         </div>
         <div class="form-group">
           <label for="buildingType">סוג המבנה * <button type="button" class="info-button" data-popup="<strong>ציין את סוג המבנה</strong><br>לדוגמה – קבע, נייד, קראוון">ℹ️</button></label>
-        <input type="text" id="buildingType" name="buildingType">
+          <input type="text" id="buildingType" name="buildingType">
         </div>
         <div class="form-group">
           <label><input type="checkbox" id="hasLien" name="hasLien"> האם קיים שעבוד <button type="button" class="info-button" data-popup="<strong>סמן אם המבנה ממושכן לגוף כלשהו</strong><br>לדוגמה – בנק">ℹ️</button></label>
@@ -130,6 +131,14 @@
             <option value="6">6 חודשים</option>
             <option value="12">12 חודשים</option>
           </select>
+        </div>
+      </div>
+
+      <div id="afterSchoolProgramSection" class="conditional-section" style="display: none;">
+        <h2>צהרון</h2>
+        <div class="form-group">
+          <label for="afterSchoolChildrenCount">מספר ילדים בצהרון * <button type="button" class="info-button" data-popup="<strong>ציין את מספר הילדים הרשומים לצהרון</strong><br>משפיע על חישוב הפרמיה">ℹ️</button></label>
+          <input type="number" id="afterSchoolChildrenCount" name="afterSchoolChildrenCount" min="1">
         </div>
       </div>
 
