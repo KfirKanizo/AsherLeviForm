@@ -29,6 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
     'policyNumber',
     'childrenCount',
     'policyEndDate',
+    'customerName',
+    'emailAddress',
+    'phoneNumber',
     'contentSum',
     'buildingSum',
     'yardContentSum',
@@ -62,11 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
           const validOptions = Array.from(input.options).map(option => option.value);
           if (validOptions.includes(value)) {
             input.value = value;
-            input.style.backgroundColor = '#cfdef3';
+            input.style.backgroundColor = '#bed5ea';
           }
         } else {
           input.value = decodeURIComponent(value);
-          input.style.backgroundColor = '#cfdef3';
+          input.style.backgroundColor = '#bed5ea';
         }
       }
     }
@@ -79,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (input && input.type === 'checkbox') {
         const isChecked = ['true', '1', field].includes(value.toLowerCase());
         input.checked = isChecked;
-        input.style.backgroundColor = '#cfdef3';
+        input.style.backgroundColor = '#bed5ea';
       }
     }
   });
@@ -378,6 +381,9 @@ document.addEventListener('DOMContentLoaded', () => {
       policyNumber: document.getElementById('policyNumber').value,
       childrenCount: parseInt(document.getElementById('childrenCount').value) || 0,
       policyEndDate: document.getElementById('policyEndDate').value,
+      customerName: document.getElementById('customerName').value,
+      emailAddress: document.getElementById('emailAddress').value,
+      phoneNumber: document.getElementById('phoneNumber').value,
       insuranceOptions: {
         contentBuilding: document.querySelector('input[value="contentBuilding"]').checked,
         thirdParty: document.querySelector('input[value="thirdParty"]').checked,
