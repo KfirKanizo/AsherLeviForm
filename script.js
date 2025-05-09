@@ -62,11 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
           const validOptions = Array.from(input.options).map(option => option.value);
           if (validOptions.includes(value)) {
             input.value = value;
-            input.style.backgroundColor = '#bed5ea';
+            input.style.backgroundColor = '#cfdef3';
           }
         } else {
           input.value = decodeURIComponent(value);
-          input.style.backgroundColor = '#bed5ea';
+          input.style.backgroundColor = '#cfdef3';
         }
       }
     }
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (input && input.type === 'checkbox') {
         const isChecked = ['true', '1', field].includes(value.toLowerCase());
         input.checked = isChecked;
-        input.style.backgroundColor = '#bed5ea';
+        input.style.backgroundColor = '#cfdef3';
       }
     }
   });
