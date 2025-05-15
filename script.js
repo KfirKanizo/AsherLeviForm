@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('contactDetails'),
     document.getElementById('insuranceDetails'),
     document.getElementById('coverageAddons'),
-    document.getElementById('premiumReview')
+    document.getElementById('premiumReview'),
+    document.getElementById('thankYouSection')
   ];
   let currentSectionIndex = 0;
 
@@ -48,6 +49,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (backButton) {
       backButton.textContent = backButtonText[index - 1];
+    }
+
+    if (sections[index]) {
+      const nextButton = sections[index].querySelector('.next-button');
+      const backButton = sections[index].querySelector('.back-button');
+      if (nextButton) nextButton.textContent = nextButtonText[index];
+      if (backButton) backButton.textContent = backButtonText[index - 1];
     }
     calculatePremium();
   }
@@ -483,7 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify(data)
       });
       if (!response.ok) throw new Error('Webhook request failed');
-      return await response.json();
+      return await response.ok;
     } catch (error) {
       console.error('Error sending to webhook:', error);
       throw error;
@@ -511,13 +519,11 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const formData = collectFormData();
         await sendToWebhook(formData);
-        alert('הטופס נשלח בהצלחה!');
-        form.reset();
+        currentSectionIndex = 4;
+        showSection(currentSectionIndex);
         Object.values({ contentBuildingSection, thirdPartySection, teacherAccidentsSection, employerLiabilitySection, incomeLossSection, afterSchoolProgramSection }).forEach(section => section.style.display = 'none');
         lienSection.style.display = 'none';
         premiumAmount.textContent = '0 שח';
-        currentSectionIndex = 0;
-        showSection(currentSectionIndex);
       } catch (error) {
         alert('שגיאה בשליחת הטופס. אנא נסה שוב.');
       }
@@ -538,4 +544,38 @@ document.addEventListener('DOMContentLoaded', () => {
   updateInsuranceOptions();
   calculatePremium();
   showSection(currentSectionIndex);
+});
+// Listener for the bank transfer popup
+document.addEventListener('click', function (e) {
+  if (e.target.classList.contains('bank-button')) {
+    const popupOverlay = document.createElement('div');
+    popupOverlay.className = 'popup-overlay';
+    document.body.appendChild(popupOverlay);
+
+    const popup = document.createElement('div');
+    popup.className = 'popup';
+    popup.innerHTML = `
+        <div class="popup-content">
+          <strong>פרטי העברה בנקאית:</strong><br>
+          בנק: 12<br>
+          סניף: 345<br>
+          חשבון: 567890<br>
+          שם המוטב: אשר לוי סוכנות לביטוח
+        </div>
+        <button class="popup-close">סגור</button>
+      `;
+    document.body.appendChild(popup);
+
+    popupOverlay.style.display = 'block';
+    popup.style.display = 'block';
+
+    popup.querySelector('.popup-close').addEventListener('click', () => {
+      popup.remove();
+      popupOverlay.remove();
+    });
+    popupOverlay.addEventListener('click', () => {
+      popup.remove();
+      popupOverlay.remove();
+    });
+  }
 });
