@@ -38,26 +38,31 @@ document.addEventListener('DOMContentLoaded', () => {
   // Show current section
   function showSection(index) {
     console.log('Showing section index:', index);
-    sections.forEach((section, i) => {
-      section.classList.toggle('active', i === index);
-      console.log(`Section ${i} display:`, section.classList.contains('active') ? 'block' : 'none');
-    });
-    const nextButton = sections[index].querySelector('.next-button');
-    const backButton = sections[index].querySelector('.back-button');
-    if (nextButton) {
-      nextButton.textContent = nextButtonText[index];
-    }
-    if (backButton) {
-      backButton.textContent = backButtonText[index - 1];
-    }
-
-    if (sections[index]) {
+    const currentSection = sections[currentSectionIndex];
+    if (currentSection) {
+      currentSection.classList.add('form-section-exit');
+      setTimeout(() => {
+        currentSection.classList.remove('form-section-exit', 'active');
+        sections.forEach((section, i) => {
+          section.classList.toggle('active', i === index);
+          console.log(`Section ${i} display:`, section.classList.contains('active') ? 'block' : 'none');
+        });
+        const nextButton = sections[index].querySelector('.next-button');
+        const backButton = sections[index].querySelector('.back-button');
+        if (nextButton) nextButton.textContent = nextButtonText[index];
+        if (backButton) backButton.textContent = backButtonText[index - 1];
+        calculatePremium();
+      }, 500); // Match the transition duration
+    } else {
+      sections.forEach((section, i) => {
+        section.classList.toggle('active', i === index);
+      });
       const nextButton = sections[index].querySelector('.next-button');
       const backButton = sections[index].querySelector('.back-button');
       if (nextButton) nextButton.textContent = nextButtonText[index];
       if (backButton) backButton.textContent = backButtonText[index - 1];
+      calculatePremium();
     }
-    calculatePremium();
   }
 
   // Navigation Event Listeners
@@ -545,6 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
   calculatePremium();
   showSection(currentSectionIndex);
 });
+
 // Listener for the bank transfer popup
 document.addEventListener('click', function (e) {
   if (e.target.classList.contains('bank-button')) {
