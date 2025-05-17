@@ -75,6 +75,18 @@ h2 {
   transform: translateX(0);
 }
 
+.form-section-exit-left {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.form-section-exit-right {
+  opacity: 0;
+  transform: translateX(50px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
 .form-group {
   margin-bottom: 20px;
   position: relative;
@@ -443,6 +455,7 @@ input[type="checkbox"] {
   transform: translateX(-50px);
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
+
 .navigation-buttons {
   opacity: 0;
   transform: translateY(20px);
@@ -453,6 +466,7 @@ input[type="checkbox"] {
   opacity: 1;
   transform: translateY(0);
 }
+
 .progress-bar-container {
   margin-bottom: 30px;
   text-align: center;

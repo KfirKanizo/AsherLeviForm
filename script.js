@@ -35,42 +35,47 @@ document.addEventListener('DOMContentLoaded', () => {
     'חזור לתוספות כיסויים'
   ];
 
-  // Show current section
   function showSection(index) {
     console.log('Showing section index:', index);
     const currentSection = sections[currentSectionIndex];
+    const nextSection = sections[index];
+    const isForward = index > currentSectionIndex;
+
     if (currentSection) {
-      currentSection.classList.add('form-section-exit');
-      setTimeout(() => {
-        currentSection.classList.remove('form-section-exit', 'active');
-        sections.forEach((section, i) => {
-          section.classList.toggle('active', i === index);
-          console.log(`Section ${i} display:`, section.classList.contains('active') ? 'block' : 'none');
-        });
-        const nextButton = sections[index].querySelector('.next-button');
-        const backButton = sections[index].querySelector('.back-button');
-        if (nextButton) nextButton.textContent = nextButtonText[index];
-        if (backButton) backButton.textContent = backButtonText[index - 1];
-        calculatePremium();
-      }, 500); // Match the transition duration
-    } else {
-      sections.forEach((section, i) => {
-        section.classList.toggle('active', i === index);
-      });
-      const nextButton = sections[index].querySelector('.next-button');
-      const backButton = sections[index].querySelector('.back-button');
-      if (nextButton) nextButton.textContent = nextButtonText[index];
-      if (backButton) backButton.textContent = backButtonText[index - 1];
-      calculatePremium();
-    }
-    const progressFill = document.getElementById('progressBarFill');
-    if (progressFill) {
-      const totalSteps = 4;
-      const percentage = Math.min((index / (totalSteps - 1)) * 100, 100);
-      progressFill.style.width = `${percentage}%`;
+      // אפקט יציאה לפי כיוון
+      currentSection.classList.remove('active');
+      currentSection.classList.add(isForward ? 'form-section-exit-left' : 'form-section-exit-right');
     }
 
+    // לאחר האנימציה - החלף סקשן
+    setTimeout(() => {
+      // הסר קלאסים של מעבר 
+      sections.forEach((section, i) => {
+        section.classList.remove('form-section-exit-left', 'form-section-exit-right', 'active');
+        if (i === index) section.classList.add('active');
+      });
+
+      // עדכון כפתורים
+      const nextButton = nextSection.querySelector('.next-button');
+      const backButton = nextSection.querySelector('.back-button');
+      if (nextButton) nextButton.textContent = nextButtonText[index];
+      if (backButton) backButton.textContent = backButtonText[index - 1];
+
+      // עדכון פרמיה
+      calculatePremium();
+
+      // עדכון בר התקדמות
+      const progressFill = document.getElementById('progressBarFill');
+      if (progressFill) {
+        const totalSteps = 4;
+        const percentage = Math.min((index / totalSteps) * 100, 100);
+        progressFill.style.width = `${percentage}%`;
+      }
+
+      currentSectionIndex = index;
+    }, 400); // זמן תואם ל־CSS transition
   }
+
 
   // Navigation Event Listeners
   document.querySelectorAll('.next-button').forEach(button => {
