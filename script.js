@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const hasLienCheckbox = document.getElementById('hasLien');
   const lienSection = document.getElementById('lienSection');
   const premiumAmount = document.getElementById('premiumAmount');
+  const claimsCheckbox = document.getElementById('claimsLastYear');
+
 
   // Navigation Button Text
   const nextButtonText = [
@@ -224,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let premium = 0;
 
     if (!gardenTypeValue || childrenCountValue < 1) {
-      premiumAmount.textContent = '0 שח';
+      premiumAmount.textContent = '0 ₪';
       return;
     }
 
@@ -317,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    premiumAmount.textContent = `${premium.toLocaleString()} שח`;
+    premiumAmount.textContent = `${premium.toLocaleString()} ₪`;
   }
 
   gardenType.addEventListener('change', () => {
@@ -353,6 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   const checkboxFields = [
+    'claimsLastYear',
     'hasLien',
     'contentBuilding',
     'thirdParty',
@@ -457,6 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
       customerName: document.getElementById('customerName').value,
       emailAddress: document.getElementById('emailAddress').value,
       phoneNumber: document.getElementById('phoneNumber').value,
+      claimsLastYear: document.querySelector('input[value="claimsLastYear"]').checked,
       insuranceOptions: {
         contentBuilding: document.querySelector('input[value="contentBuilding"]').checked,
         thirdParty: document.querySelector('input[value="thirdParty"]').checked,
@@ -470,6 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       premium: parseInt(premiumAmount.textContent.replace(/[^0-9]/g, '')) || 0
     };
+    formData.hadClaims = claimsCheckbox ? claimsCheckbox.checked : false;
 
     if (formData.insuranceOptions.contentBuilding) {
       formData.contentBuildingDetails = {
@@ -540,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showSection(currentSectionIndex);
         Object.values({ contentBuildingSection, thirdPartySection, teacherAccidentsSection, employerLiabilitySection, incomeLossSection, afterSchoolProgramSection }).forEach(section => section.style.display = 'none');
         lienSection.style.display = 'none';
-        premiumAmount.textContent = '0 שח';
+        premiumAmount.textContent = '0 ₪';
       } catch (error) {
         alert('שגיאה בשליחת הטופס. אנא נסה שוב.');
       }
