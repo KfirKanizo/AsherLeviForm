@@ -63,6 +63,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (backButton) backButton.textContent = backButtonText[index - 1];
       calculatePremium();
     }
+    const progressFill = document.getElementById('progressBarFill');
+    if (progressFill) {
+      const totalSteps = 4;
+      const percentage = Math.min((index / (totalSteps - 1)) * 100, 100);
+      progressFill.style.width = `${percentage}%`;
+    }
+
   }
 
   // Navigation Event Listeners
