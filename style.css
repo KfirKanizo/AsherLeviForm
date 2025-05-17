@@ -177,6 +177,7 @@ input[type="checkbox"] {
 .back-button,
 .credit-button,
 .bank-button,
+.debit-auth-button,
 .submit-button {
   flex: 1;
   padding: 14px;

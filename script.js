@@ -596,4 +596,39 @@ document.addEventListener('click', function (e) {
       popupOverlay.remove();
     });
   }
+  // Debit Authorization Popup
+  if (e.target.classList.contains('debit-auth-button')) {
+    const popupOverlay = document.createElement('div');
+    popupOverlay.className = 'popup-overlay';
+    document.body.appendChild(popupOverlay);
+
+    const popup = document.createElement('div');
+    popup.className = 'popup';
+    popup.innerHTML = `
+      <div class="popup-content">
+        <strong>הנחיות למילוי הרשאה לחיוב חשבון:</strong><br>
+        1. מלאו את טופס ההרשאה לחיוב חשבון בצירוף חתימה.<br>
+        2. צרפו צילום צ'ק או אישור ניהול חשבון.<br>
+        3. שלחו את המסמכים למייל: <a href="mailto:office@asherlevi.co.il">office@asherlevi.co.il</a><br>
+        <br>
+        ניתן להוריד את טופס ההרשאה <a href="/docs/debit-auth.pdf" target="_blank">בלחיצה כאן</a>.
+      </div>
+      <button class="popup-close">סגור</button>
+    `;
+    document.body.appendChild(popup);
+
+    popupOverlay.style.display = 'block';
+    popup.style.display = 'block';
+
+    popup.querySelector('.popup-close').addEventListener('click', () => {
+      popup.remove();
+      popupOverlay.remove();
+    });
+    popupOverlay.addEventListener('click', () => {
+      popup.remove();
+      popupOverlay.remove();
+    });
+  }
 });
+
+
