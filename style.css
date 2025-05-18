@@ -219,6 +219,7 @@ input[type="checkbox"] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .info-icon {
@@ -233,7 +234,7 @@ input[type="checkbox"] {
 }
 
 .tooltip {
-  position: fixed;
+  position: absolute;
   background: #4362cc;
   color: #ffffff;
   border-radius: 8px;
@@ -250,7 +251,7 @@ input[type="checkbox"] {
 
 .tooltip::before {
   content: '';
-  position: fixed;
+  position: absolute;
   border: 8px solid transparent;
   border-right-color: #4362cc;
   left: -16px;
@@ -259,7 +260,7 @@ input[type="checkbox"] {
 
 .popup {
   display: none;
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);

@@ -435,8 +435,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(tooltip);
         const rect = button.getBoundingClientRect();
         const tooltipRect = tooltip.getBoundingClientRect();
-        tooltip.style.top = `${rect.top + window.scrollY - (tooltipRect.height / 2) + (rect.height / 2)}px`;
-        tooltip.style.right = `${window.innerWidth - rect.left + 10}px`;
+        tooltip.style.top = `${button.offsetTop - tooltipRect.height / 2 + button.offsetHeight / 2}px`;
+        tooltip.style.left = `${button.offsetLeft - tooltipRect.width - 10}px`;
         activeTooltip = tooltip;
       });
       button.addEventListener('mouseleave', () => {
