@@ -19,10 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const employerLiabilitySection = document.getElementById('employerLiabilitySection');
   const incomeLossSection = document.getElementById('incomeLossSection');
   const afterSchoolProgramSection = document.getElementById('afterSchoolProgramSection');
+  const isMemberCheckbox = document.getElementById('isMember');
+  const membershipSection = document.getElementById('membershipSection');
+  const membershipType = document.getElementById('membershipType');
   const hasLienCheckbox = document.getElementById('hasLien');
   const lienSection = document.getElementById('lienSection');
   const premiumAmount = document.getElementById('premiumAmount');
-  const claimsCheckbox = document.getElementById('claimsLastYear');
+  const claimsLastYear = document.getElementById('claimsLastYear');
 
 
   // Navigation Button Text
@@ -138,6 +141,15 @@ document.addEventListener('DOMContentLoaded', () => {
     hasLienCheckbox.addEventListener('change', () => {
       lienSection.style.display = hasLienCheckbox.checked ? 'block' : 'none';
     });
+  }
+  if (isMemberCheckbox) {
+    isMemberCheckbox.addEventListener('change', () => {
+      membershipSection.style.display = isMemberCheckbox.checked ? 'block' : 'none';
+      calculatePremium();
+    });
+  }
+  if (membershipType) {
+    membershipType.addEventListener('change', calculatePremium);
   }
 
   // Function to toggle visibility and required attributes of sections
@@ -318,6 +330,13 @@ document.addEventListener('DOMContentLoaded', () => {
         premium += 500 + (afterSchoolChildren - 20) * 25;
       }
     }
+    // הנחת מועדון
+    if (isMemberCheckbox && isMemberCheckbox.checked && membershipType) {
+      const selected = membershipType.value;
+      if (selected === 'maonot') premium -= 100;
+      else if (selected === 'hiba') premium -= 200;
+      else if (selected === 'halamish') premium -= 300;
+    }
 
     premiumAmount.textContent = `${premium.toLocaleString()} ₪`;
   }
@@ -351,7 +370,8 @@ document.addEventListener('DOMContentLoaded', () => {
     'teacherAccidentsCoverage',
     'employerLiabilityCoverage',
     'incomeLossDuration',
-    'afterSchoolChildrenCount'
+    'afterSchoolChildrenCount',
+    'membershipType'
   ];
 
   const checkboxFields = [
@@ -365,7 +385,8 @@ document.addEventListener('DOMContentLoaded', () => {
     'employerLiability',
     'cyberInsurance',
     'incomeLoss',
-    'afterSchoolProgram'
+    'afterSchoolProgram',
+    'isMember',
   ];
 
   fieldsToPrefill.forEach(field => {
@@ -461,6 +482,8 @@ document.addEventListener('DOMContentLoaded', () => {
       emailAddress: document.getElementById('emailAddress').value,
       phoneNumber: document.getElementById('phoneNumber').value,
       claimsLastYear: document.querySelector('input[value="claimsLastYear"]').checked,
+      isMember: isMemberCheckbox.checked,
+      membershipType: isMemberCheckbox.checked ? membershipType.value : '',
       insuranceOptions: {
         contentBuilding: document.querySelector('input[value="contentBuilding"]').checked,
         thirdParty: document.querySelector('input[value="thirdParty"]').checked,
@@ -474,7 +497,6 @@ document.addEventListener('DOMContentLoaded', () => {
       },
       premium: parseInt(premiumAmount.textContent.replace(/[^0-9]/g, '')) || 0
     };
-    formData.hadClaims = claimsCheckbox ? claimsCheckbox.checked : false;
 
     if (formData.insuranceOptions.contentBuilding) {
       formData.contentBuildingDetails = {

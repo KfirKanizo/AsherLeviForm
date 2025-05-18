@@ -157,7 +157,7 @@
           <input type="date" id="policyEndDate" name="policyEndDate" required>
         </div>
         <label>
-          <input type="checkbox" name="claimsLastYear" value="claimsLastYear"> האם היו תביעות בשנה האחרונה?
+          <input type="checkbox" id="claimsLastYear" name="claimsLastYear" value="claimsLastYear"> האם היו תביעות בשנה האחרונה?
           <button type="button" class="info-button"
             data-tooltip="<strong>שאלה חשובה לחברת הביטוח:</strong><br>יש לציין אם היו תביעות ביטוח כלשהן בשנה האחרונה עבור הגן<br>כולל תביעות על נזקי רכוש, אחריות צד ג', או תאונות אישיות<br>מענה כן ומדויק מונע בעיות בעת הצורך בתביעה עתידית"
             <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -275,6 +275,19 @@
               </svg>
             </button>
           </label>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="isMember" name="isMember" value="isMember"> שייך למועדון?
+              <button type="button" class="info-button"
+                data-popup="<strong>אם את/ה שייך/ת לאחד מהמועדונים הבאים</strong><br>באפשרותך לקבל הנחה בהתאם למועדון הנבחר">
+                <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                </svg>
+              </button>
+            </label>
+          </div>
 
         </div>
         <!-- Conditional Sections -->
@@ -452,6 +465,18 @@
               </button>
             </label>
             <input type="number" id="afterSchoolChildrenCount" name="afterSchoolChildrenCount" min="1">
+          </div>
+        </div>
+
+        <div id="membershipSection" class="conditional-section" style="display: none;">
+          <div class="form-group">
+            <label for="membershipType">בחר את המועדון</label>
+            <select id="membershipType" name="membershipType">
+              <option value="">בחר מועדון</option>
+              <option value="maonot">התאחדות המעונות</option>
+              <option value="hiba">חיב"ה</option>
+              <option value="halamish">חלמיש</option>
+            </select>
           </div>
         </div>
 
