@@ -252,8 +252,8 @@ input[type="checkbox"] {
   content: '';
   position: absolute;
   border: 8px solid transparent;
-  border-right-color: #4362cc;
-  left: -16px;
+  border-left-color: #4362cc;
+  right: -16px;
   top: 50%;
 }
 
