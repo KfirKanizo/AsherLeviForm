@@ -233,7 +233,7 @@ input[type="checkbox"] {
 }
 
 .tooltip {
-  position: fixed;
+  position: absolute;
   background: #4362cc;
   color: #ffffff;
   border-radius: 8px;
@@ -250,7 +250,7 @@ input[type="checkbox"] {
 
 .tooltip::before {
   content: '';
-  position: fixed;
+  position: absolute;
   border: 8px solid transparent;
   border-right-color: #4362cc;
   left: -16px;

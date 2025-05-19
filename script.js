@@ -435,8 +435,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(tooltip);
         const rect = button.getBoundingClientRect();
         const tooltipRect = tooltip.getBoundingClientRect();
-        tooltip.style.top = `${rect.top + window.scrollY - (tooltipRect.height / 2) + (rect.height / 2)}px`;
-        tooltip.style.right = `${window.innerWidth - rect.right + 10}px`;
+        const buttonOffsetTop = rect.top + window.scrollY;
+        tooltip.style.position = 'absolute';
+        tooltip.style.top = `${buttonOffsetTop - (tooltipRect.height / 2) + (rect.height / 2)}px`;
+        tooltip.style.left = `${rect.left + window.scrollX - tooltipRect.width - 10}px`;
+        document.body.appendChild(tooltip);
+
         activeTooltip = tooltip;
       });
       button.addEventListener('mouseleave', () => {
