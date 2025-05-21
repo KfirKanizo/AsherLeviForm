@@ -236,9 +236,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const gardenTypeValue = gardenType.value;
     const childrenCountValue = parseInt(childrenCount.value) || 0;
     let premium = 0;
+    let totalDiscount = 0;
 
     if (!gardenTypeValue || childrenCountValue < 1) {
       premiumAmount.textContent = '0 ₪';
+      const discountDisplay = document.getElementById('discountDisplay');
+      if (discountDisplay) discountDisplay.textContent = '';
       return;
     }
 
@@ -248,35 +251,50 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (childrenCountValue <= 10) premium = 1000;
         else premium = 1000 + (childrenCountValue - 10) * 100;
         break;
+
       case 'privateFamily': // מסלול 2, 3, 4
         if (childrenCountValue <= 6) premium = 650; // מסלול 2
         else if (childrenCountValue <= 8) premium = 900; // מסלול 3
         else if (childrenCountValue === 9) premium = 900 + 105; // מסלול 3
         else {
           premium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4
-          const discount = (childrenCountValue - 10) * 10;
-          premium = Math.max(1100, premium - discount);
+          if (isMemberCheckbox && isMemberCheckbox.checked) {
+            const discount = (childrenCountValue - 10) * 10;
+            totalDiscount += discount;
+            premium = Math.max(1100, premium - discount);
+          }
         }
         break;
+
       case 'upTo3': // מסלול 7
         premium = 1400;
         if (childrenCountValue > 12) premium += (childrenCountValue - 12) * 120;
-        const discount7 = childrenCountValue * 10;
-        premium = Math.max(1400, premium - discount7);
+        if (isMemberCheckbox && isMemberCheckbox.checked) {
+          const discount = childrenCountValue * 10;
+          totalDiscount += discount;
+          premium = Math.max(1400, premium - discount);
+        }
         break;
-      case 'over3': // מסלול 5 or 6
+
+      case 'over3':
       case 'afterSchool':
         const hasContentBuilding = document.querySelector('input[value="contentBuilding"]').checked;
         if (hasContentBuilding) { // מסלול 6
           premium = 1400;
           if (childrenCountValue > 17) premium += (childrenCountValue - 17) * 80;
-          const discount6 = childrenCountValue * 5;
-          premium = Math.max(1400, premium - discount6);
+          if (isMemberCheckbox && isMemberCheckbox.checked) {
+            const discount6 = childrenCountValue * 5;
+            totalDiscount += discount6;
+            premium = Math.max(1400, premium - discount6);
+          }
         } else { // מסלול 5
           premium = 1100;
           if (childrenCountValue > 20) premium += (childrenCountValue - 20) * 55;
-          const discount5 = childrenCountValue * 5;
-          premium = Math.max(1100, premium - discount5);
+          if (isMemberCheckbox && isMemberCheckbox.checked) {
+            const discount5 = childrenCountValue * 5;
+            totalDiscount += discount5;
+            premium = Math.max(1100, premium - discount5);
+          }
         }
         break;
     }
@@ -330,16 +348,15 @@ document.addEventListener('DOMContentLoaded', () => {
         premium += 500 + (afterSchoolChildren - 20) * 25;
       }
     }
-    // הנחת מועדון
-    if (isMemberCheckbox && isMemberCheckbox.checked && membershipType) {
-      const selected = membershipType.value;
-      if (selected === 'maonot') premium -= 100;
-      else if (selected === 'hiba') premium -= 200;
-      else if (selected === 'halamish') premium -= 300;
-    }
 
     premiumAmount.textContent = `${premium.toLocaleString()} ₪`;
+
+    const discountDisplay = document.getElementById('discountDisplay');
+    if (discountDisplay) {
+      discountDisplay.textContent = totalDiscount > 0 ? `הנחה שהתקבלה: ${totalDiscount.toLocaleString()} ₪` : '';
+    }
   }
+
 
   gardenType.addEventListener('change', () => {
     updateInsuranceOptions();
