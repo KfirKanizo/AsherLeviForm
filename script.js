@@ -8,7 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('paymentSelection'),
     document.getElementById('bankTransferSection'),
     document.getElementById('creditCardSection'),
-    document.getElementById('debitAuthSection')
+    document.getElementById('debitAuthSection'),
+    document.getElementById('thankYouSection')
   ];
   let currentSectionIndex = 0;
   let selectedPaymentMethod = ''; // 'bank', 'credit', or 'debit'
@@ -655,7 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!response.ok) {
         throw new Error('השליחה ל-Webhook נכשלה');
       }
-
+      showSection(7); // Show thank you section
       return await response.ok;
     } catch (error) {
       console.error('שגיאה בשליחה ל-Make:', error);
