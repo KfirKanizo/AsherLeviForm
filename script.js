@@ -5,10 +5,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('contactDetails'),
     document.getElementById('insuranceDetails'),
     document.getElementById('coverageAddons'),
-    document.getElementById('premiumReview'),
-    document.getElementById('thankYouSection')
+    document.getElementById('paymentSelection'),
+    document.getElementById('bankTransferSection'),
+    document.getElementById('creditCardSection'),
+    document.getElementById('debitAuthSection')
   ];
   let currentSectionIndex = 0;
+  let selectedPaymentMethod = ''; // 'bank', 'credit', or 'debit'
 
   const gardenType = document.getElementById('gardenType');
   const childrenCount = document.getElementById('childrenCount');
@@ -64,7 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const nextButton = nextSection.querySelector('.next-button');
       const backButton = nextSection.querySelector('.back-button');
       if (nextButton) nextButton.textContent = nextButtonText[index];
-      if (backButton) backButton.textContent = backButtonText[index - 1];
+      if (backButton) {
+        const backText = backButtonText[index - 1];
+        if (backText !== undefined) {
+          backButton.textContent = backText;
+        }
+      }
 
       // עדכון פרמיה
       calculatePremium();
@@ -72,10 +80,18 @@ document.addEventListener('DOMContentLoaded', () => {
       // עדכון בר התקדמות
       const progressFill = document.getElementById('progressBarFill');
       if (progressFill) {
-        const totalSteps = 4;
-        const percentage = Math.min((index / totalSteps) * 100, 100);
+        const totalSteps = 6;
+
+        let stepForProgress = index;
+
+        // אם עברנו לעמוד תשלום (כרטיס אשראי, העברה בנקאית, הרשאה) – נחשב כאילו נשארנו בשלב 4
+        if ([4, 5, 6].includes(index)) {
+          stepForProgress = 4; // index 4 זה שלב תשלום (שלב 5 בפועל)
+        }
+        const percentage = Math.min((stepForProgress / (totalSteps - 1)) * 100, 100);
         progressFill.style.width = `${percentage}%`;
       }
+
 
       currentSectionIndex = index;
     }, 400); // זמן תואם ל־CSS transition
@@ -112,6 +128,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
+
+    // Handle payment method buttons
+    document.querySelector('.credit-button').addEventListener('click', () => {
+      selectedPaymentMethod = 'credit';
+      currentSectionIndex = 5; // creditCardSection
+      showSection(currentSectionIndex);
+    });
+
+    document.querySelector('.bank-button').addEventListener('click', () => {
+      selectedPaymentMethod = 'bank';
+      currentSectionIndex = 4; // bankTransferSection
+      showSection(currentSectionIndex);
+    });
+
+    document.querySelector('.debit-auth-button').addEventListener('click', () => {
+      selectedPaymentMethod = 'debit';
+      currentSectionIndex = 6; // debitAuthSection
+      showSection(currentSectionIndex);
+    });
+
+    // Handle "Back to payment selection" buttons
+    document.querySelectorAll('#bankTransferSection .back-button, #creditCardSection .back-button, #debitAuthSection .back-button')
+      .forEach(button => {
+        button.addEventListener('click', () => {
+          currentSectionIndex = 4; // paymentSelection
+          showSection(currentSectionIndex);
+        });
+      });
+
   });
 
   document.querySelectorAll('.back-button').forEach(button => {
@@ -123,6 +168,17 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  document.getElementById('bankTransferProof').addEventListener('change', function () {
+    const fileName = this.files[0]?.name || '';
+    document.getElementById('bankFileName').textContent = fileName ? `נבחר קובץ: ${fileName}` : '';
+  });
+
+  document.getElementById('debitAuthUpload').addEventListener('change', function () {
+    const fileName = this.files[0]?.name || '';
+    document.getElementById('debitFileName').textContent = fileName ? `נבחר קובץ: ${fileName}` : '';
+  });
+
 
   // Conditional Sections Logic
   insuranceOptions.forEach(option => {
@@ -492,74 +548,122 @@ document.addEventListener('DOMContentLoaded', () => {
   // Function to collect form data
   function collectFormData() {
     const formData = {
-      gardenName: document.getElementById('gardenName').value,
-      gardenType: document.getElementById('gardenType').value,
-      address: document.getElementById('address').value,
-      policyNumber: document.getElementById('policyNumber').value,
-      childrenCount: parseInt(document.getElementById('childrenCount').value) || 0,
-      customerName: document.getElementById('customerName').value,
-      emailAddress: document.getElementById('emailAddress').value,
-      phoneNumber: document.getElementById('phoneNumber').value,
-      claimsLastYear: document.querySelector('input[value="claimsLastYear"]').checked,
-      isMember: isMemberCheckbox.checked,
-      membershipType: isMemberCheckbox.checked ? membershipType.value : '',
-      insuranceOptions: {
-        contentBuilding: document.querySelector('input[value="contentBuilding"]').checked,
-        thirdParty: document.querySelector('input[value="thirdParty"]').checked,
-        deductibleCancellation: document.querySelector('input[value="deductibleCancellation"]').checked,
-        teacherAccidents: document.querySelector('input[value="teacherAccidents"]').checked,
-        professionalLiability: document.querySelector('input[value="professionalLiability"]').checked,
-        employerLiability: document.querySelector('input[value="employerLiability"]').checked,
-        cyberInsurance: document.querySelector('input[value="cyberInsurance"]').checked,
-        incomeLoss: document.querySelector('input[value="incomeLoss"]').checked,
-        afterSchoolProgram: document.querySelector('input[value="afterSchoolProgram"]').checked
-      },
-      premium: parseInt(premiumAmount.textContent.replace(/[^0-9]/g, '')) || 0
+      gardenName: document.getElementById('gardenName')?.value || '',
+      gardenType: document.getElementById('gardenType')?.value || '',
+      address: document.getElementById('address')?.value || '',
+      policyNumber: document.getElementById('policyNumber')?.value || '',
+      childrenCount: parseInt(document.getElementById('childrenCount')?.value) || 0,
+      customerName: document.getElementById('customerName')?.value || '',
+      emailAddress: document.getElementById('emailAddress')?.value || '',
+      phoneNumber: document.getElementById('phoneNumber')?.value || '',
+      claimsLastYear: document.querySelector('input[value="claimsLastYear"]')?.checked || false,
+      isMember: isMemberCheckbox?.checked || false,
+      membershipType: isMemberCheckbox?.checked ? membershipType?.value : '',
+      premium: parseInt(premiumAmount?.textContent?.replace(/[^0-9]/g, '')) || 0,
+      paymentMethod: selectedPaymentMethod || ''
     };
 
+    formData.insuranceOptions = {
+      contentBuilding: document.querySelector('input[value="contentBuilding"]')?.checked || false,
+      thirdParty: document.querySelector('input[value="thirdParty"]')?.checked || false,
+      deductibleCancellation: document.querySelector('input[value="deductibleCancellation"]')?.checked || false,
+      teacherAccidents: document.querySelector('input[value="teacherAccidents"]')?.checked || false,
+      professionalLiability: document.querySelector('input[value="professionalLiability"]')?.checked || false,
+      employerLiability: document.querySelector('input[value="employerLiability"]')?.checked || false,
+      cyberInsurance: document.querySelector('input[value="cyberInsurance"]')?.checked || false,
+      incomeLoss: document.querySelector('input[value="incomeLoss"]')?.checked || false,
+      afterSchoolProgram: document.querySelector('input[value="afterSchoolProgram"]')?.checked || false
+    };
+
+    // פרטי ביטוח מורכבים
     if (formData.insuranceOptions.contentBuilding) {
       formData.contentBuildingDetails = {
-        contentSum: document.getElementById('contentSum').value,
-        buildingSum: document.getElementById('buildingSum').value,
-        yardContentSum: document.getElementById('yardContentSum').value,
-        buildingType: document.getElementById('buildingType').value,
-        hasLien: document.getElementById('hasLien').checked,
-        lienHolder: document.getElementById('hasLien').checked ? document.getElementById('lienHolder').value : ''
+        contentSum: document.getElementById('contentSum')?.value || '',
+        buildingSum: document.getElementById('buildingSum')?.value || '',
+        yardContentSum: document.getElementById('yardContentSum')?.value || '',
+        buildingType: document.getElementById('buildingType')?.value || '',
+        hasLien: hasLienCheckbox?.checked || false,
+        lienHolder: hasLienCheckbox?.checked ? document.getElementById('lienHolder')?.value || '' : ''
       };
     }
+
     if (formData.insuranceOptions.thirdParty) {
-      formData.thirdPartyDetails = { coverage: document.getElementById('thirdPartyCoverage').value };
+      formData.thirdPartyDetails = document.getElementById('thirdPartyCoverage')?.value || '';
     }
+
     if (formData.insuranceOptions.teacherAccidents) {
-      formData.teacherAccidentsDetails = { plan: document.getElementById('teacherAccidentsCoverage').value };
+      formData.teacherAccidentsDetails = document.getElementById('teacherAccidentsCoverage')?.value || '';
     }
+
     if (formData.insuranceOptions.employerLiability) {
-      formData.employerLiabilityDetails = { employeeType: document.getElementById('employerLiabilityCoverage').value };
+      formData.employerLiabilityDetails = document.getElementById('employerLiabilityCoverage')?.value || '';
     }
+
     if (formData.insuranceOptions.incomeLoss) {
-      formData.incomeLossDetails = { duration: document.getElementById('incomeLossDuration').value };
+      formData.incomeLossDetails = document.getElementById('incomeLossDuration')?.value || '';
     }
+
     if (formData.insuranceOptions.afterSchoolProgram) {
-      formData.afterSchoolProgramDetails = { afterSchoolChildrenCount: document.getElementById('afterSchoolChildrenCount').value };
+      formData.afterSchoolProgramDetails = document.getElementById('afterSchoolChildrenCount')?.value || '';
     }
+
     return formData;
   }
 
+
+
   // Function to send data to webhook
-  async function sendToWebhook(data) {
+  async function sendToWebhook(formValues) {
+    const formData = new FormData();
+
+    // הוספת שדות רגילים ואובייקטים מפורקים
+    Object.entries(formValues).forEach(([key, value]) => {
+      if (
+        typeof value === 'object' &&
+        value !== null &&
+        !(value instanceof File)
+      ) {
+        // אם זה אובייקט פנימי (כמו insuranceOptions או contentBuildingDetails)
+        Object.entries(value).forEach(([subKey, subValue]) => {
+          formData.append(`${key}[${subKey}]`, subValue);
+        });
+      } else {
+        formData.append(key, value);
+      }
+    });
+
+    // צירוף קובץ לפי שיטת התשלום
+    if (formValues.paymentMethod === 'bank') {
+      const file = document.getElementById('bankTransferProof')?.files[0];
+      if (file) {
+        formData.append('proofFile', file);
+      }
+    } else if (formValues.paymentMethod === 'debit') {
+      const file = document.getElementById('debitAuthUpload')?.files[0];
+      if (file) {
+        formData.append('proofFile', file);
+      }
+    }
+
+    // שליחה ל-Make Webhook
     try {
       const response = await fetch('https://hook.eu2.make.com/c8jk8qsq7mnwtdg5aevxvxhdg8m3yocw', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: formData,
       });
-      if (!response.ok) throw new Error('Webhook request failed');
+
+      if (!response.ok) {
+        throw new Error('השליחה ל-Webhook נכשלה');
+      }
+
       return await response.ok;
     } catch (error) {
-      console.error('Error sending to webhook:', error);
+      console.error('שגיאה בשליחה ל-Make:', error);
       throw error;
     }
   }
+
+
 
   // Form Submission
   form.addEventListener('submit', async (e) => {
@@ -582,8 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const formData = collectFormData();
         await sendToWebhook(formData);
-        currentSectionIndex = 4;
-        showSection(currentSectionIndex);
+
         Object.values({ contentBuildingSection, thirdPartySection, teacherAccidentsSection, employerLiabilitySection, incomeLossSection, afterSchoolProgramSection }).forEach(section => section.style.display = 'none');
         lienSection.style.display = 'none';
         premiumAmount.textContent = '0 ₪';
@@ -609,72 +712,5 @@ document.addEventListener('DOMContentLoaded', () => {
   showSection(currentSectionIndex);
 });
 
-// Listener for the bank transfer popup
-document.addEventListener('click', function (e) {
-  if (e.target.classList.contains('bank-button')) {
-    const popupOverlay = document.createElement('div');
-    popupOverlay.className = 'popup-overlay';
-    document.body.appendChild(popupOverlay);
-
-    const popup = document.createElement('div');
-    popup.className = 'popup';
-    popup.innerHTML = `
-        <div class="popup-content">
-          <strong>פרטי העברה בנקאית:</strong><br>
-          בנק: 12<br>
-          סניף: 345<br>
-          חשבון: 567890<br>
-          שם המוטב: אשר לוי סוכנות לביטוח
-        </div>
-        <button class="popup-close">סגור</button>
-      `;
-    document.body.appendChild(popup);
-
-    popupOverlay.style.display = 'block';
-    popup.style.display = 'block';
-
-    popup.querySelector('.popup-close').addEventListener('click', () => {
-      popup.remove();
-      popupOverlay.remove();
-    });
-    popupOverlay.addEventListener('click', () => {
-      popup.remove();
-      popupOverlay.remove();
-    });
-  }
-  // Debit Authorization Popup
-  if (e.target.classList.contains('debit-auth-button')) {
-    const popupOverlay = document.createElement('div');
-    popupOverlay.className = 'popup-overlay';
-    document.body.appendChild(popupOverlay);
-
-    const popup = document.createElement('div');
-    popup.className = 'popup';
-    popup.innerHTML = `
-      <div class="popup-content">
-        <strong>הנחיות למילוי הרשאה לחיוב חשבון:</strong><br>
-        1. מלאו את טופס ההרשאה לחיוב חשבון בצירוף חתימה.<br>
-        2. צרפו צילום צ'ק או אישור ניהול חשבון.<br>
-        3. שלחו את המסמכים למייל: <a href="mailto:office@asherlevi.co.il">office@asherlevi.co.il</a><br>
-        <br>
-        ניתן להוריד את טופס ההרשאה <a href="/docs/debit-auth.pdf" target="_blank">בלחיצה כאן</a>.
-      </div>
-      <button class="popup-close">סגור</button>
-    `;
-    document.body.appendChild(popup);
-
-    popupOverlay.style.display = 'block';
-    popup.style.display = 'block';
-
-    popup.querySelector('.popup-close').addEventListener('click', () => {
-      popup.remove();
-      popupOverlay.remove();
-    });
-    popupOverlay.addEventListener('click', () => {
-      popup.remove();
-      popupOverlay.remove();
-    });
-  }
-});
 
 

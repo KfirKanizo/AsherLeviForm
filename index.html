@@ -28,7 +28,8 @@
           <span class="step-label">1. פרטי קשר</span>
           <span class="step-label">2. פרטי ביטוח</span>
           <span class="step-label">3. תוספות כיסוי</span>
-          <span class="step-label">4. סיכום</span>
+          <span class="step-label">4. תשלום</span>
+          <span class="step-label">5. סיכום</span>
         </div>
       </div>
 
@@ -148,10 +149,10 @@
           <input type="checkbox" id="claimsLastYear" name="claimsLastYear" value="claimsLastYear"> האם היו תביעות בשנה
           האחרונה?
           <button type="button" class="info-button"
-            data-tooltip="<strong>שאלה חשובה לחברת הביטוח:</strong><br>יש לציין אם היו תביעות ביטוח כלשהן בשנה האחרונה עבור הגן<br>כולל תביעות על נזקי רכוש, אחריות צד ג', או תאונות אישיות<br>מענה כן ומדויק מונע בעיות בעת הצורך בתביעה עתידית"
+            data-tooltip="<strong>שאלה חשובה לחברת הביטוח:</strong><br>יש לציין אם היו תביעות ביטוח כלשהן בשנה האחרונה עבור הגן<br>כולל תביעות על נזקי רכוש, אחריות צד ג', או תאונות אישיות<br>מענה כן ומדויק מונע בעיות בעת הצורך בתביעה עתידית">
             <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path
-              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
             </svg>
           </button>
         </label>
@@ -475,9 +476,8 @@
         </div>
       </div>
 
-
-      <!-- Section 4: Premium Review & Submission -->
-      <div id="premiumReview" class="form-section">
+      <!-- Section 4: Payment Selection -->
+      <div id="paymentSelection" class="form-section">
         <p class="premium-info">
           <strong>הסכום הכולל לתשלום, מחושב על בסיס:</strong><br>
           סוג הגן ומספר הילדים<br>
@@ -486,33 +486,89 @@
           הפרמיה לא תרד מתחת למחיר המינימום גם אם יש הנחות
         </p>
 
-        <!-- קוביית הפרמיה -->
         <div id="premiumDisplay" class="form-group">
           <h2>סכום הפרמיה: <span id="premiumAmount">0 ₪</span></h2>
           <p id="discountDisplay" class="premium-info"></p>
         </div>
+
+        <p class="premium-info">בחר את אמצעי התשלום:</p>
+        <div class="payment-buttons">
+          <button type="button" class="credit-button">תשלום באשראי</button>
+          <button type="button" class="bank-button">העברה בנקאית</button>
+          <button type="button" class="debit-auth-button">הרשאה לחיוב חשבון</button>
+        </div>
+
         <div class="navigation-buttons">
           <button type="button" class="back-button">חזור לתוספות כיסויים</button>
+        </div>
+      </div>
+
+      <!-- Section 5: Bank Transfer -->
+      <div id="bankTransferSection" class="form-section">
+        <h2 style="text-align: center;">העברה בנקאית</h2>
+        <p class="premium-info">
+          לביצוע העברה בנקאית, אנא בצעו את ההעברה לפי הפרטים הבאים:
+        </p>
+        <p class="premium-info">
+          <strong>פרטי ההעברה:</strong><br>
+          <strong>בנק:</strong> 10<br>
+          <strong>סניף:</strong> 800<br>
+          <strong>חשבון:</strong> 52001628<br>
+          <strong>שם המוטב:</strong> אשר לוי סוכנות לביטוח
+        </p>
+        <div class="form-group">
+          <div class="file-upload">
+            <label for="bankTransferProof" class="file-upload-label">העלאת אישור העברה</label>
+            <input type="file" id="bankTransferProof" name="bankTransferProof" class="file-upload-input"
+              accept=".pdf,.jpg,.png">
+            <p id="bankFileName" class="file-name-display"></p>
+          </div>
+        </div>
+
+        <div class="navigation-buttons">
+          <button type="button" class="back-button">חזור לבחירת אמצעי תשלום</button>
           <button type="submit" class="submit-button">שלח</button>
         </div>
       </div>
 
-      <!-- Section 5: Thank You & Payment -->
-      <div id="thankYouSection" class="form-section">
-        <div class="success-animation">
-          <img src="success-icon.svg" alt="Success Checkmark" class="success-image">
+      <!-- Section 6: Credit Card -->
+      <div id="creditCardSection" class="form-section">
+        <h2 style="text-align: center;">תשלום באשראי</h2>
+        <p class="premium-info">לחצו על הכפתור כדי לעבור לדף תשלום מאובטח:</p>
+        <div class="form-group centered-button">
+          <a href="https://asherlevi.co.il/payments" target="_blank" class="styled-link-button">
+            מעבר לדף תשלום
+          </a>
         </div>
-        <p class="premium-info"><strong>הפרטים נשלחו בהצלחה!</strong></p>
-        <p class="premium-info">כעת נותר לבחור את אמצעי התשלום:</p>
-        <div class="payment-buttons">
-          <button type="button" class="credit-button"
-            onclick="window.open('https://asherlevi.co.il/payments', '_blank')">תשלום
-            באשראי</button>
-          <button type="button" class="bank-button">העברה בנקאית</button>
-          <button type="button" class="debit-auth-button">הרשאה לחיוב חשבון</button>
 
+        <div class="navigation-buttons">
+          <button type="button" class="back-button">חזור לבחירת אמצעי תשלום</button>
         </div>
       </div>
+
+      <!-- Section 7: Debit Authorization -->
+      <div id="debitAuthSection" class="form-section">
+        <h2 style="text-align: center;">הרשאה לחיוב חשבון</h2>
+        <p class="premium-info">1. מלאו את טופס ההרשאה וחתמו.<br>
+          2. צרפו צילום צ'ק או אישור ניהול חשבון.<br>
+          3. שלחו למייל: <a href="mailto:office@asherlevi.co.il">office@asherlevi.co.il</a><br><br>
+          ניתן להוריד את טופס ההרשאה <a href="/docs/debit-auth.pdf" target="_blank">בלחיצה כאן</a>.
+        </p>
+        <div class="form-group">
+          <div class="file-upload">
+            <label for="debitAuthUpload" class="file-upload-label">העלאת טופס חתום ואישור</label>
+            <input type="file" id="debitAuthUpload" name="debitAuthUpload" class="file-upload-input"
+              accept=".pdf,.jpg,.png">
+            <p id="debitFileName" class="file-name-display"></p>
+          </div>
+        </div>
+
+        <div class="navigation-buttons">
+          <button type="button" class="back-button">חזור לבחירת אמצעי תשלום</button>
+          <button type="submit" class="submit-button">שלח</button>
+        </div>
+      </div>
+
 
     </form>
   </div>
