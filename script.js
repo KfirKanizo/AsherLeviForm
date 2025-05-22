@@ -93,6 +93,11 @@ document.addEventListener('DOMContentLoaded', () => {
         progressFill.style.width = `${percentage}%`;
       }
 
+      // 🟩 יוזם את הקאנבס רק כשהוא נטען בפועל
+      if (index === 4) initSignatureCanvas('signatureCanvasBank');
+      if (index === 5) initSignatureCanvas('signatureCanvasCredit');
+      if (index === 6) initSignatureCanvas('signatureCanvasDebit');
+
 
       currentSectionIndex = index;
     }, 400); // זמן תואם ל־CSS transition
@@ -414,6 +419,74 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function initSignatureCanvas(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    function getXY(e) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      drawing = true;
+      const pos = getXY(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    });
+    canvas.addEventListener('mousemove', (e) => {
+      if (!drawing) return;
+      const pos = getXY(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    });
+    canvas.addEventListener('mouseup', () => drawing = false);
+    canvas.addEventListener('mouseout', () => drawing = false);
+
+    canvas.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      drawing = true;
+      const pos = getXY(touch);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    });
+    canvas.addEventListener('touchmove', (e) => {
+      if (!drawing) return;
+      const touch = e.touches[0];
+      const pos = getXY(touch);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    });
+    canvas.addEventListener('touchend', () => drawing = false);
+  }
+
+  window.clearSignature = function (type) {
+    const canvas = document.getElementById(`signatureCanvas${type}`);
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  };
+
+
+  function getSignatureDataURL(type) {
+    const canvas = document.getElementById(`signatureCanvas${type}`);
+    return canvas ? canvas.toDataURL('image/png') : '';
+  }
+
+  function isCanvasEmpty(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return true;
+    const ctx = canvas.getContext('2d');
+    const pixelBuffer = new Uint32Array(ctx.getImageData(0, 0, canvas.width, canvas.height).data.buffer);
+    return !pixelBuffer.some(color => color !== 0);
+  }
+
 
   gardenType.addEventListener('change', () => {
     updateInsuranceOptions();
@@ -608,6 +681,14 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.afterSchoolProgramDetails = document.getElementById('afterSchoolChildrenCount')?.value || '';
     }
 
+    if (selectedPaymentMethod === 'bank') {
+      formData.signatureImage = getSignatureDataURL('Bank');
+    } else if (selectedPaymentMethod === 'credit') {
+      formData.signatureImage = getSignatureDataURL('Credit');
+    } else if (selectedPaymentMethod === 'debit') {
+      formData.signatureImage = getSignatureDataURL('Debit');
+    }
+
     return formData;
   }
 
@@ -645,6 +726,19 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('proofFile', file);
       }
     }
+    if (selectedPaymentMethod === 'credit' && isCanvasEmpty('signatureCanvasCredit')) {
+      alert('יש לחתום לפני המשך התשלום בכרטיס אשראי');
+      return;
+    }
+    if (selectedPaymentMethod === 'bank' && isCanvasEmpty('signatureCanvasBank')) {
+      alert('יש לחתום לפני המשך תשלום בהעברה בנקאית');
+      return;
+    }
+    if (selectedPaymentMethod === 'debit' && isCanvasEmpty('signatureCanvasDebit')) {
+      alert('יש לחתום לפני המשך בהרשאה לחיוב חשבון');
+      return;
+    }
+
 
     // שליחה ל-Make Webhook
     try {
@@ -711,6 +805,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateInsuranceOptions();
   calculatePremium();
   showSection(currentSectionIndex);
+
 });
 
 

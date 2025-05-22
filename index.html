@@ -524,6 +524,13 @@
             <p id="bankFileName" class="file-name-display"></p>
           </div>
         </div>
+        <div class="signature-wrapper">
+          <label class="signature-label">חתימה:</label>
+          <canvas id="signatureCanvasBank" width="300" height="150"></canvas>
+          <button type="button" onclick="clearSignature('Bank')" class="clear-signature-button">נקה חתימה</button>
+        </div>
+
+
 
         <div class="navigation-buttons">
           <button type="button" class="back-button">חזור לבחירת אמצעי תשלום</button>
@@ -541,8 +548,17 @@
           </a>
         </div>
 
+        <div class="signature-wrapper">
+          <label class="signature-label">חתימה:</label>
+          <canvas id="signatureCanvasCredit" width="300" height="150"></canvas>
+          <button type="button" onclick="clearSignature('Credit')" class="clear-signature-button">נקה חתימה</button>
+        </div>
+
+
+
         <div class="navigation-buttons">
           <button type="button" class="back-button">חזור לבחירת אמצעי תשלום</button>
+          <button type="submit" class="submit-button">שלח</button>
         </div>
       </div>
 
@@ -562,6 +578,12 @@
             <p id="debitFileName" class="file-name-display"></p>
           </div>
         </div>
+        <div class="signature-wrapper">
+          <label class="signature-label">חתימה:</label>
+          <canvas id="signatureCanvasDebit" width="300" height="150"></canvas>
+          <button type="button" onclick="clearSignature('Debit')" class="clear-signature-button">נקה חתימה</button>
+        </div>
+
 
         <div class="navigation-buttons">
           <button type="button" class="back-button">חזור לבחירת אמצעי תשלום</button>
