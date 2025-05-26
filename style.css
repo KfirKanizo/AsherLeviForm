@@ -451,6 +451,17 @@ input[type="checkbox"] {
   line-height: 1.6;
 }
 
+
+.talah-info {
+  color: #4362cc;
+  text-align: center;
+  direction: rtl;
+  max-width: 600px;
+  margin: 0 auto 15px auto;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
 .form-section-exit {
   opacity: 0;
   transform: translateX(-50px);
