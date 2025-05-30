@@ -79,7 +79,7 @@ function showSection(index) {
       if (i === index) section.classList.add('active');
     });
 
-    if (index === 2) updateCoverageOptions();
+    if (index === 2 || index === 3) updateCoverageOptions();
     const premiumDisplay = document.getElementById('premiumDisplay');
     if (premiumDisplay) premiumDisplay.style.display = [2, 3, 4].includes(index) ? 'block' : 'none';
 
@@ -122,11 +122,28 @@ document.querySelectorAll('.next-button').forEach(button => {
       return;
     }
 
-    // Special case: if current section is coverageAddons and contentBuilding is selected
+    // דילוג קדימה על עמוד ביטוח תכולה ומבנה, אם הצ'קבוקס לא מסומן
+    if (sections[currentSectionIndex].id === 'insuranceDetails') {
+      const hasContentBuilding = document.getElementById('hasContentBuilding');
+      // אם הצ'קבוקס לא מסומן – עבור ישירות לעמוד תוספות כיסוי
+      if (hasContentBuilding && !hasContentBuilding.checked) {
+        const contentSectionIndex = sections.findIndex(sec => sec.id === 'contentBuildingSection');
+        const addonsSectionIndex = sections.findIndex(sec => sec.id === 'coverageAddons');
+        // אם כרגע בעמוד insuranceDetails והבא בתור זה contentBuildingSection – מדלגים עליו
+        if (contentSectionIndex === currentSectionIndex + 1 && addonsSectionIndex !== -1) {
+          currentSectionIndex = addonsSectionIndex;
+          showSection(currentSectionIndex);
+          return;
+        }
+      }
+    }
+
+    // הפלואו הרגיל: עמוד תוספות כיסוי מאפשר חזרה לביטוח תכולה אם צריך (ולא משנה התנהגות אחורה)
     if (sections[currentSectionIndex].id === 'coverageAddons') {
-      const hasContentBuilding = document.querySelector('input[name="insuranceOptions[contentBuilding]"]')?.value === 'true';
+      const hasContentBuilding = document.getElementById('hasContentBuilding');
       const contentIndex = sections.findIndex(sec => sec.id === 'contentBuildingSection');
-      if (hasContentBuilding && contentIndex !== -1) {
+      // במידה ובחר כן – חוזרים למסך ביטוח תכולה
+      if (hasContentBuilding && hasContentBuilding.checked && contentIndex !== -1) {
         showSection(contentIndex);
         return;
       }
@@ -139,14 +156,31 @@ document.querySelectorAll('.next-button').forEach(button => {
   });
 });
 
+
 document.querySelectorAll('.back-button').forEach(button => {
   button.addEventListener('click', () => {
+    // בדיקה מיוחדת למסך תוספות כיסוי:
+    if (sections[currentSectionIndex].id === 'coverageAddons') {
+      const hasContentBuilding = document.getElementById('hasContentBuilding');
+      if (hasContentBuilding && !hasContentBuilding.checked) {
+        // חזור ישר למסך פרטי ביטוח
+        const insuranceDetailsIndex = sections.findIndex(sec => sec.id === 'insuranceDetails');
+        if (insuranceDetailsIndex !== -1) {
+          currentSectionIndex = insuranceDetailsIndex;
+          showSection(currentSectionIndex);
+          return;
+        }
+      }
+    }
+
+    // הפלואו הרגיל:
     if (currentSectionIndex > 0) {
       currentSectionIndex--;
       showSection(currentSectionIndex);
     }
   });
 });
+
 
 document.querySelectorAll('#bankTransferSection .back-button, #creditCardSection .back-button, #debitAuthSection .back-button')
   .forEach(button => {
@@ -324,6 +358,11 @@ function calculatePremium() {
   const childrenCountValue = parseInt(childrenCount.value) || 0;
   let basePremium = 0;
 
+  // בדיקת ביטוח תכולה ומבנה
+  const hasContentBuilding = document.getElementById('hasContentBuilding');
+  const includeContentBuilding = hasContentBuilding ? hasContentBuilding.checked : true;
+
+  // אם אין גן או אין ילדים, תמיד 0
   if (!gardenTypeValue || childrenCountValue < 1) {
     premiumAmount.textContent = '0 ₪';
     const discountDisplay = document.getElementById('discountDisplay');
@@ -331,32 +370,36 @@ function calculatePremium() {
     return;
   }
 
-  // חישוב פרמיה בסיסית
-  switch (gardenTypeValue) {
-    case 'tamah': // מסלול 1
-      basePremium = childrenCountValue <= 6 ? 500 : childrenCountValue <= 10 ? 1000 : 1000 + (childrenCountValue - 10) * 100;
-      break;
-    case 'privateFamily': // מסלול 2, 3, 4
-      if (childrenCountValue <= 6) basePremium = 650; // מסלול 2
-      else if (childrenCountValue <= 8) basePremium = 900; // מסלול 3
-      else if (childrenCountValue === 9) basePremium = 900 + 105; // מסלול 3
-      else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4
-      break;
-    case 'upTo3': // מסלול 7
-      basePremium = 1400 + (childrenCountValue > 12 ? (childrenCountValue - 12) * 120 : 0);
-      break;
-    case 'over3': // מסלול 5, 6
-    case 'afterSchool':
-      basePremium = 1100 + (childrenCountValue > 20 ? (childrenCountValue - 20) * 55 : 0);
-      break;
+  // חישוב פרמיה בסיסית — רק אם יש ביטוח תכולה ומבנה
+  if (includeContentBuilding) {
+    switch (gardenTypeValue) {
+      case 'tamah': // מסלול 1
+        basePremium = childrenCountValue <= 6 ? 500 : childrenCountValue <= 10 ? 1000 : 1000 + (childrenCountValue - 10) * 100;
+        break;
+      case 'privateFamily': // מסלול 2, 3, 4
+        if (childrenCountValue <= 6) basePremium = 650; // מסלול 2
+        else if (childrenCountValue <= 8) basePremium = 900; // מסלול 3
+        else if (childrenCountValue === 9) basePremium = 900 + 105; // מסלול 3
+        else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4
+        break;
+      case 'upTo3': // מסלול 7
+        basePremium = 1400 + (childrenCountValue > 12 ? (childrenCountValue - 12) * 120 : 0);
+        break;
+      case 'over3': // מסלול 5, 6
+      case 'afterSchool':
+        basePremium = 1100 + (childrenCountValue > 20 ? (childrenCountValue - 20) * 55 : 0);
+        break;
+    }
+  } else {
+    basePremium = 0; // אין פרמיה בסיסית כלל
   }
 
   // חישוב הנחת מועדון
   const isMemberCheckbox = document.getElementById('isMember');
   let totalDiscount = 0;
-  let minPremium = basePremium; // ברירת מחדל – נשנה לפי מסלול
+  let minPremium = basePremium;
 
-  if (isMemberCheckbox && isMemberCheckbox.checked) {
+  if (includeContentBuilding && isMemberCheckbox && isMemberCheckbox.checked) {
     // בדיקה – באילו מסלולים יש הנחה
     if (gardenTypeValue === 'privateFamily' && childrenCountValue > 8) {
       // מסלול 4 – כל ילד (מעל 8)
@@ -380,6 +423,13 @@ function calculatePremium() {
     const optionName = optionDiv.dataset.option;
     const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
     const cost = getOptionCost(optionName);
+
+    // כיסוי ביטוח תכולה ומבנה — לא להוסיף אם לא נבחר בכלל הביטוח
+    if (optionName === 'contentBuilding' && !includeContentBuilding) {
+      optionDiv.querySelector('.option-cost').textContent = `מחיר: ₪0`;
+      return;
+    }
+
     if (hiddenInput?.value === 'true') totalPremium += cost;
     optionDiv.querySelector('.option-cost').textContent = `מחיר: ₪${cost.toLocaleString()}`;
   });
@@ -392,6 +442,7 @@ function calculatePremium() {
     discountDisplay.textContent = totalDiscount > 0 ? `הנחת מועדון: ₪${totalDiscount}` : '';
   }
 }
+
 
 function getOptionCost(optionName) {
   const gardenTypeValue = gardenType.value;
@@ -555,36 +606,10 @@ function collectFormData() {
   const employeeIds = Array.from(document.querySelectorAll('input[name="employeeId[]"]')).map(e => e.value);
   const employeeTypes = Array.from(document.querySelectorAll('select[name="employeeType[]"]')).map(e => e.value);
 
-  // שמירה במבנה שטוח (קליט ב-Webhooks, Airtable, CRM וכו')
   employeeNames.forEach((name, i) => {
     payload[`employeeName[${i}]`] = name;
     payload[`employeeId[${i}]`] = employeeIds[i] || '';
     payload[`employeeType[${i}]`] = employeeTypes[i] || '';
-  });
-
-  // אפשר לשמור גם כ-JSON (למקרה שתרצה שדה מרוכז)
-  // payload['employees'] = JSON.stringify(
-  //   employeeNames.map((name, i) => ({
-  //     name,
-  //     id: employeeIds[i] || '',
-  //     type: employeeTypes[i] || ''
-  //   }))
-  // );
-
-  // שליחת כל כיסוי באופן שטוח: insuranceOptions[optionName] + value נוסף אם רלוונטי
-  document.querySelectorAll('.coverage-option').forEach(optionDiv => {
-    const optionName = optionDiv.dataset.option;
-    const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
-    const isInterested = hiddenInput && hiddenInput.value === 'true';
-    payload[`insuranceOptions[${optionName}]`] = isInterested ? 'true' : 'false';
-
-    // איסוף ערך מהתנאי, רק אם "מעוניין" ורק אם קיים ערך
-    if (isInterested) {
-      const condInput = optionDiv.querySelector('.conditional-section select, .conditional-section input[type="number"], .conditional-section input[type="text"]');
-      if (condInput && condInput.value !== '') {
-        payload[`insuranceOptionsDetails[${optionName}]`] = condInput.value;
-      }
-    }
   });
 
   // איסוף גננות תאונות אישיות
@@ -595,6 +620,31 @@ function collectFormData() {
     payload[`personalAccidentEmployeeId[${i}]`] = paIds[i] || '';
   });
 
+  // שליחת כל כיסוי באופן שטוח: insuranceOptions[optionName] + value נוסף אם רלוונטי
+  document.querySelectorAll('.coverage-option').forEach(optionDiv => {
+    const optionName = optionDiv.dataset.option;
+    const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+    const isInterested = hiddenInput && hiddenInput.value === 'true';
+
+    // כיסוי ביטוח תכולה ומבנה — לא לשמור אם אין ביטוח תכולה ומבנה
+    if (optionName === 'contentBuilding') {
+      const hasContentBuilding = document.getElementById('hasContentBuilding');
+      if (hasContentBuilding && !hasContentBuilding.checked) {
+        payload[`insuranceOptions[${optionName}]`] = 'false';
+        return;
+      }
+    }
+
+    payload[`insuranceOptions[${optionName}]`] = isInterested ? 'true' : 'false';
+
+    // איסוף ערך מהתנאי, רק אם "מעוניין" ורק אם קיים ערך
+    if (isInterested) {
+      const condInput = optionDiv.querySelector('.conditional-section select, .conditional-section input[type="number"], .conditional-section input[type="text"]');
+      if (condInput && condInput.value !== '') {
+        payload[`insuranceOptionsDetails[${optionName}]`] = condInput.value;
+      }
+    }
+  });
 
   // אפשרויות לחצני button-group (כמו building size וכו')
   document.querySelectorAll('.button-group').forEach(group => {
@@ -607,19 +657,23 @@ function collectFormData() {
     }
   });
 
-  // תכולה/מבנה/חצר
-  payload['contentBuildingDetails[contentSum]'] = document.querySelector('.contentSum')?.value || '';
-  payload['contentBuildingDetails[buildingSum]'] = document.querySelector('.buildingSum')?.value || '';
-  payload['contentBuildingDetails[yardContentSum]'] = document.querySelector('.yardContentSum')?.value || '';
-  payload['contentBuildingDetails[buildingType]'] = document.querySelector('.buildingType')?.value || '';
-  payload['contentBuildingDetails[hasLien]'] = document.querySelector('.hasLien')?.checked ? 'true' : 'false';
-  payload['contentBuildingDetails[lienHolder]'] = document.querySelector('.hasLien')?.checked ? (document.querySelector('.lienHolder')?.value || '') : '';
+  // תכולה/מבנה/חצר — רק אם יש ביטוח תכולה ומבנה
+  const hasContentBuilding = document.getElementById('hasContentBuilding');
+  if (hasContentBuilding && hasContentBuilding.checked) {
+    payload['contentBuildingDetails[contentSum]'] = document.querySelector('.contentSum')?.value || '';
+    payload['contentBuildingDetails[buildingSum]'] = document.querySelector('.buildingSum')?.value || '';
+    payload['contentBuildingDetails[yardContentSum]'] = document.querySelector('.yardContentSum')?.value || '';
+    payload['contentBuildingDetails[buildingType]'] = document.querySelector('.buildingType')?.value || '';
+    payload['contentBuildingDetails[hasLien]'] = document.querySelector('.hasLien')?.checked ? 'true' : 'false';
+    payload['contentBuildingDetails[lienHolder]'] = document.querySelector('.hasLien')?.checked ? (document.querySelector('.lienHolder')?.value || '') : '';
+  }
 
   payload['premium'] = parseInt(document.getElementById('premiumAmount').textContent.replace(/[^0-9]/g, '')) || 0;
   payload['paymentMethod'] = window.selectedPaymentMethod || '';
 
   return payload;
 }
+
 
 // --- הוספת גננות לכיסוי תאונות אישיות ---
 function setupPersonalAccidentEmployees() {
