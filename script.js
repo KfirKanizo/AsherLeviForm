@@ -903,7 +903,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-
-
+  document.querySelectorAll('.needsApprovalCheckbox').forEach(checkbox => {
+    checkbox.addEventListener('change', function () {
+      const infoDiv = this.closest('.form-group').querySelector('.approval-info-text');
+      if (infoDiv) {
+        infoDiv.style.display = this.checked ? 'block' : 'none';
+      }
+    });
+  });
 
 });
