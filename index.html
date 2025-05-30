@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html lang="he">
+
+<html dir="rtl" lang="he">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>טופס חידוש ביטוח</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="style.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;display=swap" rel="stylesheet" />
 </head>
 
 <body>
   <div class="container">
-    <form id="insuranceForm" dir="rtl">
+    <form dir="rtl" id="insuranceForm">
       <!-- Logo -->
       <div class="logo-container">
         <a href="https://asherlevi.com/" target="_blank">
-          <img
-            src="https://asherlevi.com/wp-content/uploads/2022/07/%D7%9C%D7%95%D7%92%D7%95-%D7%9E%D7%97%D7%95%D7%93%D7%A9-%D7%A6%D7%91%D7%A2%D7%95%D7%A0%D7%99%D7%95%D7%AA-01-1-768x477.png"
-            alt="Asher Levi Logo">
+          <img alt="Asher Levi Logo"
+            src="https://asherlevi.com/wp-content/uploads/2022/07/%D7%9C%D7%95%D7%92%D7%95-%D7%9E%D7%97%D7%95%D7%93%D7%A9-%D7%A6%D7%91%D7%A2%D7%95%D7%A0%D7%99%D7%95%D7%AA-01-1-768x477.png" />
         </a>
       </div>
       <div class="progress-bar-container">
@@ -25,583 +25,550 @@
           <div class="progress-bar-fill" id="progressBarFill"></div>
         </div>
         <div class="progress-steps">
-          <span class="step-label">1. פרטי קשר</span>
+          <span class="step-label">1. פרטי איש קשר</span>
           <span class="step-label">2. פרטי ביטוח</span>
+          <span class="step-label">4. ביטוח תכולה ומבנה</span>
           <span class="step-label">3. תוספות כיסוי</span>
-          <span class="step-label">4. תשלום</span>
-          <span class="step-label">5. סיכום</span>
+          <span class="step-label">5. תשלום</span>
+          <span class="step-label">6. סיכום</span>
         </div>
       </div>
-
-
-      <h1>טופס חידוש ביטוח</h1>
-
-      <!-- Section 1: Contact Details -->
-      <div id="contactDetails" class="form-section active">
-        <h2>פרטי קשר</h2>
+      <!-- Contact Details Section -->
+      <div class="form-section active" id="contactDetails">
+        <h2>פרטי איש קשר</h2>
+        <label>למי תרצו שנפנה לשאלות ובירורים בעת צורך</label>
         <div class="form-group">
-          <label for="customerName">שם הלקוח *
-            <button type="button" class="info-button" data-tooltip="שם מלא של הלקוח המבוטח">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <label for="customerName">איש קשר *
+            <button class="info-button" data-tooltip="שם + שם משפחה" type="button">
+              <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z">
+                </path>
               </svg>
             </button>
           </label>
-          <input type="text" id="customerName" name="customerName" required>
+          <input id="customerName" name="customerName" required="" type="text" />
         </div>
         <div class="form-group">
-          <label for="emailAddress">כתובת דוא"ל *
-            <button type="button" class="info-button" data-tooltip="כתובת דואר אלקטרוני תקינה">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <label for="emailAddress">כתובת דוא"ל
+            <button class="info-button" data-tooltip="אליה תשלח הפוליסה" type="button">
+              <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z">
+                </path>
               </svg>
             </button>
           </label>
-          <input type="email" id="emailAddress" name="emailAddress" required>
+          <input id="emailAddress" name="emailAddress" type="email" />
         </div>
         <div class="form-group">
           <label for="phoneNumber">מספר טלפון *
-            <button type="button" class="info-button"
-              data-tooltip="<strong>הזן מספר טלפון תקין, כולל קידומת</strong><br>לצורך התקשרות במקרה הצורך">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <button class="info-button" data-tooltip="מספר טלפון ליצירת קשר" type="button">
+              <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z">
+                </path>
               </svg>
             </button>
           </label>
-          <input type="tel" id="phoneNumber" name="phoneNumber" required>
+          <input id="phoneNumber" name="phoneNumber" required="" type="tel" />
         </div>
         <div class="navigation-buttons">
-          <button type="button" class="next-button">למעבר לפרטי הביטוח</button>
+          <button class="next-button" type="button">למעבר לפרטי הביטוח</button>
         </div>
       </div>
-
-      <!-- Section 2: Insurance Details -->
-      <div id="insuranceDetails" class="form-section">
+      <!-- Insurance Details Section -->
+      <div class="form-section" id="insuranceDetails">
         <h2>פרטי ביטוח</h2>
         <div class="form-group">
           <label for="gardenName">שם הגן *
-            <button type="button" class="info-button" data-tooltip="שם הגן או המוסד המבוטח">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <button class="info-button" data-tooltip="כפי שתבקשו שיופיע בפוליסה" type="button">
+              <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z">
+                </path>
               </svg>
             </button>
           </label>
-          <input type="text" id="gardenName" name="gardenName" required>
+          <input id="gardenName" name="gardenName" required="" type="text" />
         </div>
         <div class="form-group">
           <label for="gardenType">סוג הגן *
-            <button type="button" class="info-button" data-tooltip="בחר את סוג הגן המתאים">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <button class="info-button" data-tooltip="בחר את סוג הגן המתאים" type="button">
+              <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z">
+                </path>
               </svg>
             </button>
           </label>
-          <select id="gardenType" name="gardenType" required>
+          <select id="gardenType" name="gardenType" required="">
             <option value="">בחר סוג גן</option>
             <option value="tamah">תמ"ת</option>
             <option value="privateFamily">משפחתון פרטי</option>
-            <option value="upTo3">גן עד גיל 3</option>
+            <option value="upTo3">גן פרטי</option>
             <option value="over3">גן מעל גיל 3</option>
             <option value="afterSchool">צהרון בלבד</option>
           </select>
         </div>
         <div class="form-group">
           <label for="address">כתובת *
-            <button type="button" class="info-button" data-tooltip="כתובת מלאה של הגן">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <button class="info-button" data-tooltip="כתובת מלאה של הגן" type="button">
+              <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z">
+                </path>
               </svg>
             </button>
           </label>
-          <input type="text" id="address" name="address" required>
+          <input id="address" name="address" required="" type="text" />
         </div>
         <div class="form-group">
-          <label for="policyNumber">מספר פוליסה *
-            <button type="button" class="info-button"
-              data-tooltip="<strong>מספר הפוליסה מהשנה שעברה (אם קיים)</strong><br>מאפשר חידוש בהתאמה לפוליסה הקודמת">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <label for="policyNumber">מספר ת.ז / ח.פ *
+            <button class="info-button"
+              data-tooltip="&lt;strong&gt;מספר הפוליסה מהשנה שעברה (אם קיים)&lt;/strong&gt;&lt;br&gt;מאפשר חידוש בהתאמה לפוליסה הקודמת"
+              type="button">
+              <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z">
+                </path>
               </svg>
             </button>
           </label>
-          <input type="text" id="policyNumber" name="policyNumber" required>
+          <input id="policyNumber" name="policyNumber" required="" type="text" />
         </div>
         <div class="form-group">
           <label for="childrenCount">מספר ילדים *
-            <button type="button" class="info-button"
-              data-tooltip="<strong>ציין את מספר הילדים בגן</strong><br>משפיע על חישוב הפרמיה וסוגי הכיסויים הזמינים">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <button class="info-button"
+              data-tooltip="&lt;strong&gt;ציין את מספר הילדים בגן&lt;/strong&gt;&lt;br&gt;משפיע על חישוב הפרמיה וסוגי הכיסויים הזמינים"
+              type="button">
+              <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z">
+                </path>
               </svg>
             </button>
           </label>
-          <input type="number" id="childrenCount" name="childrenCount" min="1" required>
+          <input id="childrenCount" min="1" name="childrenCount" required="" type="number" />
         </div>
-        <label>
-          <input type="checkbox" id="claimsLastYear" name="claimsLastYear" value="claimsLastYear"> האם היו תביעות בשנה
-          האחרונה?
-          <button type="button" class="info-button"
-            data-tooltip="<strong>שאלה חשובה לחברת הביטוח:</strong><br>יש לציין אם היו תביעות ביטוח כלשהן בשנה האחרונה עבור הגן<br>כולל תביעות על נזקי רכוש, אחריות צד ג', או תאונות אישיות<br>מענה כן ומדויק מונע בעיות בעת הצורך בתביעה עתידית">
-            <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <path
-                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-            </svg>
-          </button>
-        </label>
-        <div class="navigation-buttons">
-          <button type="button" class="back-button">חזור לפרטי קשר</button>
-          <button type="button" class="next-button">מעבר לתוספות כיסויים</button>
-        </div>
-      </div>
-      <!-- Section 3: Coverage Add-ons -->
-      <div id="coverageAddons" class="form-section">
-        <h2>תוספות כיסוי</h2>
         <div class="form-group">
-          <label>אפשרויות ביטוח:</label>
-
           <label>
-            <input type="checkbox" name="insuranceOptions" value="contentBuilding"> ביטוח תכולה ומבנה
-            <button type="button" class="info-button"
-              data-popup="<strong>ביטוח למבנה ולציוד הפנימי של הגן</strong><br>כיסוי עד 200,000 שח לתכולה – כלול<br>מעל 200,000 שח – בתוספת תשלום<br>נדרש לציין תכולת חצר וסוג המבנה (עץ, קבע, נייד)">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-              </svg>
-            </button>
+            <input type="checkbox" id="hasOver3Children" name="hasOver3Children">
+            האם יש ילדים שמלאו להם 3 בספטמבר של שנת הלימודים של הפוליסה?
           </label>
-
-          <label>
-            <input type="checkbox" name="insuranceOptions" value="thirdParty"> צד ג
-            <button type="button" class="info-button"
-              data-popup="<strong>מכסה נזקים לגורמים חיצוניים (הורים, ספקים, עוברי אורח)</strong><br>5 מיליון שח למקרה / 10 מיליון לתקופה – 300 שח<br>8 מיליון שח למקרה – 1000 שח<br>10 מיליון שח למקרה – 2000 שח<br>עד 20 ילדים – תעריף מוזל – 200 שח">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-              </svg>
-            </button>
-          </label>
-
-          <label>
-            <input type="checkbox" name="insuranceOptions" value="deductibleCancellation"> ביטול השתתפות עצמי
-            <button type="button" class="info-button"
-              data-popup="<strong>מאפשר כיסוי מלא ללא השתתפות עצמית במקרה של נזק</strong><br>עד 20 ילדים – 200 שח<br>מעל 20 ילדים – 300 שח">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-              </svg>
-            </button>
-          </label>
-
-          <label>
-            <input type="checkbox" name="insuranceOptions" value="teacherAccidents"> תאונות אישיות לגננת
-            <button type="button" class="info-button"
-              data-popup="<strong>כולל נכות, מוות, אשפוז, שברים, כוויות</strong><br>מסלול א – 250,000 שח מוות/נכות – 200 שח<br>מסלול ב – 150,000 שח + פיצוי שבועי 1,000 שח עד 24 חודשים – 600 שח<br>מסלול ג – 300,000 שח + פיצוי שבועי 2,000 שח עד 24 חודשים – 800 שח">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-              </svg>
-            </button>
-          </label>
-
-          <label>
-            <input type="checkbox" name="insuranceOptions" value="professionalLiability"> אחריות מקצועית
-            <button type="button" class="info-button"
-              data-popup="<strong>כיסוי לרשלנות מקצועית מול הורים או גורמים חיצוניים</strong><br>לדוגמה – תביעה על טיפול לא הולם או נזק נפשי לילד – 250 שח">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-              </svg>
-            </button>
-          </label>
-
-          <label>
-            <input type="checkbox" name="insuranceOptions" value="employerLiability"> חבות מעבידים
-            <button type="button" class="info-button"
-              data-popup="<strong>כיסוי לתביעות מצד עובדים (גננת נוספת, סייעת) בגין פציעות או מחלות בעבודה</strong><br>עובד רגיל – 105 שח<br>עובד עם תעודת מקצוע (מטפלת מוסמכת, גננת מוסמכת) – 500 שח">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-              </svg>
-            </button>
-          </label>
-
-          <label>
-            <input type="checkbox" name="insuranceOptions" value="cyberInsurance"> תוספת ביטוח סייבר
-            <button type="button" class="info-button"
-              data-popup="<strong>כיסוי לחדירה למחשב או דליפת מידע אישי של הורים</strong><br>כולל הוצאות תיקון וניהול משבר – 450 שח">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-              </svg>
-            </button>
-          </label>
-
-          <label>
-            <input type="checkbox" name="insuranceOptions" value="incomeLoss"> אובדן הכנסות
-            <button type="button" class="info-button"
-              data-popup="<strong>פיצוי על השבתת פעילות זמנית של הגן (למשל בעקבות שריפה)</strong><br>3 חודשים – 5,000 שח – 500 שח<br>6 חודשים – 900 שח<br>12 חודשים – 1500 שח">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-              </svg>
-            </button>
-          </label>
-
-          <label>
-            <input type="checkbox" name="insuranceOptions" value="afterSchoolProgram"> צהרון
-            <button type="button" class="info-button"
-              data-popup="<strong>מאפשר להרחיב את הביטוח לפעילות הצהרון</strong><br>כולל פעילות בשעות שונות, צוות נוסף ולעיתים מבנה נפרד<br>עד 20 ילדים – 500 שח<br>מעל 20 ילדים – 500 שח + 25 שח לכל ילד נוסף<br>זמין במסלולים 1–6 בלבד">
-              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-              </svg>
-            </button>
-          </label>
-
-          <div class="form-group">
-            <label>
-              <input type="checkbox" id="isMember" name="isMember" value="isMember"> שייך למועדון?
-              <button type="button" class="info-button"
-                data-popup="<strong>אם את/ה שייך/ת לאחד מהמועדונים הבאים</strong><br>באפשרותך לקבל הנחה בהתאם למועדון הנבחר">
-                <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                </svg>
-              </button>
-            </label>
-          </div>
-
         </div>
-        <!-- Conditional Sections -->
-        <div id="contentBuildingSection" class="conditional-section" style="display: none;">
-          <h2>ביטוח תכולה ומבנה</h2>
-
-          <div class="form-group">
-            <label for="contentSum">סכום ביטוח תכולה *
-              <button type="button" class="info-button"
-                data-popup="<strong>הזן את השווי הכולל של הציוד בתוך הגן</strong><br>לדוגמה – מחשבים, שולחנות, צעצועים">
-                <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                </svg>
-              </button>
-            </label>
-            <input type="text" id="contentSum" name="contentSum">
-          </div>
-
-          <div class="form-group">
-            <label for="buildingSum">סכום ביטוח מבנה *
-              <button type="button" class="info-button"
-                data-popup="<strong>ציין את ערך המבנה לביתוח, אם הוא בבעלותך</strong>">
-                <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                </svg>
-              </button>
-            </label>
-            <input type="text" id="buildingSum" name="buildingSum">
-          </div>
-
-          <div class="form-group">
-            <label for="yardContentSum">סכום ביטוח תכולת חצר *
-              <button type="button" class="info-button"
-                data-popup="<strong>ציין את שווי הציוד בחצר</strong><br>לדוגמה – מתקנים, נדנדות, ג'ימבורי">
-                <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                </svg>
-              </button>
-            </label>
-            <input type="text" id="yardContentSum" name="yardContentSum">
-          </div>
-
-          <div class="form-group">
-            <label for="buildingType">סוג המבנה *
-              <button type="button" class="info-button"
-                data-popup="<strong>ציין את סוג המבנה</strong><br>לדוגמה – קבע, נייד, קראוון">
-                <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                </svg>
-              </button>
-            </label>
-            <input type="text" id="buildingType" name="buildingType">
-          </div>
-
-          <div class="form-group">
-            <label>
-              <input type="checkbox" id="hasLien" name="hasLien"> האם קיים שעבוד
-              <button type="button" class="info-button"
-                data-popup="<strong>סמן אם המבנה ממושכן לגוף כלשהו</strong><br>לדוגמה – בנק">
-                <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                </svg>
-              </button>
-            </label>
-          </div>
-
-          <div id="lienSection" class="form-group" style="display: none;">
-            <label for="lienHolder">משועבד ל *
-              <button type="button" class="info-button"
-                data-popup="<strong>ציין למי משועבד המבנה</strong><br>חיוני לצורכי ביטוח">
-                <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                </svg>
-              </button>
-            </label>
-            <input type="text" id="lienHolder" name="lienHolder">
-          </div>
+        <div class="form-group" id="over3ChildrenCountGroup" style="display: none;">
+          <label for="over3ChildrenCount">כמה ילדים?</label>
+          <input type="number" id="over3ChildrenCount" name="over3ChildrenCount" min="0">
         </div>
-
-        <div id="thirdPartySection" class="conditional-section" style="display: none;">
-          <h2>צד ג</h2>
-          <div class="form-group">
-            <label for="thirdPartyCoverage">סכום כיסוי צד ג' *
-              <button type="button" class="info-button"
-                data-popup="<strong>בחר את רמת הכיסוי</strong><br>5, 8, או 10 מיליון שח">
-                <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                </svg>
-              </button>
-            </label>
-            <select id="thirdPartyCoverage" name="thirdPartyCoverage">
-              <option value="5M">5 מיליון שח למקרה / 10 מיליון לתקופה</option>
-              <option value="8M">8 מיליון שח למקרה</option>
-              <option value="10M">10 מיליון שח למקרה</option>
-            </select>
-          </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="hasAdditionalEmployees" name="hasAdditionalEmployees">
+            האם יש עובדים נוספים?
+          </label>
         </div>
-
-        <div id="teacherAccidentsSection" class="conditional-section" style="display: none;">
-          <h2>תאונות אישיות לגננת</h2>
-          <div class="form-group">
-            <label for="teacherAccidentsCoverage">מסלול כיסוי *
-              <button type="button" class="info-button"
-                data-popup="<strong>בחר את המסלול</strong><br>א – 250                                                                                                                                                                                                                                                                                                                     000 שח מוות/נכות<br>ב – 150,000 שח + פיצוי שבועי 1,000 שח<br>ג – 300,000 שח + פיצוי שבועי 2,000 שח">
-                <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                </svg>
-              </button>
-            </label>
-            <select id="teacherAccidentsCoverage" name="teacherAccidentsCoverage">
-              <option value="A">מסלול א: 250,000 שח מוות/נכות</option>
-              <option value="B">מסלול ב: 150,000 שח + פיצוי שבועי 1,000 שח</option>
-              <option value="C">מסלול ג: 300,000 שח + פיצוי שבועי 2,000 שח</option>
-            </select>
-          </div>
+        <div id="employeesSection" class="conditional-section" style="display: none;">
+          <div id="employeeRows"></div>
+          <button type="button" id="addEmployeeButton" class="add-employee-btn" style="margin-top: 10px;">הוסף
+            עובד</button>
         </div>
-
-        <div id="employerLiabilitySection" class="conditional-section" style="display: none;">
-          <h2>חבות מעבידים</h2>
-          <div class="form-group">
-            <label for="employerLiabilityCoverage">סוג עובד *
-              <button type="button" class="info-button"
-                data-popup="<strong>בחר את סוג העובד</strong><br>עובד רגיל<br>עובד עם תעודת מקצוע (מטפלת מוסמכת, גננת מוסמכת)">
-                <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                </svg>
-              </button>
-            </label>
-            <select id="employerLiabilityCoverage" name="employerLiabilityCoverage">
-              <option value="regular">עובד ללא תעודת מקצוע</option>
-              <option value="certified">עובד עם תעודת מקצוע</option>
-            </select>
-          </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="isMember" name="isMember" value="isMember"> שייך למועדון?
+            <button type="button" class="info-button"
+              data-popup="<strong>אם את/ה שייך/ת לאחד מהמועדונים הבאים</strong><br>התאחדות המעונות / חיב\" ה / חלמיש -
+              קבל/י הנחה">
+              <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+              </svg>
+            </button>
+          </label>
         </div>
-
-        <div id="incomeLossSection" class="conditional-section" style="display: none;">
-          <h2>אובדן הכנסות</h2>
-          <div class="form-group">
-            <label for="incomeLossDuration">משך הכיסוי *
-              <button type="button" class="info-button"
-                data-popup="<strong>בחר את משך הכיסוי</strong><br>3, 6, או 12 חודשים">
-                <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                </svg>
-              </button>
-            </label>
-            <select id="incomeLossDuration" name="incomeLossDuration">
-              <option value="3">3 חודשים</option>
-              <option value="6">6 חודשים</option>
-              <option value="12">12 חודשים</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="afterSchoolProgramSection" class="conditional-section" style="display: none;">
-          <h2>צהרון</h2>
-          <div class="form-group">
-            <label for="afterSchoolChildrenCount">מספר ילדים בצהרון *
-              <button type="button" class="info-button"
-                data-popup="<strong>ציין את מספר הילדים הרשומים לצהרון</strong><br>משפיע על חישוב הפרמיה">
-                <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                </svg>
-              </button>
-            </label>
-            <input type="number" id="afterSchoolChildrenCount" name="afterSchoolChildrenCount" min="1">
-          </div>
-        </div>
-
         <div id="membershipSection" class="conditional-section" style="display: none;">
           <div class="form-group">
             <label for="membershipType">בחר את המועדון</label>
             <select id="membershipType" name="membershipType">
               <option value="">בחר מועדון</option>
               <option value="maonot">התאחדות המעונות</option>
-              <option value="hiba">חיב"ה</option>
+              <option value="hiba">חיב"ה / ארון הגנים</option>
               <option value="halamish">חלמיש</option>
             </select>
           </div>
         </div>
 
+        <label>
+          <input id="claimsLastYear" name="claimsLastYear" type="checkbox" value="claimsLastYear" /> האם היו תביעות בשנה
+          האחרונה?
+          <button class="info-button"
+            data-tooltip="במקרה של שינוי בפרמיה בעקבות תביעה, נציגנו יצרו קשר ויאשרו מולך את הפקת הפוליסה.&lt;br&gt;לבינתיים, אנא השלימו את תהליך החידוש."
+            type="button">
+            <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z">
+              </path>
+            </svg>
+          </button>
+        </label>
         <div class="navigation-buttons">
-          <button type="button" class="back-button">חזור לפרטי ביטוח</button>
-          <button type="button" class="next-button">לצפייה בסכום ואישור</button>
+          <button class="back-button" type="button">חזור לפרטי קשר</button>
+          <button class="next-button" type="button">מעבר לתוספות כיסויים</button>
         </div>
       </div>
-
-      <!-- Section 4: Payment Selection -->
-      <div id="paymentSelection" class="form-section">
-        <p class="premium-info">
-          <strong>הסכום הכולל לתשלום, מחושב על בסיס:</strong><br>
-          סוג הגן ומספר הילדים<br>
-          תוספות שנבחרו (צד ג', תאונות אישיות, סייבר וכו')<br>
-          הנחות בהתאם לכיסויים שנבחרו<br>
-          הפרמיה לא תרד מתחת למחיר המינימום גם אם יש הנחות
-        </p>
-
-        <div id="premiumDisplay" class="form-group">
-          <h2>סכום הפרמיה: <span id="premiumAmount">0 ₪</span></h2>
-          <p id="discountDisplay" class="premium-info"></p>
+      <!-- Content Building Section -->
+      <div class="form-section" id="contentBuildingSection">
+        <h2>ביטוח תכולה ומבנה</h2>
+        <p>כל נזק שיכול להגרם למבנה ולתכולת הגן עקב פיצוץ בצנרת, נזקי טבע, רעידת אדמה, פריצה, שריפה וצד ג.הפוליסה מכסה
+          עד 100 מטר מבנה , תכולה של עד 200 אלף ותכולת חצר עד 20 אלף שח . במקרה והסכומים גבוהים יותר יש לציין כדי המנע
+          מתת ביטוח</p>
+        <div class="form-group">
+          <label>גודל המבנה</label>
+          <div class="button-group" id="buildingSizeButtons">
+            <button class="interested-button building-size-button selected" data-value="under100" type="button">עד 100
+              מ"ר</button>
+            <button class="not-interested-button building-size-button" data-value="over100" type="button">מעל 100
+              מ"ר</button>
+          </div>
+          <div id="buildingSizeExtraInput" style="display: none;">
+            <input class="buildingSum" id="buildingSizeExact" placeholder="ציין את גודל המבנה" type="text" />
+          </div>
         </div>
-
-        <p class="premium-info">בחר את אמצעי התשלום:</p>
+        <div class="form-group">
+          <label>סכום ביטוח תכולה</label>
+          <div class="button-group">
+            <button class="content-value-button" data-value="under200k" type="button">עד 200,000 ₪</button>
+            <button class="content-value-button" data-value="over200k" type="button">מעל 200,000 ₪</button>
+          </div>
+          <div id="contentSumExtraInput" style="display: none;">
+            <input class="contentSum" id="contentSumExact" placeholder="ציין את שווי התכולה" type="text" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>סכום תכולת חצר
+            <button class="info-button" data-tooltip="תכולת חצר מתייחסת אך ורק לציוד צמוד רצפה" type="button">
+              <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z">
+                </path>
+              </svg>
+            </button>
+          </label>
+          <div class="button-group">
+            <button class="yard-value-button" data-value="under20k" type="button">עד 20,000 ₪</button>
+            <button class="yard-value-button" data-value="over20k" type="button">מעל 20,000 ₪</button>
+          </div>
+          <div id="yardContentSumExtraInput" style="display: none;">
+            <input class="yardContentSum" id="yardContentSumExact" placeholder="ציין את שווי תכולת החצר" type="text" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="buildingType">סוג המבנה</label>
+          <select class="buildingType" id="buildingType">
+            <option value="">בחר סוג מבנה</option>
+            <option value="apartment">דירה</option>
+            <option value="privateHouse">בית פרטי</option>
+            <option value="municipal">מבנה של הרשות המקומית</option>
+            <option value="caravan">קראוון / מבנה יביל</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>
+            <input class="hasLien" id="hasLien" type="checkbox" /> האם קיים שעבוד
+          </label>
+        </div>
+        <div class="form-group" id="lienHolderInput" style="display: none;">
+          <label for="lienHolder">משועבד ל</label>
+          <input class="lienHolder" id="lienHolder" placeholder="ציין את הגורם" type="text" />
+        </div>
+        <div class="navigation-buttons">
+          <button class="back-button" type="button">חזור לפרטי הביטוח</button>
+          <button class="next-button" type="button">למעבר לתוספות כיסוי</button>
+        </div>
+      </div>
+      <!-- Coverage Add-ons Section -->
+      <div class="form-section" id="coverageAddons">
+        <h2>תוספות כיסוי</h2>
+        <div id="coverageOptionsContainer"></div>
+        <div id="premiumDisplay">
+          <p id="premiumAmount">0 ₪</p>
+          <p id="discountDisplay" style="color:#d03499; font-size:1.1em; margin-top: 12px;"></p>
+        </div>
+        <div class="navigation-buttons">
+          <button class="back-button" type="button">חזור לפרטי ביטוח</button>
+          <button class="next-button" type="button">למעבר לבחירת אמצעי תשלום</button>
+        </div>
+      </div>
+      <!-- Payment Selection Section -->
+      <div class="form-section" id="paymentSelection">
+        <h2>תשלום</h2>
+        <p style="text-align: center;">בחר את אמצעי התשלום:</p>
         <div class="payment-buttons">
-          <button type="button" class="credit-button">תשלום באשראי</button>
-          <button type="button" class="bank-button">העברה בנקאית</button>
-          <button type="button" class="debit-auth-button">הרשאה לחיוב חשבון</button>
+          <button class="credit-button" type="button">תשלום באשראי</button>
+          <button class="bank-button" type="button">העברה בנקאית</button>
+          <button class="debit-auth-button" type="button">הרשאה לחיוב חשבון</button>
         </div>
-
         <div class="navigation-buttons">
-          <button type="button" class="back-button">חזור לתוספות כיסויים</button>
+          <button class="back-button" type="button">חזור לתוספות כיסויים</button>
         </div>
       </div>
+      <!-- Bank Transfer Section -->
+      <div class="form-section" id="bankTransferSection">
+        <h2>העברה בנקאית</h2>
+        <p>לביצוע העברה בנקאית, אנא בצעו את ההעברה לפי הפרטים הבאים:</p>
+        <p>בנק: 10<br />סניף: 800<br />חשבון: 52001628<br />שם המוטב: מגדל חברה לביטוח</p>
+        <div class="file-upload">
+          <label class="file-upload-label" for="bankTransferProof">העלאת אישור העברה</label>
+          <input class="file-upload-input" id="bankTransferProof" type="file" />
+          <p id="bankFileName"></p>
+        </div>
+        <div class="form-group approval-request-group">
+          <label style="align-items: center; gap: 8px;">
+            <input type="checkbox" class="needsApprovalCheckbox" style="width: 18px;">
+            האם צריך אישור עריכת ביטוח?
+          </label>
+          <div class="approval-info-text" style="display: none; margin-top: 8px; color: #b92d88; font-size:1.05em;">
+            יש לשלוח למייל ganim5@asherlevi.com<br>
+            או לוואטסאפ את טופס עריכת הביטוח, נא להקפיד לציין מי מבקש האישור.
+          </div>
+        </div>
 
-      <!-- Section 5: Bank Transfer -->
-      <div id="bankTransferSection" class="form-section">
-        <h2 style="text-align: center;">העברה בנקאית</h2>
-        <p class="premium-info">
-          לביצוע העברה בנקאית, אנא בצעו את ההעברה לפי הפרטים הבאים:
-        </p>
-        <p class="premium-info">
-          <strong>פרטי ההעברה:</strong><br>
-          <strong>בנק:</strong> 10<br>
-          <strong>סניף:</strong> 800<br>
-          <strong>חשבון:</strong> 52001628<br>
-          <strong>שם המוטב:</strong> אשר לוי סוכנות לביטוח
-        </p>
-        <div class="form-group">
-          <div class="file-upload">
-            <label for="bankTransferProof" class="file-upload-label">העלאת אישור העברה</label>
-            <input type="file" id="bankTransferProof" name="bankTransferProof" class="file-upload-input"
-              accept=".pdf,.jpg,.png">
-            <p id="bankFileName" class="file-name-display"></p>
+        <div class="signature-wrapper">
+          <label class="signature-label">חתימה:</label>
+          <canvas height="150" id="signatureCanvasBank" width="300"></canvas>
+          <button class="clear-signature-button" onclick="clearSignature('Bank')" type="button">נקה חתימה</button>
+        </div>
+        <p class="talah-info">האמור במסמך זה הינו לנוחיות בלבד ואינו מחייב. ייתכנו טעויות או השמטות בתום לב. המסמך אינו
+          מהווה תחליף לפוליסה המלאה, תנאיה, סייגיה והחרגותיה. ט.ל.ח.</p>
+        <div class="navigation-buttons">
+          <button class="back-button" type="button">חזור לבחירת אמצעי תשלום</button>
+          <button class="submit-button" type="submit">שלח</button>
+        </div>
+      </div>
+      <!-- Credit Card Section -->
+      <div class="form-section" id="creditCardSection">
+        <h2>תשלום באשראי</h2>
+        <p>לחצו על הכפתור כדי לעבור לדף תשלום מאובטח:</p>
+        <div class="centered-button">
+          <a class="styled-link-button" href="#">מעבר לדף תשלום</a>
+        </div>
+        <div class="form-group approval-request-group">
+          <label style="align-items: center; gap: 8px;">
+            <input type="checkbox" class="needsApprovalCheckbox" style="width: 18px;">
+            האם צריך אישור עריכת ביטוח?
+          </label>
+          <div class="approval-info-text" style="display: none; margin-top: 8px; color: #b92d88; font-size:1.05em;">
+            יש לשלוח למייל ganim5@asherlevi.com<br>
+            או לוואטסאפ את טופס עריכת הביטוח, נא להקפיד לציין מי מבקש האישור.
           </div>
         </div>
         <div class="signature-wrapper">
           <label class="signature-label">חתימה:</label>
-          <canvas id="signatureCanvasBank" width="300" height="150"></canvas>
-          <button type="button" onclick="clearSignature('Bank')" class="clear-signature-button">נקה חתימה</button>
+          <canvas height="150" id="signatureCanvasCredit" width="300"></canvas>
+          <button class="clear-signature-button" onclick="clearSignature('Credit')" type="button">נקה חתימה</button>
         </div>
-
-
-
+        <p class="talah-info">האמור במסמך זה הינו לנוחיות בלבד ואינו מחייב. ייתכנו טעויות או השמטות בתום לב. המסמך אינו
+          מהווה תחליף לפוליסה המלאה, תנאיה, סייגיה והחרגותיה. ט.ל.ח.</p>
         <div class="navigation-buttons">
-          <button type="button" class="back-button">חזור לבחירת אמצעי תשלום</button>
-          <button type="submit" class="submit-button">שלח</button>
+          <button class="back-button" type="button">חזור לבחירת אמצעי תשלום</button>
+          <button class="submit-button" type="submit">שלח</button>
         </div>
       </div>
-
-      <!-- Section 6: Credit Card -->
-      <div id="creditCardSection" class="form-section">
-        <h2 style="text-align: center;">תשלום באשראי</h2>
-        <p class="premium-info">לחצו על הכפתור כדי לעבור לדף תשלום מאובטח:</p>
-        <div class="form-group centered-button">
-          <a href="https://asherlevi.co.il/payments" target="_blank" class="styled-link-button">
-            מעבר לדף תשלום
-          </a>
+      <!-- Debit Authorization Section -->
+      <div class="form-section" id="debitAuthSection">
+        <h2>הרשאה לחיוב חשבון</h2>
+        <p class="premium-info">הקמת הרשאה לחיוב חשבון עבור מגדל חברה לביטוח (קוד מוסד: 502)</p>
+        <p class="premium-info">ההרשאה צריכה להיות ללא הגבלת סכום או מועד, ולציין את מספר התשלומים:</p>
+        <ul>
+          <li>עד 5 תשלומים – ללא ריבית</li>
+          <li>עד 8 תשלומים – בריבית של 4%</li>
+        </ul>
+        <p class="premium-info">ניתן לבצע את ההרשאה באחת משתי הדרכים:</p>
+        <ol>
+          <li>באופן עצמאי דרך אפליקציית הבנק: יש להקים הרשאה לחיוב חשבון עם קוד מוסד 502, ולאחר מכן להעלות כאן את
+            האסמכתא.</li>
+          <li>דרך סניף הבנק / נציג בנקאי: ניתן לפנות לבנק ולבקש מהם להקים את ההרשאה הנדרשת מול מגדל, בהתאם לפרטים שצוינו
+            מעלה.</li>
+        </ol>
+        <div class="file-upload">
+          <label class="file-upload-label" for="debitAuthUpload">העלאת טופס חתום ואישור</label>
+          <input class="file-upload-input" id="debitAuthUpload" type="file" />
+          <p id="debitFileName"></p>
         </div>
-
-        <div class="signature-wrapper">
-          <label class="signature-label">חתימה:</label>
-          <canvas id="signatureCanvasCredit" width="300" height="150"></canvas>
-          <button type="button" onclick="clearSignature('Credit')" class="clear-signature-button">נקה חתימה</button>
-        </div>
-
-
-
-        <div class="navigation-buttons">
-          <button type="button" class="back-button">חזור לבחירת אמצעי תשלום</button>
-          <button type="submit" class="submit-button">שלח</button>
-        </div>
-      </div>
-
-      <!-- Section 7: Debit Authorization -->
-      <div id="debitAuthSection" class="form-section">
-        <h2 style="text-align: center;">הרשאה לחיוב חשבון</h2>
-        <p class="premium-info">1. מלאו את טופס ההרשאה וחתמו.<br>
-          2. צרפו צילום צ'ק או אישור ניהול חשבון.<br>
-          3. שלחו למייל: <a href="mailto:office@asherlevi.co.il">office@asherlevi.co.il</a><br><br>
-          ניתן להוריד את טופס ההרשאה <a href="/docs/debit-auth.pdf" target="_blank">בלחיצה כאן</a>.
-        </p>
-        <div class="form-group">
-          <div class="file-upload">
-            <label for="debitAuthUpload" class="file-upload-label">העלאת טופס חתום ואישור</label>
-            <input type="file" id="debitAuthUpload" name="debitAuthUpload" class="file-upload-input"
-              accept=".pdf,.jpg,.png">
-            <p id="debitFileName" class="file-name-display"></p>
+        <div class="form-group approval-request-group">
+          <label style="align-items: center; gap: 8px;">
+            <input type="checkbox" class="needsApprovalCheckbox" style="width: 18px;">
+            האם צריך אישור עריכת ביטוח?
+          </label>
+          <div class="approval-info-text" style="display: none; margin-top: 8px; color: #b92d88; font-size:1.05em;">
+            יש לשלוח למייל ganim5@asherlevi.com<br>
+            או לוואטסאפ את טופס עריכת הביטוח, נא להקפיד לציין מי מבקש האישור.
           </div>
         </div>
         <div class="signature-wrapper">
           <label class="signature-label">חתימה:</label>
-          <canvas id="signatureCanvasDebit" width="300" height="150"></canvas>
-          <button type="button" onclick="clearSignature('Debit')" class="clear-signature-button">נקה חתימה</button>
+          <canvas height="150" id="signatureCanvasDebit" width="300"></canvas>
+          <button class="clear-signature-button" onclick="clearSignature('Debit')" type="button">נקה חתימה</button>
         </div>
-
-
+        <p class="talah-info">האמור במסמך זה הינו לנוחיות בלבד ואינו מחייב. ייתכנו טעויות או השמטות בתום לב. המסמך אינו
+          מהווה תחליף לפוליסה המלאה, תנאיה, סייגיה והחרגותיה. ט.ל.ח.</p>
         <div class="navigation-buttons">
-          <button type="button" class="back-button">חזור לבחירת אמצעי תשלום</button>
-          <button type="submit" class="submit-button">שלח</button>
+          <button class="back-button" type="button">חזור לבחירת אמצעי תשלום</button>
+          <button class="submit-button" type="submit">שלח</button>
         </div>
       </div>
-
-
-      <!-- Section 7: Thank You -->
-      <div id="thankYouSection" class="form-section">
+      <!-- Thank You Section -->
+      <div class="form-section" id="thankYouSection">
         <div class="success-animation">
-          <img src="success-icon.svg" alt="Success Checkmark" class="success-image">
+          <img alt="Success" class="success-image" src="success-icon.svg" />
         </div>
-        <p class="premium-info"><strong>הפרטים נשלחו בהצלחה!</strong></p>
+        <h2>הפרטים נשלחו בהצלחה!</h2>
       </div>
+      <!-- Coverage Options Templates -->
+      <div id="coverageOptionsTemplates" style="display: none;">
+        <div class="coverage-option" data-option="thirdParty" id="coverage-thirdParty">
+          <h3>צד ג' <span class="option-cost">מחיר: ₪0</span></h3>
+          <p>כל אדם שנכנס לגן, הורה, סבא, ספק, עובד. חובה שיהיה בפוליסה כיסוי לצד ג וכדי לקבל פיצוי צריך להוכיח רשלנות
+          </p>
+          <input name="insuranceOptions[thirdParty]" type="hidden" value="false" />
+          <div class="button-group">
+            <button class="interested-button" type="button">מעוניין</button>
+            <button class="not-interested-button selected" type="button">לא מעוניין</button>
+          </div>
+          <div class="conditional-section" style="display: none;">
+            <div class="form-group">
+              <label>סכום כיסוי צד ג'</label>
+              <select class="thirdPartyCoverage">
+                <option value="5M">5 מיליון שח למקרה / 10 מיליון לתקופה</option>
+                <option value="8M">8 מיליון שח למקרה</option>
+                <option value="10M">10 מיליון שח למקרה</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="coverage-option" data-option="deductibleCancellation" id="coverage-deductibleCancellation">
+          <h3>ביטול השתתפות עצמית <span class="option-cost">מחיר: ₪0</span></h3>
+          <p>ביטול ההשתתפות העצמית בכל נזק מעל 650 שח<br />למעט רעידת אדמה, נזקי טבע, אובדן הכנסה, אחריות מקצועית,
+            תאונות
+            אישיות והגנה בהליכים פליליים</p>
+          <input name="insuranceOptions[deductibleCancellation]" type="hidden" value="false" />
+          <div class="button-group">
+            <button class="interested-button" type="button">מעוניין</button>
+            <button class="not-interested-button selected" type="button">לא מעוניין</button>
+          </div>
+          <div class="conditional-section" style="display: none;"></div>
+        </div>
+        <div class="coverage-option" data-option="teacherAccidents" id="coverage-teacherAccidents">
+          <h3>תאונות אישיות לגננת <span class="option-cost">מחיר: ₪0</span></h3>
+          <p>ביטוח עבור הגננת או עובדת הגן במהלך שעות היממה. הכיסוי במקרים של כוויות, נכות ומוות.<br />
+            <strong>מסלול א'</strong>: פיצוי של 250,000 ₪ – במסגרת פוליסה קולקטיבית בגבולות אחריות 3.2 מיליון ₪ לשנה.
+            כולל פיצוי לשברים עם גיבוס בסך 5,000 ₪ למקרה.<br />
+            <strong>מסלול ב'</strong>: פיצוי שבועי של 2,000 ₪ לתקופה של עד 24 חודשים, 2 ימי המתנה. שברים וכוויות – 5,000
+            ₪ למקרה. פיצוי לאשפוז כתוצאה מתאונה מעל 3 ימים ועד 14 יום – 150 ₪ ליום.<br />
+            <strong>מסלול ג'</strong>: פיצוי של 300,000 ₪. פיצוי שבועי של 2,000 ₪ לתקופה של עד 24 חודשים, 2 ימי המתנה.
+            שברים וכוויות – 5,000 ₪ למקרה. פיצוי לאשפוז כתוצאה מתאונה מעל 3 ימים ועד 14 יום – 150 ₪ ליום.
+          </p>
+          <input name="insuranceOptions[teacherAccidents]" type="hidden" value="false" />
+          <div class="button-group">
+            <button class="interested-button" type="button">מעוניין</button>
+            <button class="not-interested-button selected" type="button">לא מעוניין</button>
+          </div>
+          <div class="conditional-section" style="display: none;">
+            <div class="personal-accidents-employees-section" style="margin-top:15px;">
+              <div id="personalAccidentEmployeesRows"></div>
+              <button type="button" id="addPersonalAccidentEmployeeButton" class="add-personal-accident-btn"
+                style="margin-top: 10px;">
+                הוסף גננת
+              </button>
+            </div>
 
-
-
+            <div class="form-group">
+              <label>מסלול כיסוי</label>
+              <select class="teacherAccidentsCoverage">
+                <option value="A">מסלול א: 250,000 שח מוות/נכות</option>
+                <option value="B">מסלול ב: 150,000 שח + פיצוי שבועי 1,000 שח</option>
+                <option value="C">מסלול ג: 300,000 שח + פיצוי שבועי 2,000 שח</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <!-- אחריות מקצועית -->
+        <div class="coverage-option" data-option="professionalLiability" id="coverage-professionalLiability">
+          <h3>אחריות מקצועית <span class="option-cost">מחיר: ₪0</span></h3>
+          <p>כיסוי זה ניתן לבעלות הסמכה בלבד ונותן כיסוי ביטוחי בעת תביעה בהקשר המקצועי.</p>
+          <input name="insuranceOptions[professionalLiability]" type="hidden" value="false" />
+          <div class="button-group">
+            <button class="interested-button" type="button">מעוניין</button>
+            <button class="not-interested-button selected" type="button">לא מעוניין</button>
+          </div>
+          <div class="conditional-section" style="display: none;"></div>
+        </div>
+        <!-- חבות מעבידים -->
+        <div class="coverage-option" data-option="employerLiability" id="coverage-employerLiability">
+          <h3>חבות מעבידים <span class="option-cost">מחיר: ₪0</span></h3>
+          <p>במקרה של תאונת עבודה, הכיסוי מעניק פיצוי לעובדים בגין נזקי גוף.</p>
+          <input name="insuranceOptions[employerLiability]" type="hidden" value="false" />
+          <div class="button-group">
+            <button class="interested-button" type="button">מעוניין</button>
+            <button class="not-interested-button selected" type="button">לא מעוניין</button>
+          </div>
+          <div class="conditional-section" style="display: none;">
+            <div class="form-group">
+              <label>סוג עובד</label>
+              <select class="employerLiabilityCoverage">
+                <option value="regular">עובד רגיל</option>
+                <option value="certified">עובד עם תעודת מקצוע</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <!-- ביטוח סייבר -->
+        <div class="coverage-option" data-option="cyberInsurance" id="coverage-cyberInsurance">
+          <h3>תוספת ביטוח סייבר <span class="option-cost">מחיר: ₪0</span></h3>
+          <p>ביטוח סייבר עבור המידע הנשמר במצלמות ובמערכות המחשוב של הגן.</p>
+          <input name="insuranceOptions[cyberInsurance]" type="hidden" value="false" />
+          <div class="button-group">
+            <button class="interested-button" type="button">מעוניין</button>
+            <button class="not-interested-button selected" type="button">לא מעוניין</button>
+          </div>
+          <div class="conditional-section" style="display: none;"></div>
+        </div>
+        <!-- אובדן הכנסות -->
+        <div class="coverage-option" data-option="incomeLoss" id="coverage-incomeLoss">
+          <h3>אובדן הכנסות <span class="option-cost">מחיר: ₪0</span></h3>
+          <p>כיסוי למקרה של הפסקת פעילות זמנית של הגן.</p>
+          <input name="insuranceOptions[incomeLoss]" type="hidden" value="false" />
+          <div class="button-group">
+            <button class="interested-button" type="button">מעוניין</button>
+            <button class="not-interested-button selected" type="button">לא מעוניין</button>
+          </div>
+          <div class="conditional-section" style="display: none;">
+            <div class="form-group">
+              <label>משך הכיסוי</label>
+              <select class="incomeLossDuration">
+                <option value="3">3 חודשים</option>
+                <option value="6">6 חודשים</option>
+                <option value="12">12 חודשים</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <!-- תוספת צהרון -->
+        <div class="coverage-option" data-option="afterSchoolProgram" id="coverage-afterSchoolProgram">
+          <h3>תוספת צהרון לפוליסת הגן <span class="option-cost">מחיר: ₪0</span></h3>
+          <p>ביטוח נוסף לפעילות צהרון בגן.</p>
+          <input name="insuranceOptions[afterSchoolProgram]" type="hidden" value="false" />
+          <div class="button-group">
+            <button class="interested-button" type="button">מעוניין</button>
+            <button class="not-interested-button selected" type="button">לא מעוניין</button>
+          </div>
+          <div class="conditional-section" style="display: none;">
+            <div class="form-group">
+              <label>מספר ילדים בצהרון</label>
+              <input class="afterSchoolChildrenCount" min="1" type="number" />
+            </div>
+          </div>
+        </div>
+      </div>
     </form>
   </div>
   <script src="script.js"></script>
