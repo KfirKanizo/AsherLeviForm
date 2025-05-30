@@ -591,43 +591,41 @@ function collectFormData() {
     }
   });
 
-  // עובדים דינמיים (employeeName[], employeeId[], employeeType[])
+  // ---------- עובדים דינמיים ----------
   const employeeNames = Array.from(document.querySelectorAll('input[name="employeeName[]"]')).map(e => e.value);
   const employeeIds = Array.from(document.querySelectorAll('input[name="employeeId[]"]')).map(e => e.value);
   const employeeTypes = Array.from(document.querySelectorAll('select[name="employeeType[]"]')).map(e => e.value);
+  let employeesArr = [];
+  for (let i = 0; i < employeeNames.length; i++) {
+    if (employeeNames[i] || employeeIds[i] || employeeTypes[i]) {
+      employeesArr.push(
+        [employeeNames[i] || '', employeeIds[i] || '', employeeTypes[i] || ''].join('|')
+      );
+    }
+  }
+  payload['employeesRaw'] = employeesArr.join(';');
 
-  employeeNames.forEach((name, i) => {
-    payload[`employeeName[${i}]`] = name;
-    payload[`employeeId[${i}]`] = employeeIds[i] || '';
-    payload[`employeeType[${i}]`] = employeeTypes[i] || '';
-  });
-
-  // איסוף גננות תאונות אישיות
+  // ---------- גננות תאונות אישיות ----------
   const paNames = Array.from(document.querySelectorAll('input[name="personalAccidentEmployeeName[]"]')).map(e => e.value);
   const paIds = Array.from(document.querySelectorAll('input[name="personalAccidentEmployeeId[]"]')).map(e => e.value);
-  paNames.forEach((name, i) => {
-    payload[`personalAccidentEmployeeName[${i}]`] = name;
-    payload[`personalAccidentEmployeeId[${i}]`] = paIds[i] || '';
-  });
+  let paArr = [];
+  for (let i = 0; i < paNames.length; i++) {
+    if (paNames[i] || paIds[i]) {
+      paArr.push(
+        [paNames[i] || '', paIds[i] || ''].join('|')
+      );
+    }
+  }
+  payload['personalAccidentsRaw'] = paArr.join(';');
 
-  // שליחת כל כיסוי באופן שטוח: insuranceOptions[optionName] + value נוסף אם רלוונטי
+  // ---------- תוספות כיסוי ----------
   document.querySelectorAll('.coverage-option').forEach(optionDiv => {
     const optionName = optionDiv.dataset.option;
     const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
     const isInterested = hiddenInput && hiddenInput.value === 'true';
-
-    // כיסוי ביטוח תכולה ומבנה — לא לשמור אם אין ביטוח תכולה ומבנה
-    if (optionName === 'contentBuilding') {
-      const hasContentBuilding = document.getElementById('hasContentBuilding');
-      if (hasContentBuilding && !hasContentBuilding.checked) {
-        payload[`insuranceOptions[${optionName}]`] = 'false';
-        return;
-      }
-    }
-
     payload[`insuranceOptions[${optionName}]`] = isInterested ? 'true' : 'false';
 
-    // איסוף ערך מהתנאי, רק אם "מעוניין" ורק אם קיים ערך
+    // details - רק אם יש ערך
     if (isInterested) {
       const condInput = optionDiv.querySelector('.conditional-section select, .conditional-section input[type="number"], .conditional-section input[type="text"]');
       if (condInput && condInput.value !== '') {
@@ -636,18 +634,19 @@ function collectFormData() {
     }
   });
 
-  // אפשרויות לחצני button-group (כמו building size וכו')
+  // ---------- button-groups ----------
   document.querySelectorAll('.button-group').forEach(group => {
     let selected = group.querySelector('button.selected');
     if (selected && selected.dataset.value) {
+      // עדיף להגדיר groupName באנגלית ב-data-attribute
       let groupName = group.closest('[data-option]')?.dataset.option ||
-        group.closest('.form-group')?.querySelector('label')?.innerText ||
+        group.closest('.form-group')?.querySelector('label')?.innerText?.replace(/[^\w]/g, '') || // הסר תווים לא רצויים
         selected.innerText;
       if (groupName) payload[`buttonGroup_${groupName}`] = selected.dataset.value;
     }
   });
 
-  // תכולה/מבנה/חצר — רק אם יש ביטוח תכולה ומבנה
+  // ---------- מבנה ותכולה - כל הערכים תחת contentBuildingDetails בלבד ----------
   const hasContentBuilding = document.getElementById('hasContentBuilding');
   if (hasContentBuilding && hasContentBuilding.checked) {
     payload['contentBuildingDetails[contentSum]'] = document.querySelector('.contentSum')?.value || '';
@@ -658,11 +657,15 @@ function collectFormData() {
     payload['contentBuildingDetails[lienHolder]'] = document.querySelector('.hasLien')?.checked ? (document.querySelector('.lienHolder')?.value || '') : '';
   }
 
+  // ---------- פרמיה, תשלום, חתימה, קבצים ----------
   payload['premium'] = parseInt(document.getElementById('premiumAmount').textContent.replace(/[^0-9]/g, '')) || 0;
   payload['paymentMethod'] = window.selectedPaymentMethod || '';
 
+  // (כאן מוסיפים קבצים וחתימות כמו קודם, אם צריך)
+
   return payload;
 }
+
 
 
 // --- הוספת גננות לכיסוי תאונות אישיות ---
