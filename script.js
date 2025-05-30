@@ -125,11 +125,9 @@ document.querySelectorAll('.next-button').forEach(button => {
     // דילוג קדימה על עמוד ביטוח תכולה ומבנה, אם הצ'קבוקס לא מסומן
     if (sections[currentSectionIndex].id === 'insuranceDetails') {
       const hasContentBuilding = document.getElementById('hasContentBuilding');
-      // אם הצ'קבוקס לא מסומן – עבור ישירות לעמוד תוספות כיסוי
       if (hasContentBuilding && !hasContentBuilding.checked) {
         const contentSectionIndex = sections.findIndex(sec => sec.id === 'contentBuildingSection');
         const addonsSectionIndex = sections.findIndex(sec => sec.id === 'coverageAddons');
-        // אם כרגע בעמוד insuranceDetails והבא בתור זה contentBuildingSection – מדלגים עליו
         if (contentSectionIndex === currentSectionIndex + 1 && addonsSectionIndex !== -1) {
           currentSectionIndex = addonsSectionIndex;
           showSection(currentSectionIndex);
@@ -138,16 +136,7 @@ document.querySelectorAll('.next-button').forEach(button => {
       }
     }
 
-    // הפלואו הרגיל: עמוד תוספות כיסוי מאפשר חזרה לביטוח תכולה אם צריך (ולא משנה התנהגות אחורה)
-    if (sections[currentSectionIndex].id === 'coverageAddons') {
-      const hasContentBuilding = document.getElementById('hasContentBuilding');
-      const contentIndex = sections.findIndex(sec => sec.id === 'contentBuildingSection');
-      // במידה ובחר כן – חוזרים למסך ביטוח תכולה
-      if (hasContentBuilding && hasContentBuilding.checked && contentIndex !== -1) {
-        showSection(contentIndex);
-        return;
-      }
-    }
+    // כאן ***לא*** מחזירים למסך ביטוח תכולה אם בוחרים תוספות! זה רק בפלואו של "הבא" מתוך insuranceDetails
 
     if (currentSectionIndex < sections.length - 1) {
       currentSectionIndex++;
@@ -155,6 +144,7 @@ document.querySelectorAll('.next-button').forEach(button => {
     }
   });
 });
+
 
 
 document.querySelectorAll('.back-button').forEach(button => {
