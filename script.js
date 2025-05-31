@@ -307,23 +307,26 @@ function addEventListenersToOption(optionDiv) {
   }
 
   newInterestedButton.addEventListener('click', () => {
+    // ודא שאתה משנה תמיד את input הכי קרוב (ולא input כללי שכבר לא בתוקף)
+    const hiddenInput = newInterestedButton.closest('.coverage-option').querySelector(`input[name="insuranceOptions[${optionName}]"]`);
     hiddenInput.value = 'true';
     newInterestedButton.classList.add('selected');
     newNotInterestedButton.classList.remove('selected');
     if (conditionalSection) conditionalSection.style.display = 'block';
-    // לוג לבדיקת תקינות
-    console.log(`[${optionName}] -> TRUE`);
+    console.log(`Clicked Interested: [${optionName}], value now:`, hiddenInput.value);
     calculatePremium();
   });
 
   newNotInterestedButton.addEventListener('click', () => {
+    const hiddenInput = newNotInterestedButton.closest('.coverage-option').querySelector(`input[name="insuranceOptions[${optionName}]"]`);
     hiddenInput.value = 'false';
     newNotInterestedButton.classList.add('selected');
     newInterestedButton.classList.remove('selected');
     if (conditionalSection) conditionalSection.style.display = 'none';
-    console.log(`[${optionName}] -> FALSE`);
+    console.log(`Clicked Not Interested: [${optionName}], value now:`, hiddenInput.value);
     calculatePremium();
   });
+
 
   // טריגר חישוב בעת שינוי שדות תנאי
   optionDiv.querySelectorAll('.conditional-section input, .conditional-section select').forEach(input => {
@@ -605,6 +608,7 @@ form.addEventListener('submit', async (e) => {
 });
 
 function collectFormData() {
+  console.log('--- collectFormData called ---');
   const payload = {};
 
   // קלטים רגילים (input, select, textarea)
@@ -651,10 +655,12 @@ function collectFormData() {
   payload['personalAccidentsRaw'] = paArr.join(';');
 
   // ---------- תוספות כיסוי ----------
-  document.querySelectorAll('.coverage-option').forEach(optionDiv => {
+  // שים לב – רק מהקונטיינר שמוצג בפועל!
+  document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
     const optionName = optionDiv.dataset.option;
     const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
     const isInterested = hiddenInput && hiddenInput.value === 'true';
+    console.log(`collectFormData: option [${optionName}] = ${hiddenInput?.value}`);
     payload[`insuranceOptions[${optionName}]`] = isInterested ? 'true' : 'false';
 
     // details - רק אם יש ערך
@@ -697,6 +703,7 @@ function collectFormData() {
 
   return payload;
 }
+
 
 
 
@@ -877,8 +884,41 @@ function setupYardValueButtons() {
 function prefillFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
 
-  // מעבר על כל input/select/checkbox לפי name/id
   urlParams.forEach((value, key) => {
+    // --- עובדים דינמיים ---
+    if (key === 'employeesRaw') {
+      const rows = value.split(';');
+      const addBtn = document.getElementById('addEmployeeButton');
+      rows.forEach((row, index) => {
+        const [name, id, type] = row.split('|');
+        if (index > 0 && addBtn) addBtn.click();
+        const nameInputs = document.querySelectorAll('input[name="employeeName[]"]');
+        const idInputs = document.querySelectorAll('input[name="employeeId[]"]');
+        const typeSelects = document.querySelectorAll('select[name="employeeType[]"]');
+        if (nameInputs[index]) nameInputs[index].value = name || '';
+        if (idInputs[index]) idInputs[index].value = id || '';
+        if (typeSelects[index]) typeSelects[index].value = type || '';
+      });
+      return;
+    }
+
+    // --- גננות תאונות אישיות ---
+    if (key === 'personalAccidentsRaw') {
+      const rows = value.split(';');
+      const container = document.getElementById('personalAccidentEmployeesContainer');
+      const addBtn = container?.querySelector('.add-pa-btn');
+      rows.forEach((row, index) => {
+        const [name, id] = row.split('|');
+        if (index > 0 && addBtn) addBtn.click();
+        const nameInputs = document.querySelectorAll('input[name="personalAccidentEmployeeName[]"]');
+        const idInputs = document.querySelectorAll('input[name="personalAccidentEmployeeId[]"]');
+        if (nameInputs[index]) nameInputs[index].value = name || '';
+        if (idInputs[index]) idInputs[index].value = id || '';
+      });
+      return;
+    }
+
+    // --- קלטים רגילים ---
     let el = document.getElementById(key) || document.querySelector(`[name="${key}"]`);
     if (el) {
       if (el.type === 'checkbox') {
@@ -889,18 +929,18 @@ function prefillFromUrl() {
       } else {
         el.value = value;
       }
-      // טריגר שינוי לכל שדה שהוזן
       el.dispatchEvent(new Event('change', { bubbles: true }));
       el.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
-    // טיפול בכפתורים (לפי data-value, לדוג' בבחירות תכולה/גודל)
+    // --- לחצנים עם data-value (כמו תכולה/מבנה) ---
     let btn = document.querySelector(`button[data-value="${value}"]`);
     if (btn) {
       btn.click();
     }
   });
 }
+window.addEventListener('DOMContentLoaded', prefillFromUrl);
 
 
 // קריאה לפונקציות לאחר טעינת העמוד
