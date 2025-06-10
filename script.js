@@ -10,6 +10,7 @@ const sections = [
   document.getElementById('contactDetails'),
   document.getElementById('insuranceDetails'),
   document.getElementById('contentBuildingSection'),
+  document.getElementById('policyDetails'),
   document.getElementById('coverageAddons'),
   document.getElementById('paymentSelection'),
   document.getElementById('bankTransferSection'),
@@ -63,45 +64,113 @@ const availableOptions = {
 };
 
 
+const policyFeaturesByTrack = {
+  1: [
+    { title: "צד ג'", description: "כיסוי בגין נזקי גוף ורכוש שנגרמו לצד שלישי במסגרת פעילות הגן." },
+    { title: "פינוי באמבולנס", description: "כולל פינוי במקרי חירום בעקבות פגיעות ילדים או צוות." },
+    { title: "הרחבות ללא תוספת תשלום", description: "כיסוי להרעלת מזון, חפץ זר באוכל, פגיעת ילד בילד, פעילות מחוץ לגן, פגיעות גוף חריגות, הוצאת דיבה, הגנה פלילית ואזרחית." }
+  ],
+  2: [
+    { title: "צד ג'", description: "כיסוי אחריות כלפי צד שלישי." },
+    { title: "פינוי באמבולנס", description: "כיסוי מלא לפינוי במקרים רפואיים." },
+    { title: "הרחבות ללא תוספת תשלום", description: "כיסויים נוספים כגון פגיעות גוף בלתי רגילות, השמצה ועוד." },
+    { title: "תאונות אישיות לילדים", description: "כולל הוצאות רפואיות, שברים, נכות זמנית, נכות קבועה, פטירה, אובדן שכר לימוד עד 60 יום." }
+  ],
+  3: [
+    { title: "צד ג'", description: "כיסוי לנזקי גוף או רכוש שנגרמו לגורמים חיצוניים." },
+    { title: "פינוי באמבולנס", description: "כיסוי פינוי בעת תאונה או פציעה במסגרת הגן." },
+    { title: "הרחבות ללא תוספת תשלום", description: "כיסוי להאשמות שווא, הוצאות משפטיות והגנה אישית." },
+    { title: "תאונות אישיות לילדים", description: "פוליסת תאונות רחבה לילדים." }
+  ],
+  4: [
+    { title: "צד ג'", description: "כיסוי לאחריות כלפי הורים, מבקרים, ספקים ועוד." },
+    { title: "פינוי באמבולנס", description: "כיסוי מלא לפינוי חירום באמבולנס." },
+    { title: "הרחבות ללא תוספת תשלום", description: "הגנה מפני תביעות אזרחיות ופליליות, כולל עלויות הגנה." },
+    { title: "תאונות אישיות לילדים", description: "כיסוי מלא לאירועי תאונה לילדים כולל אובדן שכר לימוד." },
+    { title: "חבות מעבידים", description: "כיסוי משפטי וכלכלי לתביעות מצד עובדים." }
+  ],
+  5: [
+    { title: "צד ג'", description: "אחריות כלפי צד שלישי על פגיעות גוף או רכוש." },
+    { title: "פינוי באמבולנס", description: "פינוי חירום בעת פגיעה בילד/צוות." },
+    { title: "הרחבות ללא תוספת תשלום", description: "כיסויים נוספים למקרי קצה כגון פעילות חוץ או הרעלות." },
+    { title: "חבות מעבידים", description: "הגנה במקרה של פגיעת עובד במהלך העבודה." }
+  ],
+  6: [
+    { title: "צד ג'", description: "אחריות משפטית לנזקים לגורמים חיצוניים." },
+    { title: "פינוי באמבולנס", description: "כולל פינוי רפואי מהיר בעת פגיעות." },
+    { title: "הרחבות ללא תוספת תשלום", description: "הגנות מורחבות למצבים נדירים או תביעות מורכבות." },
+    { title: "חבות מעבידים", description: "כיסוי לפגיעות של עובדים במהלך יום העבודה." },
+    { title: "תכולה ומבנה", description: "כיסוי לתכולה, נזקי זכוכית, ציוד אישי של עובדים ובעלי הגן, מזומן, קלקול במקרר, גניבה, נזקי מים, רעידת אדמה ועוד." },
+    { title: "אובדן הכנסות", description: "כיסוי של 5,000 ₪ ל־3 חודשים – ניתן להארכה." }
+  ],
+  7: [
+    { title: "צד ג'", description: "אחריות צד שלישי – גוף ורכוש." },
+    { title: "פינוי באמבולנס", description: "כיסוי מלא לפינוי רפואי." },
+    { title: "הרחבות ללא תוספת תשלום", description: "כיסויים נוספים לפגיעות חריגות." },
+    { title: "תאונות אישיות לילדים", description: "כולל טיפולים רפואיים, נכות זמנית וקבועה, פטירה." },
+    { title: "חבות מעבידים", description: "פגיעות עובדים בגן." },
+    { title: "תכולה ומבנה", description: "נזק לתכולה ולמבנה עד גבולות אחריות מוגדרים." },
+    { title: "אובדן הכנסות", description: "כיסוי עד 5,000 ₪ למשך 3 חודשים – בתנאים מסוימים." }
+  ]
+};
+
+
 function showSection(index) {
   const currentSection = sections[currentSectionIndex];
   const nextSection = sections[index];
   const isForward = index > currentSectionIndex;
 
+  // מעבר בין סקשנים – אנימציה
   if (currentSection) {
     currentSection.classList.remove('active');
     currentSection.classList.add(isForward ? 'form-section-exit-left' : 'form-section-exit-right');
   }
 
   setTimeout(() => {
+    // הסתר את כולם, הצג את החדש
     sections.forEach((section, i) => {
       section.classList.remove('form-section-exit-left', 'form-section-exit-right', 'active');
       if (i === index) section.classList.add('active');
     });
 
-    if (index === 2 || index === 3) updateCoverageOptions();
+    // עדכון כיסויים – מסך תוספות כיסוי
+    if (index === 4) updateCoverageOptions();
+
+    // הצגת פרטי פוליסה – לפי המסלול
+    if (index === 3) {
+      const track = determinePolicyTrack();
+      populatePolicyDetails(track);
+    }
+
+    // הצגת פרמיה – רק במסכים הרלוונטיים
     const premiumDisplay = document.getElementById('premiumDisplay');
-    if (premiumDisplay) premiumDisplay.style.display = [2, 3, 4].includes(index) ? 'block' : 'none';
+    if (premiumDisplay) {
+      premiumDisplay.style.display = [2, 3, 4].includes(index) ? 'block' : 'none';
+    }
 
     calculatePremium();
 
+    // בר התקדמות (6 שלבים בפועל)
     const progressFill = document.getElementById('progressBarFill');
     if (progressFill) {
-      const totalSteps = 6; // Total number of steps excluding thank you section
+      const totalSteps = 7;
       let stepForProgress = index;
-      if ([5, 6, 7].includes(index)) stepForProgress = 4;
+      if ([5, 6, 7, 8].includes(index)) stepForProgress = 5; // מסכי תשלום = סוף שלב 5
       const percentage = Math.min((stepForProgress / (totalSteps - 1)) * 100, 100);
       progressFill.style.width = `${percentage}%`;
     }
 
-    // עדכון נכון לסקשנים של החתימה
-    if (index === 5) initSignatureCanvas('signatureCanvasBank');
-    if (index === 6) initSignatureCanvas('signatureCanvasCredit');
-    if (index === 7) initSignatureCanvas('signatureCanvasDebit');
+    // חתימה – לפי מסך תשלום
+    if (index === 6) initSignatureCanvas('signatureCanvasBank');
+    if (index === 7) initSignatureCanvas('signatureCanvasCredit');
+    if (index === 8) initSignatureCanvas('signatureCanvasDebit');
 
+    // עדכון אינדקס
     currentSectionIndex = index;
   }, 400);
 }
+
+
 
 
 document.querySelectorAll('.next-button').forEach(button => {
@@ -122,22 +191,30 @@ document.querySelectorAll('.next-button').forEach(button => {
       return;
     }
 
-    // דילוג קדימה על עמוד ביטוח תכולה ומבנה, אם הצ'קבוקס לא מסומן
+    // דילוג על ביטוח תכולה אם לא מסומן — וקפיצה ל־policyDetails
     if (sections[currentSectionIndex].id === 'insuranceDetails') {
       const hasContentBuilding = document.getElementById('hasContentBuilding');
       if (hasContentBuilding && !hasContentBuilding.checked) {
-        const contentSectionIndex = sections.findIndex(sec => sec.id === 'contentBuildingSection');
-        const addonsSectionIndex = sections.findIndex(sec => sec.id === 'coverageAddons');
-        if (contentSectionIndex === currentSectionIndex + 1 && addonsSectionIndex !== -1) {
-          currentSectionIndex = addonsSectionIndex;
+        const policyIndex = sections.findIndex(sec => sec.id === 'policyDetails');
+        if (policyIndex !== -1) {
+          currentSectionIndex = policyIndex;
           showSection(currentSectionIndex);
           return;
         }
       }
     }
 
-    // כאן ***לא*** מחזירים למסך ביטוח תכולה אם בוחרים תוספות! זה רק בפלואו של "הבא" מתוך insuranceDetails
+    // מסך policyDetails → coverageAddons
+    if (sections[currentSectionIndex].id === 'policyDetails') {
+      const addonsIndex = sections.findIndex(sec => sec.id === 'coverageAddons');
+      if (addonsIndex !== -1) {
+        currentSectionIndex = addonsIndex;
+        showSection(currentSectionIndex);
+        return;
+      }
+    }
 
+    // מעבר רגיל
     if (currentSectionIndex < sections.length - 1) {
       currentSectionIndex++;
       showSection(currentSectionIndex);
@@ -146,14 +223,32 @@ document.querySelectorAll('.next-button').forEach(button => {
 });
 
 
-
 document.querySelectorAll('.back-button').forEach(button => {
   button.addEventListener('click', () => {
-    // בדיקה מיוחדת למסך תוספות כיסוי:
+    // חזרה מ־coverageAddons → policyDetails
+    if (sections[currentSectionIndex].id === 'coverageAddons') {
+      const policyIndex = sections.findIndex(sec => sec.id === 'policyDetails');
+      if (policyIndex !== -1) {
+        currentSectionIndex = policyIndex;
+        showSection(currentSectionIndex);
+        return;
+      }
+    }
+
+    // חזרה מ־policyDetails → insuranceDetails
+    if (sections[currentSectionIndex].id === 'policyDetails') {
+      const insuranceIndex = sections.findIndex(sec => sec.id === 'insuranceDetails');
+      if (insuranceIndex !== -1) {
+        currentSectionIndex = insuranceIndex;
+        showSection(currentSectionIndex);
+        return;
+      }
+    }
+
+    // במידה ותכולה לא מסומנת - חזור ישירות ל־insuranceDetails (דילוג אחורה)
     if (sections[currentSectionIndex].id === 'coverageAddons') {
       const hasContentBuilding = document.getElementById('hasContentBuilding');
       if (hasContentBuilding && !hasContentBuilding.checked) {
-        // חזור ישר למסך פרטי ביטוח
         const insuranceDetailsIndex = sections.findIndex(sec => sec.id === 'insuranceDetails');
         if (insuranceDetailsIndex !== -1) {
           currentSectionIndex = insuranceDetailsIndex;
@@ -163,7 +258,7 @@ document.querySelectorAll('.back-button').forEach(button => {
       }
     }
 
-    // הפלואו הרגיל:
+    // רגיל
     if (currentSectionIndex > 0) {
       currentSectionIndex--;
       showSection(currentSectionIndex);
@@ -172,30 +267,29 @@ document.querySelectorAll('.back-button').forEach(button => {
 });
 
 
+
+
 document.querySelectorAll('#bankTransferSection .back-button, #creditCardSection .back-button, #debitAuthSection .back-button')
   .forEach(button => {
     button.addEventListener('click', () => {
-      showSection(4); // אינדקס של paymentSelection
+      showSection(5); // חוזר למסך בחירת אמצעי תשלום
     });
   });
 
 
 document.querySelector('.bank-button').addEventListener('click', () => {
   selectedPaymentMethod = 'bank';
-  currentSectionIndex = 5;
-  showSection(5);
+  showSection(6);
 });
 
 document.querySelector('.credit-button').addEventListener('click', () => {
   selectedPaymentMethod = 'credit';
-  currentSectionIndex = 6;
-  showSection(6);
+  showSection(7);
 });
 
 document.querySelector('.debit-auth-button').addEventListener('click', () => {
   selectedPaymentMethod = 'debit';
-  currentSectionIndex = 7;
-  showSection(7);
+  showSection(8);
 });
 
 if (isMemberCheckbox && membershipSection) {
@@ -260,6 +354,19 @@ infoButtons.forEach(button => {
     });
   }
 });
+
+function populatePolicyDetails(trackNumber) {
+  const container = document.getElementById('policyCardsContainer');
+  container.innerHTML = '';
+
+  const features = policyFeaturesByTrack[trackNumber] || [];
+  features.forEach(feature => {
+    const card = document.createElement('div');
+    card.className = 'policy-card';
+    card.innerHTML = `<h3>${feature.title}</h3><p>${feature.description}</p>`;
+    container.appendChild(card);
+  });
+}
 
 
 function updateCoverageOptions() {
@@ -344,6 +451,23 @@ function addEventListenersToOption(optionDiv) {
     lienHolderInput.style.display = hasLienCheckbox.checked ? 'block' : 'none';
   }
 }
+
+function determinePolicyTrack() {
+  const gardenTypeValue = gardenType.value;
+  const children = parseInt(childrenCount.value) || 0;
+  const hasContent = document.getElementById('hasContentBuilding')?.checked;
+
+  if (gardenTypeValue === 'tamah') return 1;
+  if (gardenTypeValue === 'privateFamily') {
+    if (children <= 6) return 2;
+    if (children <= 9) return 3;
+    return 4;
+  }
+  if (gardenTypeValue === 'upTo3') return 7;
+  if ((gardenTypeValue === 'over3' || gardenTypeValue === 'afterSchool') && hasContent) return 6;
+  return 5;
+}
+
 
 
 function calculatePremium() {
@@ -598,7 +722,7 @@ form.addEventListener('submit', async (e) => {
     try {
       const formValues = collectFormData();
       await sendToWebhook(formValues); // כולל הכל: חתימה, קבצים, ערכים
-      showSection(8); // מעבר לעמוד תודה
+      showSection(9); // מעבר לעמוד תודה
     } catch (error) {
       alert('שגיאה בשליחת הטופס. אנא נסה שוב.');
     }
@@ -699,10 +823,14 @@ function collectFormData() {
   payload['premium'] = parseInt(document.getElementById('premiumAmount').textContent.replace(/[^0-9]/g, '')) || 0;
   payload['paymentMethod'] = window.selectedPaymentMethod || '';
 
+  // ---------- automation מתוך URL ----------
+  payload['automation'] = window.formAutomationFlag || 'true';
+
   // (כאן מוסיפים קבצים וחתימות כמו קודם, אם צריך)
 
   return payload;
 }
+
 
 
 
@@ -883,6 +1011,10 @@ function setupYardValueButtons() {
 
 function prefillFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
+
+  // --- קביעת ערך automation עם ברירת מחדל true ---
+  const automationParam = urlParams.get('automation');
+  window.formAutomationFlag = (automationParam === null || automationParam === 'true') ? 'true' : 'false';
 
   urlParams.forEach((value, key) => {
     // --- עובדים דינמיים ---

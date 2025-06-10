@@ -27,10 +27,11 @@
         <div class="progress-steps">
           <span class="step-label">1. פרטי איש קשר</span>
           <span class="step-label">2. פרטי ביטוח</span>
-          <span class="step-label">4. ביטוח תכולה ומבנה</span>
-          <span class="step-label">3. תוספות כיסוי</span>
-          <span class="step-label">5. תשלום</span>
-          <span class="step-label">6. סיכום</span>
+          <span class="step-label">3. תכולה ומבנה</span>
+          <span class="step-label">4. פרטי הפוליסה</span>
+          <span class="step-label">5. תוספות כיסוי</span>
+          <span class="step-label">6. תשלום</span>
+          <span class="step-label">7. סיכום</span>
         </div>
       </div>
       <!-- Contact Details Section -->
@@ -125,9 +126,7 @@
         </div>
         <div class="form-group">
           <label for="policyNumber">מספר ת.ז / ח.פ *
-            <button class="info-button"
-              data-tooltip="מספר תעודת הזהות או ח.פ. של בעל הפוליסה"
-              type="button">
+            <button class="info-button" data-tooltip="מספר תעודת הזהות או ח.פ. של בעל הפוליסה" type="button">
               <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z">
@@ -219,7 +218,7 @@
 
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לפרטי קשר</button>
-          <button class="next-button" type="button">מעבר לתוספות כיסויים</button>
+          <button class="next-button" type="button">המשך</button>
         </div>
       </div>
       <!-- Content Building Section -->
@@ -289,6 +288,15 @@
         </div>
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לפרטי הביטוח</button>
+          <button class="next-button" type="button">למעבר לפרטי הפוליסה</button>
+        </div>
+      </div>
+      <!-- Policy Details Section -->
+      <div class="form-section" id="policyDetails">
+        <h2>מה כוללת הפוליסה?</h2>
+        <div id="policyCardsContainer" class="policy-cards-container"></div>
+        <div class="navigation-buttons">
+          <button class="back-button" type="button">חזור</button>
           <button class="next-button" type="button">למעבר לתוספות כיסוי</button>
         </div>
       </div>
@@ -301,7 +309,7 @@
           <p id="discountDisplay" style="color:#d03499; font-size:1.1em; margin-top: 12px;"></p>
         </div>
         <div class="navigation-buttons">
-          <button class="back-button" type="button">חזור לפרטי ביטוח</button>
+          <button class="back-button" type="button">חזור לפרטי הפוליסה</button>
           <button class="next-button" type="button">למעבר לבחירת אמצעי תשלום</button>
         </div>
       </div>
