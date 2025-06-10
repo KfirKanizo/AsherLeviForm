@@ -699,10 +699,14 @@ function collectFormData() {
   payload['premium'] = parseInt(document.getElementById('premiumAmount').textContent.replace(/[^0-9]/g, '')) || 0;
   payload['paymentMethod'] = window.selectedPaymentMethod || '';
 
+  // ---------- automation מתוך URL ----------
+  payload['automation'] = window.formAutomationFlag || 'true';
+
   // (כאן מוסיפים קבצים וחתימות כמו קודם, אם צריך)
 
   return payload;
 }
+
 
 
 
@@ -883,6 +887,10 @@ function setupYardValueButtons() {
 
 function prefillFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
+
+  // --- קביעת ערך automation עם ברירת מחדל true ---
+  const automationParam = urlParams.get('automation');
+  window.formAutomationFlag = (automationParam === null || automationParam === 'true') ? 'true' : 'false';
 
   urlParams.forEach((value, key) => {
     // --- עובדים דינמיים ---
