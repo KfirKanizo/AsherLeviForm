@@ -912,6 +912,8 @@ async function sendToWebhook(payload) {
   await appendSignatureToFormData(formData, selectedPaymentMethod);
 
   // שליחה ל-Webhook
+  // Production URL: https://hook.eu2.make.com/9ubikqsvbfewa5nrv4452fhxui1ikpel
+  console.log('Sending data to webhook:', payload);
   const response = await fetch('https://hook.eu2.make.com/c8jk8qsq7mnwtdg5aevxvxhdg8m3yocw', {
     method: 'POST',
     body: formData,
@@ -1018,36 +1020,64 @@ function prefillFromUrl() {
 
   urlParams.forEach((value, key) => {
     // --- עובדים דינמיים ---
-    if (key === 'employeesRaw') {
+    // --- תפעול employeesRaw לפני שדות אחרים ---
+    if (urlParams.has('employeesRaw')) {
+      const value = urlParams.get('employeesRaw');
       const rows = value.split(';');
+
+      // סימון תיבה והצגת הסקשן
+      const empCheckbox = document.getElementById('hasAdditionalEmployees');
+      const empSection = document.getElementById('employeesSection');
+      const container = document.getElementById('employeeRows');
       const addBtn = document.getElementById('addEmployeeButton');
-      rows.forEach((row, index) => {
-        const [name, id, type] = row.split('|');
-        if (index > 0 && addBtn) addBtn.click();
-        const nameInputs = document.querySelectorAll('input[name="employeeName[]"]');
-        const idInputs = document.querySelectorAll('input[name="employeeId[]"]');
-        const typeSelects = document.querySelectorAll('select[name="employeeType[]"]');
-        if (nameInputs[index]) nameInputs[index].value = name || '';
-        if (idInputs[index]) idInputs[index].value = id || '';
-        if (typeSelects[index]) typeSelects[index].value = type || '';
+      if (empCheckbox) empCheckbox.checked = true;
+      if (empSection) empSection.style.display = 'block';
+
+      // נקה שורות קיימות
+      if (container) container.innerHTML = '';
+
+      // הוסף שורה לכל ערך ב-rows
+      rows.forEach(() => { if (addBtn) addBtn.click(); });
+
+      // מלא ערכים בכל שורה
+      const allRows = container.querySelectorAll('.employee-row');
+      allRows.forEach((el, index) => {
+        const [name, id, type] = rows[index].split('|');
+        const nameInput = el.querySelector('input[name="employeeName[]"]');
+        const idInput = el.querySelector('input[name="employeeId[]"]');
+        const typeSel = el.querySelector('select[name="employeeType[]"]');
+        if (nameInput) nameInput.value = name;
+        if (idInput) idInput.value = id;
+        if (typeSel) typeSel.value = type;
       });
-      return;
     }
 
-    // --- גננות תאונות אישיות ---
-    if (key === 'personalAccidentsRaw') {
+
+    // --- כיסויי תאונות אישיות דינמיים ---
+    // --- תפעול personalAccidentsRaw לפני שדות אחרים ---
+    if (urlParams.has('personalAccidentsRaw')) {
+      const value = urlParams.get('personalAccidentsRaw');
       const rows = value.split(';');
-      const container = document.getElementById('personalAccidentEmployeesContainer');
-      const addBtn = container?.querySelector('.add-pa-btn');
-      rows.forEach((row, index) => {
-        const [name, id] = row.split('|');
-        if (index > 0 && addBtn) addBtn.click();
-        const nameInputs = document.querySelectorAll('input[name="personalAccidentEmployeeName[]"]');
-        const idInputs = document.querySelectorAll('input[name="personalAccidentEmployeeId[]"]');
-        if (nameInputs[index]) nameInputs[index].value = name || '';
-        if (idInputs[index]) idInputs[index].value = id || '';
+
+      // סימון והצגה
+      const coverageBtn = document.querySelector('.coverage-option[data-option="teacherAccidents"] .interested-button');
+      const paContainer = document.querySelector('.pa-employee-rows');
+      const addPaBtn = document.getElementById('addPersonalAccidentEmployeeButton');
+      if (coverageBtn) coverageBtn.click();
+      if (paContainer) paContainer.innerHTML = '';
+
+      // הוסף שורה לכל ערך ב-rows
+      rows.forEach(() => { if (addPaBtn) addPaBtn.click(); });
+
+      // מלא ערכים בכל שורה
+      const allPaRows = paContainer.querySelectorAll('.pa-employee-row');
+      allPaRows.forEach((el, index) => {
+        const [name, id] = rows[index].split('|');
+        const nameInp = el.querySelector('input[name="personalAccidentEmployeeName[]"]');
+        const idInp = el.querySelector('input[name="personalAccidentEmployeeId[]"]');
+        if (nameInp) nameInp.value = name;
+        if (idInp) idInp.value = id;
       });
-      return;
     }
 
     // --- קלטים רגילים ---
