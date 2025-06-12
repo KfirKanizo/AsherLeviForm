@@ -822,11 +822,10 @@ function collectFormData() {
   // ---------- פרמיה, תשלום, חתימה, קבצים ----------
   payload['premium'] = parseInt(document.getElementById('premiumAmount').textContent.replace(/[^0-9]/g, '')) || 0;
   payload['paymentMethod'] = window.selectedPaymentMethod || '';
-
   // ---------- automation מתוך URL ----------
   payload['automation'] = window.formAutomationFlag || 'true';
-
-  // (כאן מוסיפים קבצים וחתימות כמו קודם, אם צריך)
+    // ---------- renewal מתוך URL ----------
+  payload['renewal'] = window.formRenewalFlag || 'true';
 
   return payload;
 }
@@ -1017,6 +1016,10 @@ function prefillFromUrl() {
   // --- קביעת ערך automation עם ברירת מחדל true ---
   const automationParam = urlParams.get('automation');
   window.formAutomationFlag = (automationParam === null || automationParam === 'true') ? 'true' : 'false';
+
+    // --- קביעת ערך renewal עם ברירת מחדל true --- 
+  const renewalParam = urlParams.get('renewal');
+  window.formRenewalFlag = (renewalParam === null || renewalParam === 'true') ? 'true' : 'false';
 
   urlParams.forEach((value, key) => {
     // --- עובדים דינמיים ---
