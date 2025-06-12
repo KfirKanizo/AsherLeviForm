@@ -824,7 +824,7 @@ function collectFormData() {
   payload['paymentMethod'] = window.selectedPaymentMethod || '';
   // ---------- automation מתוך URL ----------
   payload['automation'] = window.formAutomationFlag || 'true';
-    // ---------- renewal מתוך URL ----------
+  // ---------- renewal מתוך URL ----------
   payload['renewal'] = window.formRenewalFlag || 'true';
 
   return payload;
@@ -1017,7 +1017,7 @@ function prefillFromUrl() {
   const automationParam = urlParams.get('automation');
   window.formAutomationFlag = (automationParam === null || automationParam === 'true') ? 'true' : 'false';
 
-    // --- קביעת ערך renewal עם ברירת מחדל true --- 
+  // --- קביעת ערך renewal עם ברירת מחדל true --- 
   const renewalParam = urlParams.get('renewal');
   window.formRenewalFlag = (renewalParam === null || renewalParam === 'true') ? 'true' : 'false';
 
@@ -1054,6 +1054,20 @@ function prefillFromUrl() {
         if (typeSel) typeSel.value = type;
       });
     }
+
+    // לא צריך window.addEventListener, כי כל הקוד רץ ממילא אחרי DOMContentLoaded
+    const policyStartDateParam = urlParams.get('policyStartDate');
+    if (policyStartDateParam) {
+      const el = document.getElementById('policyStartDate');
+      if (el) el.value = policyStartDateParam;
+    }
+
+    const policyEndDateParam = urlParams.get('policyEndDate');
+    if (policyEndDateParam) {
+      const el = document.getElementById('policyEndDate');
+      if (el) el.value = policyEndDateParam;
+    }
+
 
 
     // --- כיסויי תאונות אישיות דינמיים ---
