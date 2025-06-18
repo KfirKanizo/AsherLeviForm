@@ -440,16 +440,34 @@ function addEventListenersToOption(optionDiv) {
     input.addEventListener('change', calculatePremium);
   });
 
-  // טיפול בשעבוד (אם יש)
-  const hasLienCheckbox = document.getElementById('hasLien');
-  const lienHolderInput = document.getElementById('lienHolderInput');
-  if (hasLienCheckbox && lienHolderInput) {
-    hasLienCheckbox.addEventListener('change', () => {
-      lienHolderInput.style.display = hasLienCheckbox.checked ? 'block' : 'none';
+  const hasLien = document.getElementById("hasLien");
+  const lienTypeSection = document.getElementById("lienTypeSection");
+  const lienDetailsBank = document.getElementById("lienDetailsBank");
+  const lienDetailsCompany = document.getElementById("lienDetailsCompany");
+
+  if (hasLien) {
+    hasLien.addEventListener("change", () => {
+      const show = hasLien.checked;
+      lienTypeSection.style.display = show ? "block" : "none";
+      lienDetailsBank.style.display = "none";
+      lienDetailsCompany.style.display = "none";
     });
-    // במידה ויש ערך טעון - להראות את השדה בטעינה
-    lienHolderInput.style.display = hasLienCheckbox.checked ? 'block' : 'none';
   }
+
+  document.querySelectorAll(".lien-type-button").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".lien-type-button").forEach(b => b.classList.remove("selected"));
+      button.classList.add("selected");
+      if (button.dataset.type === "bank") {
+        lienDetailsBank.style.display = "block";
+        lienDetailsCompany.style.display = "none";
+      } else {
+        lienDetailsBank.style.display = "none";
+        lienDetailsCompany.style.display = "block";
+      }
+    });
+  });
+
 }
 
 function determinePolicyTrack() {
@@ -1055,7 +1073,6 @@ function prefillFromUrl() {
       });
     }
 
-    // לא צריך window.addEventListener, כי כל הקוד רץ ממילא אחרי DOMContentLoaded
     const policyStartDateParam = urlParams.get('policyStartDate');
     if (policyStartDateParam) {
       const el = document.getElementById('policyStartDate');
@@ -1068,7 +1085,24 @@ function prefillFromUrl() {
       if (el) el.value = policyEndDateParam;
     }
 
+    const waiverCheckboxParam = urlParams.get('waiverCheckbox');
+    const propertyOwnerNameParam = urlParams.get('propertyOwnerName');
+    const propertyOwnerIdParam = urlParams.get('propertyOwnerId');
 
+    if (waiverCheckboxParam === 'true') {
+      const waiverCheckbox = document.getElementById('waiverCheckbox');
+      if (waiverCheckbox) waiverCheckbox.checked = true;
+    }
+
+    if (propertyOwnerNameParam) {
+      const nameField = document.getElementById('propertyOwnerName');
+      if (nameField) nameField.value = propertyOwnerNameParam;
+    }
+
+    if (propertyOwnerIdParam) {
+      const idField = document.getElementById('propertyOwnerId');
+      if (idField) idField.value = propertyOwnerIdParam;
+    }
 
     // --- כיסויי תאונות אישיות דינמיים ---
     // --- תפעול personalAccidentsRaw לפני שדות אחרים ---
@@ -1135,15 +1169,54 @@ document.addEventListener('DOMContentLoaded', () => {
   setupContentValueButtons();
   setupYardValueButtons();
 
-  // --- טיפול בצ'קבוקס שעבוד קבוע בסקשן ביטוח תכולה ומבנה בלבד ---
-  const hasLienCheckbox = document.getElementById('hasLien');
-  const lienHolderInput = document.getElementById('lienHolderInput');
-  if (hasLienCheckbox && lienHolderInput) {
-    hasLienCheckbox.addEventListener('change', () => {
-      lienHolderInput.style.display = hasLienCheckbox.checked ? 'block' : 'none';
+  // הצגת שדות בעלי נכס אם מסומן "ויתור זכות שיבוב"
+  const waiverCheckbox = document.getElementById('waiverCheckbox');
+  const waiverDetails = document.getElementById('waiverDetails');
+
+  if (waiverCheckbox && waiverDetails) {
+    waiverCheckbox.addEventListener('change', () => {
+      waiverDetails.style.display = waiverCheckbox.checked ? 'block' : 'none';
     });
-    lienHolderInput.style.display = hasLienCheckbox.checked ? 'block' : 'none';
+
+    // הצגה ראשונית אם כבר מסומן (למקרה של טעינה מ־URL)
+    waiverDetails.style.display = waiverCheckbox.checked ? 'block' : 'none';
   }
+
+
+  // --- טיפול בצ'קבוקס שעבוד קבוע בסקשן ביטוח תכולה ומבנה בלבד ---
+  const hasLien = document.getElementById("hasLien");
+  const lienTypeSection = document.getElementById("lienTypeSection");
+  const lienDetailsBank = document.getElementById("lienDetailsBank");
+  const lienDetailsCompany = document.getElementById("lienDetailsCompany");
+
+  if (hasLien) {
+    hasLien.addEventListener("change", () => {
+      const show = hasLien.checked;
+      lienTypeSection.style.display = show ? "block" : "none";
+      lienDetailsBank.style.display = "none";
+      lienDetailsCompany.style.display = "none";
+    });
+  }
+
+  document.querySelectorAll(".lien-type-button").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".lien-type-button").forEach(b => b.classList.remove("selected"));
+      button.classList.add("selected");
+
+      // 💾 שמירת הערך לשדה החבוי
+      const lienTypeInput = document.getElementById("lienType");
+      if (lienTypeInput) lienTypeInput.value = button.dataset.type;
+
+      if (button.dataset.type === "bank") {
+        lienDetailsBank.style.display = "block";
+        lienDetailsCompany.style.display = "none";
+      } else {
+        lienDetailsBank.style.display = "none";
+        lienDetailsCompany.style.display = "block";
+      }
+    });
+  });
+
 
   // --- טיפול בילדים מעל גיל 3 בספטמבר ---
   const hasOver3Checkbox = document.getElementById('hasOver3Children');
