@@ -1,6 +1,7 @@
 const form = document.getElementById('insuranceForm');
 const gardenType = document.getElementById('gardenType');
 const childrenCount = document.getElementById('childrenCount');
+const employeesCount = document.getElementById('employeesCount');
 const premiumAmount = document.getElementById('premiumAmount');
 const isMemberCheckbox = document.getElementById('isMember');
 const membershipSection = document.getElementById('membershipSection');
@@ -58,8 +59,7 @@ const availableOptions = {
   'afterSchool': [
     'thirdParty',
     'deductibleCancellation',
-    'teacherAccidents',
-    'afterSchoolProgram'
+    'teacherAccidents'
   ]
 };
 
@@ -375,7 +375,11 @@ function updateCoverageOptions() {
   container.innerHTML = '';
   const templates = document.getElementById('coverageOptionsTemplates');
   const options = availableOptions[gardenTypeValue] || [];
+  const employees = parseInt(employeesCount.value) || 0;
+
   options.forEach(option => {
+    // הסתרת חבות מעבידים אם אין עובדים
+    if (option === 'employerLiability' && employees === 0) return;
     const template = templates.querySelector(`#coverage-${option}`);
     if (template) {
       const clone = template.cloneNode(true);
@@ -474,16 +478,18 @@ function determinePolicyTrack() {
   const gardenTypeValue = gardenType.value;
   const children = parseInt(childrenCount.value) || 0;
   const hasContent = document.getElementById('hasContentBuilding')?.checked;
+  const employeesCount = parseInt(document.getElementById('employeesCount')?.value) || 0;
+
 
   if (gardenTypeValue === 'tamah') return 1;
-  if (gardenTypeValue === 'privateFamily') {
-    if (children <= 6) return 2;
-    if (children <= 9) return 3;
-    return 4;
+  if (gardenTypeValue === 'privateFamily' || gardenTypeValue === 'upTo3') {
+    if (children <= 6 && employeesCount === 0) return 2;
+    if (children <= 9 && !hasContent) return 3;
+    if (children >= 10 && !hasContent) return 4;
   }
-  if (gardenTypeValue === 'upTo3') return 7;
+  if ((gardenTypeValue === 'over3' || gardenTypeValue === 'afterSchool') && !hasContent) return 5;
   if ((gardenTypeValue === 'over3' || gardenTypeValue === 'afterSchool') && hasContent) return 6;
-  return 5;
+  if (gardenTypeValue === 'upTo3' && hasContent) return 7; // מסלול 7 כולל תכולה ומבנה
 }
 
 
@@ -647,17 +653,12 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
       return basePrice * paCount;
 
     case 'professionalLiability':
-      return 250;
+      return 500; // מחיר קבוע
 
     case 'employerLiability':
-      // עובדים נוספים: רגיל/עם תעודה
-      let countRegular = 0;
-      let countCertified = 0;
-      const allTypes = Array.from(document.querySelectorAll('select[name="employeeType[]"]')).map(e => e.value);
-      countRegular += allTypes.filter(type => type === 'regular').length;
-      countCertified += allTypes.filter(type => type === 'certified').length;
-      // עובד ראשון (במסלולים מסוימים כלול, בדוק בדרישה שלך)
-      return (countRegular * 105) + (countCertified * 500);
+      const employeesCount = parseInt(document.getElementById('employeesCount')?.value) || 0;
+      return employeesCount * 105;  // מחיר קבוע
+
 
     case 'cyberInsurance':
       return 450;
@@ -776,20 +777,6 @@ function collectFormData() {
     }
   });
 
-  // ---------- עובדים דינמיים ----------
-  const employeeNames = Array.from(document.querySelectorAll('input[name="employeeName[]"]')).map(e => e.value);
-  const employeeIds = Array.from(document.querySelectorAll('input[name="employeeId[]"]')).map(e => e.value);
-  const employeeTypes = Array.from(document.querySelectorAll('select[name="employeeType[]"]')).map(e => e.value);
-  let employeesArr = [];
-  for (let i = 0; i < employeeNames.length; i++) {
-    if (employeeNames[i] || employeeIds[i] || employeeTypes[i]) {
-      employeesArr.push(
-        [employeeNames[i] || '', employeeIds[i] || '', employeeTypes[i] || ''].join('|')
-      );
-    }
-  }
-  payload['employeesRaw'] = employeesArr.join(';');
-
   // ---------- גננות תאונות אישיות ----------
   const paNames = Array.from(document.querySelectorAll('input[name="personalAccidentEmployeeName[]"]')).map(e => e.value);
   const paIds = Array.from(document.querySelectorAll('input[name="personalAccidentEmployeeId[]"]')).map(e => e.value);
@@ -854,10 +841,6 @@ function collectFormData() {
 
   return payload;
 }
-
-
-
-
 
 // --- הוספת גננות לכיסוי תאונות אישיות ---
 function setupPersonalAccidentEmployees() {
@@ -1047,39 +1030,6 @@ function prefillFromUrl() {
   window.formRenewalFlag = (renewalParam === null || renewalParam === 'true') ? 'true' : 'false';
 
   urlParams.forEach((value, key) => {
-    // --- עובדים דינמיים ---
-    // --- תפעול employeesRaw לפני שדות אחרים ---
-    if (urlParams.has('employeesRaw')) {
-      const value = urlParams.get('employeesRaw');
-      const rows = value.split(';');
-
-      // סימון תיבה והצגת הסקשן
-      const empCheckbox = document.getElementById('hasAdditionalEmployees');
-      const empSection = document.getElementById('employeesSection');
-      const container = document.getElementById('employeeRows');
-      const addBtn = document.getElementById('addEmployeeButton');
-      if (empCheckbox) empCheckbox.checked = true;
-      if (empSection) empSection.style.display = 'block';
-
-      // נקה שורות קיימות
-      if (container) container.innerHTML = '';
-
-      // הוסף שורה לכל ערך ב-rows
-      rows.forEach(() => { if (addBtn) addBtn.click(); });
-
-      // מלא ערכים בכל שורה
-      const allRows = container.querySelectorAll('.employee-row');
-      allRows.forEach((el, index) => {
-        const [name, id, type] = rows[index].split('|');
-        const nameInput = el.querySelector('input[name="employeeName[]"]');
-        const idInput = el.querySelector('input[name="employeeId[]"]');
-        const typeSel = el.querySelector('select[name="employeeType[]"]');
-        if (nameInput) nameInput.value = name;
-        if (idInput) idInput.value = id;
-        if (typeSel) typeSel.value = type;
-      });
-    }
-
     const policyStartDateParam = urlParams.get('policyStartDate');
     if (policyStartDateParam) {
       const el = document.getElementById('policyStartDate');
@@ -1235,50 +1185,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!hasOver3Checkbox.checked && over3CountInput) over3CountInput.value = '';
     });
     over3CountGroup.style.display = hasOver3Checkbox.checked ? 'block' : 'none';
-  }
-
-  // --- עובדים נוספים דינמיים ---
-  const hasEmployeesCheckbox = document.getElementById('hasAdditionalEmployees');
-  const employeesSection = document.getElementById('employeesSection');
-  const employeeRows = document.getElementById('employeeRows');
-  const addEmployeeButton = document.getElementById('addEmployeeButton');
-
-  if (hasEmployeesCheckbox && employeesSection && addEmployeeButton && employeeRows) {
-    hasEmployeesCheckbox.addEventListener('change', () => {
-      employeesSection.style.display = hasEmployeesCheckbox.checked ? 'block' : 'none';
-      if (!hasEmployeesCheckbox.checked) {
-        employeeRows.innerHTML = '';
-      }
-    });
-
-    addEmployeeButton.addEventListener('click', () => addEmployeeRow());
-
-    // אוטומטית עובד ראשון אם הצ'קבוקס נבחר (גם ב-prefill)
-    if (hasEmployeesCheckbox.checked) employeesSection.style.display = 'block';
-  }
-  // הוספת שורה לעובד
-  function addEmployeeRow(data = {}) {
-    const rowId = `employeeRow${Date.now()}${Math.floor(Math.random() * 1000)}`;
-    const row = document.createElement('div');
-    row.className = 'form-group employee-row';
-    row.style.display = 'flex';
-    row.style.gap = '8px';
-    row.style.alignItems = 'center';
-    row.innerHTML = `
-    <input type="text" name="employeeName[]" placeholder="שם העובד" value="${data.name || ''}" style="flex:2">
-    <input type="text" name="employeeId[]" placeholder="ת.ז עובד" value="${data.id || ''}" style="flex:1">
-    <select name="employeeType[]" style="flex:1">
-      <option value="">סוג העובד</option>
-      <option value="regular" ${data.type === 'regular' ? 'selected' : ''}>ללא תעודה</option>
-      <option value="certified" ${data.type === 'certified' ? 'selected' : ''}>עם תעודה</option>
-    </select>
-    <button type="button" class="removeEmployee" aria-label="הסר עובד" style="background: #e74c3c; color: #fff; border:none; border-radius:6px; padding:6px 10px; margin-right:3px;">X</button>
-  `;
-    employeeRows.appendChild(row);
-
-    row.querySelector('.removeEmployee').onclick = () => {
-      row.remove();
-    };
   }
 
   document.querySelectorAll('.needsApprovalCheckbox').forEach(checkbox => {
