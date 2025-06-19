@@ -521,9 +521,14 @@ function calculatePremium() {
       else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4 - מעל 10 ילדים, ללא מבנה/תכולה
       break;
 
-    case 'upTo3': // מסלול 7 - גן עד גיל 3 כולל מבנה ותכולה
-      if (childrenCountValue <= 12) basePremium = 1400;
-      else basePremium = 1400 + (childrenCountValue - 12) * 120;
+    case 'upTo3':
+      if (includeContentBuilding) {
+        if (childrenCountValue <= 12) basePremium = 1400; // מסלול 7 - כולל תכולה ומבנה
+        else basePremium = 1400 + (childrenCountValue - 12) * 120;
+      } else {
+        if (childrenCountValue <= 10) basePremium = 1100; // מסלול 4 - עד 10 ילדים
+        else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4 - מעל 10 ילדים
+      }
       break;
 
     case 'over3': // מסלול 5/6
@@ -546,12 +551,13 @@ function calculatePremium() {
   if (isMemberCheckbox && isMemberCheckbox.checked) {
     // מסלול 4+7: 10 ש"ח לילד, מסלול 5+6: 5 ש"ח לילד
     if (
-      (gardenTypeValue === 'privateFamily' && childrenCountValue >= 10) || // מסלול 4
-      (gardenTypeValue === 'upTo3')
+      (gardenTypeValue === 'privateFamily' && childrenCountValue >= 10) ||
+      (gardenTypeValue === 'upTo3' && childrenCountValue >= 10 && !includeContentBuilding) // upTo3 = מסלול 4 רק בלי תכולה
     ) {
       totalDiscount = childrenCountValue * 10;
-      minPremium = gardenTypeValue === 'upTo3' ? 1400 : 1100;
+      minPremium = 1100;
     }
+
     if (
       (gardenTypeValue === 'over3' || gardenTypeValue === 'afterSchool')
     ) {
@@ -623,6 +629,7 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
       const coverage = document.querySelector('.thirdPartyCoverage')?.value || '5M';
       if (coverage === '5M')
         return childrenCountValue <= 20 ? 200 : 300;
+      if (coverage === '6M') return 400;
       if (coverage === '8M') return 1000;
       if (coverage === '10M') return 2000;
       return 0;
