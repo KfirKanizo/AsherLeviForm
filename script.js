@@ -814,11 +814,22 @@ function collectFormData() {
     payload[`insuranceOptions[${optionName}]`] = isInterested ? 'true' : 'false';
 
     if (isInterested) {
-      const condInput = optionDiv.querySelector('.conditional-section select, .conditional-section input[type="number"], .conditional-section input[type="text"]');
-      if (condInput && condInput.value !== '') {
-        payload[`insuranceOptionsDetails[${optionName}]`] = condInput.value;
+      let value = '';
+      // ספציפי לכיסוי תאונות אישיות – נשלח את המסלול
+      if (optionName === 'teacherAccidents') {
+        const coverageSelect = optionDiv.querySelector('.teacherAccidentsCoverage');
+        if (coverageSelect) value = coverageSelect.value;
+      } else {
+        // לאחרים – נשלח את select כללי אם יש
+        const genericSelect = optionDiv.querySelector('.conditional-section select');
+        if (genericSelect) value = genericSelect.value;
+      }
+
+      if (value !== '') {
+        payload[`insuranceOptionsDetails[${optionName}]`] = value;
       }
     }
+
   });
 
   // ---------- button-groups ----------
@@ -852,8 +863,8 @@ function collectFormData() {
 
   // ---------- renewal מתוך URL ----------
   payload['renewal'] = window.formRenewalFlag || 'true';
-  
-  
+
+
   console.log('🚀 Sending payload to webhook:', payload);
   return payload;
 }
