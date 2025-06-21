@@ -596,11 +596,20 @@
           <p>כיסוי זה ניתן לבעלות הסמכה בלבד ונותן כיסוי ביטוחי בעת תביעה בהקשר המקצועי.</p>
           <input name="insuranceOptions[professionalLiability]" type="hidden" value="false" />
           <div class="button-group">
-            <button class="interested-button" type="button">מעוניין</button>
-            <button class="not-interested-button selected" type="button">לא מעוניין</button>
+            <button type="button" class="interested-button">מעוניין</button>
+            <button type="button" class="not-interested-button selected">לא מעוניין</button>
           </div>
-          <div class="conditional-section" style="display: none;"></div>
+          <div class="conditional-section professional-liability-employees-section" style="display: none;">
+            <div id="professionalLiabilityEmployeesRows"></div>
+            <button type="button" id="addProfessionalLiabilityEmployeeButton" class="add-personal-accident-btn"
+              style="margin-top: 10px;">
+              הוסף גננת
+            </button>
+          </div>
+          <div class="option-cost"></div>
         </div>
+
+
         <!-- חבות מעבידים -->
         <div class="coverage-option" data-option="employerLiability" id="coverage-employerLiability">
           <h3>חבות מעבידים <span class="option-cost">מחיר: ₪0</span></h3>

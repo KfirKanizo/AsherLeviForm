@@ -133,13 +133,18 @@ function showSection(index) {
       if (i === index) section.classList.add('active');
     });
 
-    // עדכון כיסויים – מסך תוספות כיסוי
-    if (index === 4) updateCoverageOptions();
-
     // הצגת פרטי פוליסה – לפי המסלול
     if (index === 3) {
       const track = determinePolicyTrack();
       populatePolicyDetails(track);
+    }
+
+    // עדכון כיסויים – מסך תוספות כיסוי
+    if (index === 4) {
+      updateCoverageOptions();
+      // 📌 הרצה מחדש של prefill עבור שדות תוספות (למשל ביטוח אחריות מקצועית, תאונות אישיות וכו')
+      console.log('📥 prefillFromUrl() triggered again on coverage step');
+      prefillFromUrl();
     }
 
     // הצגת פרמיה – רק במסכים הרלוונטיים
@@ -169,6 +174,7 @@ function showSection(index) {
     currentSectionIndex = index;
   }, 400);
 }
+
 
 
 
@@ -389,6 +395,7 @@ function updateCoverageOptions() {
   });
   calculatePremium();
   setupPersonalAccidentEmployees();
+  setupProfessionalLiabilityEmployees();
 }
 
 function addEventListenersToOption(optionDiv) {
@@ -603,6 +610,14 @@ function calculatePremium() {
     }
   });
 
+  const liabilityRows = document.querySelectorAll('.professional-liability-row');
+  console.log('אחריות מקצועית - שורות קיימות:', liabilityRows.length);
+  if (liabilityRows.length > 0) {
+    totalPremium += liabilityRows.length * 500;
+  }
+
+
+
   premiumAmount.textContent = `${totalPremium.toLocaleString()} ₪`;
 
   // תצוגת הנחה
@@ -653,7 +668,8 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
       return basePrice * paCount;
 
     case 'professionalLiability':
-      return 500; // מחיר קבוע
+      const count = document.querySelectorAll('.professional-liability-row').length || 1;
+      return count * 500;
 
     case 'employerLiability':
       const employeesCount = parseInt(document.getElementById('employeesCount')?.value) || 0;
@@ -771,27 +787,25 @@ function collectFormData() {
     } else if (el.type === 'radio') {
       if (el.checked) payload[name] = el.value;
     } else if (name.endsWith('[]')) {
-      // דילוג - נטפל בהם בנפרד (עובדים נוספים)
+      // דילוג – נטפל בהם בנפרד (עובדים נוספים)
     } else {
       payload[name] = el.value;
     }
   });
 
-  // ---------- גננות תאונות אישיות ----------
-  const paNames = Array.from(document.querySelectorAll('input[name="personalAccidentEmployeeName[]"]')).map(e => e.value);
-  const paIds = Array.from(document.querySelectorAll('input[name="personalAccidentEmployeeId[]"]')).map(e => e.value);
-  let paArr = [];
-  for (let i = 0; i < paNames.length; i++) {
-    if (paNames[i] || paIds[i]) {
-      paArr.push(
-        [paNames[i] || '', paIds[i] || ''].join('|')
-      );
-    }
-  }
-  payload['personalAccidentsRaw'] = paArr.join(';');
+  // ---------- גננות - תאונות אישיות ----------
+  const paNames = Array.from(document.querySelectorAll('input[name="personalAccidentEmployeeName[]"]')).map(e => e.value.trim());
+  const paIds = Array.from(document.querySelectorAll('input[name="personalAccidentEmployeeId[]"]')).map(e => e.value.trim());
+  const paCombined = paNames.map((name, i) => `${name}|${paIds[i]}`).filter(x => x.includes('|')).join(';');
+  payload['personalAccidentEmployees'] = paCombined;
+
+  // ---------- גננות - אחריות מקצועית ----------
+  const profNames = Array.from(document.querySelectorAll('input[name="professionalLiabilityEmployeeName[]"]')).map(e => e.value.trim());
+  const profIds = Array.from(document.querySelectorAll('input[name="professionalLiabilityEmployeeId[]"]')).map(e => e.value.trim());
+  const profCombined = profNames.map((name, i) => `${name}|${profIds[i]}`).filter(x => x.includes('|')).join(';');
+  payload['professionalLiabilityEmployees'] = profCombined;
 
   // ---------- תוספות כיסוי ----------
-  // שים לב – רק מהקונטיינר שמוצג בפועל!
   document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
     const optionName = optionDiv.dataset.option;
     const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
@@ -799,7 +813,6 @@ function collectFormData() {
     console.log(`collectFormData: option [${optionName}] = ${hiddenInput?.value}`);
     payload[`insuranceOptions[${optionName}]`] = isInterested ? 'true' : 'false';
 
-    // details - רק אם יש ערך
     if (isInterested) {
       const condInput = optionDiv.querySelector('.conditional-section select, .conditional-section input[type="number"], .conditional-section input[type="text"]');
       if (condInput && condInput.value !== '') {
@@ -812,15 +825,14 @@ function collectFormData() {
   document.querySelectorAll('.button-group').forEach(group => {
     let selected = group.querySelector('button.selected');
     if (selected && selected.dataset.value) {
-      // עדיף להגדיר groupName באנגלית ב-data-attribute
       let groupName = group.closest('[data-option]')?.dataset.option ||
-        group.closest('.form-group')?.querySelector('label')?.innerText?.replace(/[^\w]/g, '') || // הסר תווים לא רצויים
+        group.closest('.form-group')?.querySelector('label')?.innerText?.replace(/[^\w]/g, '') ||
         selected.innerText;
       if (groupName) payload[`buttonGroup_${groupName}`] = selected.dataset.value;
     }
   });
 
-  // ---------- מבנה ותכולה - כל הערכים תחת contentBuildingDetails בלבד ----------
+  // ---------- מבנה ותכולה ----------
   const hasContentBuilding = document.getElementById('hasContentBuilding');
   if (hasContentBuilding && hasContentBuilding.checked) {
     payload['contentBuildingDetails[contentSum]'] = document.querySelector('.contentSum')?.value || '';
@@ -834,13 +846,18 @@ function collectFormData() {
   // ---------- פרמיה, תשלום, חתימה, קבצים ----------
   payload['premium'] = parseInt(document.getElementById('premiumAmount').textContent.replace(/[^0-9]/g, '')) || 0;
   payload['paymentMethod'] = window.selectedPaymentMethod || '';
+
   // ---------- automation מתוך URL ----------
   payload['automation'] = window.formAutomationFlag || 'true';
+
   // ---------- renewal מתוך URL ----------
   payload['renewal'] = window.formRenewalFlag || 'true';
-
+  
+  
+  console.log('🚀 Sending payload to webhook:', payload);
   return payload;
 }
+
 
 // --- הוספת גננות לכיסוי תאונות אישיות ---
 function setupPersonalAccidentEmployees() {
@@ -895,6 +912,58 @@ function addPersonalAccidentEmployeeRow(container, data = {}) {
   calculatePremium();
 }
 
+
+function setupProfessionalLiabilityEmployees() {
+  document.querySelectorAll('.coverage-option[data-option="professionalLiability"]').forEach(optionDiv => {
+    const interestedBtn = optionDiv.querySelector('.interested-button');
+    const notInterestedBtn = optionDiv.querySelector('.not-interested-button');
+    const condSection = optionDiv.querySelector('.conditional-section');
+    const employeesSection = condSection;
+    if (!employeesSection) return;
+
+    const rowsContainer = employeesSection.querySelector('#professionalLiabilityEmployeesRows');
+    const addButton = employeesSection.querySelector('#addProfessionalLiabilityEmployeeButton');
+    if (!rowsContainer || !addButton) return;
+
+    interestedBtn.addEventListener('click', () => {
+      employeesSection.style.display = 'block';
+      if (rowsContainer.children.length === 0) {
+        addProfessionalLiabilityEmployeeRow(rowsContainer);
+      }
+    });
+
+    notInterestedBtn.addEventListener('click', () => {
+      employeesSection.style.display = 'none';
+      rowsContainer.innerHTML = '';
+      calculatePremium();
+    });
+
+    employeesSection.style.display = interestedBtn.classList.contains('selected') ? 'block' : 'none';
+
+    addButton.onclick = () => addProfessionalLiabilityEmployeeRow(rowsContainer);
+  });
+}
+
+function addProfessionalLiabilityEmployeeRow(container, data = {}) {
+  const row = document.createElement('div');
+  row.className = 'form-group professional-liability-row';
+  row.style.display = 'flex';
+  row.style.gap = '8px';
+  row.style.alignItems = 'center';
+  row.innerHTML = `
+    <input type="text" name="professionalLiabilityEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2">
+    <input type="text" name="professionalLiabilityEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1">
+    <button type="button" class="removeProfessionalLiabilityEmployee" aria-label="הסר גננת"
+      style="background: #e74c3c; color: #fff; border:none; border-radius:6px; padding:6px 10px; margin-right:3px;">X</button>
+  `;
+  container.appendChild(row);
+
+  row.querySelector('.removeProfessionalLiabilityEmployee').onclick = () => {
+    row.remove();
+    calculatePremium();
+  };
+  calculatePremium();
+}
 
 
 
@@ -1025,59 +1094,47 @@ function prefillFromUrl() {
   const automationParam = urlParams.get('automation');
   window.formAutomationFlag = (automationParam === null || automationParam === 'true') ? 'true' : 'false';
 
-  // --- קביעת ערך renewal עם ברירת מחדל true --- 
+  // --- קביעת ערך renewal עם ברירת מחדל true ---
   const renewalParam = urlParams.get('renewal');
   window.formRenewalFlag = (renewalParam === null || renewalParam === 'true') ? 'true' : 'false';
 
   urlParams.forEach((value, key) => {
-    const policyStartDateParam = urlParams.get('policyStartDate');
-    if (policyStartDateParam) {
+    // --- תאריכי פוליסה ---
+    if (key === 'policyStartDate') {
       const el = document.getElementById('policyStartDate');
-      if (el) el.value = policyStartDateParam;
+      if (el) el.value = value;
     }
 
-    const policyEndDateParam = urlParams.get('policyEndDate');
-    if (policyEndDateParam) {
+    if (key === 'policyEndDate') {
       const el = document.getElementById('policyEndDate');
-      if (el) el.value = policyEndDateParam;
+      if (el) el.value = value;
     }
 
-    const waiverCheckboxParam = urlParams.get('waiverCheckbox');
-    const propertyOwnerNameParam = urlParams.get('propertyOwnerName');
-    const propertyOwnerIdParam = urlParams.get('propertyOwnerId');
-
-    if (waiverCheckboxParam === 'true') {
+    // --- פרטי בעלי נכס עם ויתור שיבוב ---
+    if (key === 'waiverCheckbox' && value === 'true') {
       const waiverCheckbox = document.getElementById('waiverCheckbox');
       if (waiverCheckbox) waiverCheckbox.checked = true;
     }
 
-    if (propertyOwnerNameParam) {
+    if (key === 'propertyOwnerName') {
       const nameField = document.getElementById('propertyOwnerName');
-      if (nameField) nameField.value = propertyOwnerNameParam;
+      if (nameField) nameField.value = value;
     }
 
-    if (propertyOwnerIdParam) {
+    if (key === 'propertyOwnerId') {
       const idField = document.getElementById('propertyOwnerId');
-      if (idField) idField.value = propertyOwnerIdParam;
+      if (idField) idField.value = value;
     }
 
-    // --- כיסויי תאונות אישיות דינמיים ---
-    // --- תפעול personalAccidentsRaw לפני שדות אחרים ---
-    if (urlParams.has('personalAccidentsRaw')) {
-      const value = urlParams.get('personalAccidentsRaw');
+    // --- גננות תאונות אישיות ---
+    if (key === 'personalAccidentEmployees') {
       const rows = value.split(';');
-
-      // סימון והצגה
       const coverageBtn = document.querySelector('.coverage-option[data-option="teacherAccidents"] .interested-button');
-      const paContainer = document.querySelector('.pa-employee-rows');
+      const paContainer = document.querySelector('#personalAccidentEmployeesRows');
       const addPaBtn = document.getElementById('addPersonalAccidentEmployeeButton');
       if (coverageBtn) coverageBtn.click();
       if (paContainer) paContainer.innerHTML = '';
-
-      // הוסף שורה לכל ערך ב-rows
-      rows.forEach(() => { if (addPaBtn) addPaBtn.click(); });
-
-      // מלא ערכים בכל שורה
+      rows.forEach(() => addPaBtn?.click());
       const allPaRows = paContainer.querySelectorAll('.pa-employee-row');
       allPaRows.forEach((el, index) => {
         const [name, id] = rows[index].split('|');
@@ -1086,6 +1143,43 @@ function prefillFromUrl() {
         if (nameInp) nameInp.value = name;
         if (idInp) idInp.value = id;
       });
+    }
+
+    // --- גננות אחריות מקצועית ---
+    if (key === 'professionalLiabilityEmployees') {
+      const rows = value.split(';');
+      const coverageBtn = document.querySelector('.coverage-option[data-option="professionalLiability"] .interested-button');
+      const profContainer = document.querySelector('#professionalLiabilityEmployeesRows');
+      const addProfBtn = document.getElementById('addProfessionalLiabilityEmployeeButton');
+      if (coverageBtn) coverageBtn.click();
+      if (profContainer) profContainer.innerHTML = '';
+      rows.forEach(() => addProfBtn?.click());
+      const allProfRows = profContainer.querySelectorAll('.professional-liability-row');
+      allProfRows.forEach((el, index) => {
+        const [name, id] = rows[index].split('|');
+        const nameInp = el.querySelector('input[name="professionalLiabilityEmployeeName[]"]');
+        const idInp = el.querySelector('input[name="professionalLiabilityEmployeeId[]"]');
+        if (nameInp) nameInp.value = name;
+        if (idInp) idInp.value = id;
+      });
+    }
+
+    // --- סימון אוטומטי של כיסויי ביטוח (כפתור מעוניין/לא מעוניין) לפי insuranceOptions[...]
+    const optionMatch = key.match(/^insuranceOptions\[(.+)\]$/);
+    if (optionMatch) {
+      const optionName = optionMatch[1];
+      const optionDiv = document.querySelector(`.coverage-option[data-option="${optionName}"]`);
+      if (optionDiv) {
+        const interestedBtn = optionDiv.querySelector('.interested-button');
+        const notInterestedBtn = optionDiv.querySelector('.not-interested-button');
+        const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+        if (value === 'true') {
+          if (interestedBtn) interestedBtn.click();
+        } else if (value === 'false') {
+          if (notInterestedBtn) notInterestedBtn.click();
+        }
+        if (hiddenInput) hiddenInput.value = value;
+      }
     }
 
     // --- קלטים רגילים ---
@@ -1103,50 +1197,61 @@ function prefillFromUrl() {
       el.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
-    // --- לחצנים עם data-value (כמו תכולה/מבנה) ---
+    // --- לחצני ערכים ---
     let btn = document.querySelector(`button[data-value="${value}"]`);
     if (btn) {
       btn.click();
     }
   });
 }
+
 window.addEventListener('DOMContentLoaded', prefillFromUrl);
 
 
-// קריאה לפונקציות לאחר טעינת העמוד
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('🌱 DOMContentLoaded התחיל');
+
   // מעבר בין עמודים
   showSection(0);
-  gardenType.addEventListener('change', calculatePremium);
-  childrenCount.addEventListener('input', calculatePremium);
-  prefillFromUrl();
 
   // הגדרות לסקשן ביטוח תכולה ומבנה
+  console.log('🔧 setup building section');
   setupBuildingSizeButtons();
   setupContentValueButtons();
   setupYardValueButtons();
 
-  // הצגת שדות בעלי נכס אם מסומן "ויתור זכות שיבוב"
+  // הגדרות לכיסויים דינמיים
+  console.log('🔧 setup כיסויים דינמיים');
+  setupPersonalAccidentEmployees();
+  setupProfessionalLiabilityEmployees();
+
+  // חישוב פרמיה
+  console.log('📊 חיבור אירועים לחישוב פרמיה');
+  gardenType.addEventListener('change', calculatePremium);
+  childrenCount.addEventListener('input', calculatePremium);
+
+  // רק אחרי שהכל מוכן – prefill
+  console.log('📥 prefill מה-URL');
+  prefillFromUrl();
+
+  // ויתור שיבוב
   const waiverCheckbox = document.getElementById('waiverCheckbox');
   const waiverDetails = document.getElementById('waiverDetails');
-
   if (waiverCheckbox && waiverDetails) {
+    console.log('⚙️ הגדרת waiverCheckbox');
     waiverCheckbox.addEventListener('change', () => {
       waiverDetails.style.display = waiverCheckbox.checked ? 'block' : 'none';
     });
-
-    // הצגה ראשונית אם כבר מסומן (למקרה של טעינה מ־URL)
     waiverDetails.style.display = waiverCheckbox.checked ? 'block' : 'none';
   }
 
-
-  // --- טיפול בצ'קבוקס שעבוד קבוע בסקשן ביטוח תכולה ומבנה בלבד ---
+  // שעבוד
   const hasLien = document.getElementById("hasLien");
   const lienTypeSection = document.getElementById("lienTypeSection");
   const lienDetailsBank = document.getElementById("lienDetailsBank");
   const lienDetailsCompany = document.getElementById("lienDetailsCompany");
-
   if (hasLien) {
+    console.log('⚙️ הגדרת hasLien');
     hasLien.addEventListener("change", () => {
       const show = hasLien.checked;
       lienTypeSection.style.display = show ? "block" : "none";
@@ -1160,7 +1265,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll(".lien-type-button").forEach(b => b.classList.remove("selected"));
       button.classList.add("selected");
 
-      // 💾 שמירת הערך לשדה החבוי
       const lienTypeInput = document.getElementById("lienType");
       if (lienTypeInput) lienTypeInput.value = button.dataset.type;
 
@@ -1174,12 +1278,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-
-  // --- טיפול בילדים מעל גיל 3 בספטמבר ---
+  // ילדים מעל גיל 3
   const hasOver3Checkbox = document.getElementById('hasOver3Children');
   const over3CountGroup = document.getElementById('over3ChildrenCountGroup');
   const over3CountInput = document.getElementById('over3ChildrenCount');
   if (hasOver3Checkbox && over3CountGroup) {
+    console.log('⚙️ הגדרת ילדים מעל גיל 3');
     hasOver3Checkbox.addEventListener('change', () => {
       over3CountGroup.style.display = hasOver3Checkbox.checked ? 'block' : 'none';
       if (!hasOver3Checkbox.checked && over3CountInput) over3CountInput.value = '';
@@ -1187,6 +1291,7 @@ document.addEventListener('DOMContentLoaded', () => {
     over3CountGroup.style.display = hasOver3Checkbox.checked ? 'block' : 'none';
   }
 
+  // תצוגה לפי תיבות סימון שדורשות אישור
   document.querySelectorAll('.needsApprovalCheckbox').forEach(checkbox => {
     checkbox.addEventListener('change', function () {
       const infoDiv = this.closest('.form-group').querySelector('.approval-info-text');
@@ -1196,4 +1301,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  console.log('✅ כל ה־setup הסתיים');
 });
