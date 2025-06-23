@@ -161,6 +161,17 @@ for (const trackArr of Object.values(policyFeaturesByTrack)) {
 }
 
 
+let urlPrefillData = {};
+
+function parseUrlParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  urlPrefillData = {};
+  for (const [key, value] of urlParams.entries()) {
+    urlPrefillData[key] = value;
+  }
+}
+
+
 
 function showSection(index) {
   const currentSection = sections[currentSectionIndex];
@@ -203,17 +214,14 @@ function showSection(index) {
         });
 
         if (allPresent) {
-          prefillFromUrl();
+          prefillCoverageAddonsFromUrl();
         } else {
-          const loaded = document.querySelectorAll('#coverageOptionsContainer .coverage-option').length;
           setTimeout(waitUntilOptionsReady, 50);
         }
       };
 
       waitUntilOptionsReady();
     }
-
-
 
     // הצגת פרמיה – רק במסכים הרלוונטיים
     const premiumDisplay = document.getElementById('premiumDisplay');
@@ -1188,6 +1196,67 @@ function selectCoverageOption(optionName, value) {
   }
 }
 
+function prefillCoverageAddonsFromUrl() {
+  if (!urlPrefillData) return;
+
+  // כל רשימת האופציות כפי שהיו אצלך
+  const coverageOptions = [
+    'deductibleCancellation', 'teacherAccidents', 'professionalLiability',
+    'cyberInsurance', 'employerLiability', 'thirdParty', 'incomeLoss', 'afterSchoolProgram'
+  ];
+
+  // סימון כיסויים (מעוניין/לא)
+  coverageOptions.forEach(optionName => {
+    const value = urlPrefillData[optionName] || urlPrefillData[`insuranceOptions[${optionName}]`];
+    if (!value) return;
+    const optionDiv = document.querySelector(`.coverage-option[data-option="${optionName}"]`);
+    if (!optionDiv) return;
+    const interestedBtn = optionDiv.querySelector('.interested-button');
+    const notInterestedBtn = optionDiv.querySelector('.not-interested-button');
+    if (value === 'true' && interestedBtn) interestedBtn.click();
+    if (value === 'false' && notInterestedBtn) notInterestedBtn.click();
+    // עדכן גם את הערך של ההיידן (שיהיה סנכרון מלא)
+    const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+    if (hiddenInput) hiddenInput.value = value;
+  });
+
+  // בחירות פנימיות של כיסויים
+  if (urlPrefillData['teacherAccidentsCoverage']) {
+    const sel = document.querySelector('.teacherAccidentsCoverage');
+    if (sel) sel.value = urlPrefillData['teacherAccidentsCoverage'];
+  }
+  if (urlPrefillData['thirdPartyCoverage']) {
+    const sel = document.querySelector('.thirdPartyCoverage');
+    if (sel) sel.value = urlPrefillData['thirdPartyCoverage'];
+  }
+  if (urlPrefillData['incomeLossDuration']) {
+    const sel = document.querySelector('.incomeLossDuration');
+    if (sel) sel.value = urlPrefillData['incomeLossDuration'];
+  }
+
+  // תאונות אישיות לגננת
+  if (urlPrefillData['personalAccidentEmployees']) {
+    const paList = urlPrefillData['personalAccidentEmployees'].split(';').filter(Boolean);
+    const paContainer = document.querySelector('.personal-accident-employees-list');
+    if (paContainer) paContainer.innerHTML = '';
+    paList.forEach(entry => {
+      const [name, id] = entry.split('|');
+      addPersonalAccidentEmployeeRow(paContainer, { name, id });
+    });
+  }
+  // אחריות מקצועית
+  if (urlPrefillData['professionalLiabilityEmployees']) {
+    const profList = urlPrefillData['professionalLiabilityEmployees'].split(';').filter(Boolean);
+    const profContainer = document.querySelector('.professional-liability-list');
+    if (profContainer) profContainer.innerHTML = '';
+    profList.forEach(entry => {
+      const [name, id] = entry.split('|');
+      addProfessionalLiabilityEmployeeRow(profContainer, { name, id });
+    });
+  }
+}
+
+
 function prefillFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
 
@@ -1412,13 +1481,13 @@ function prefillFromUrl() {
   // טיפול סופי בסקשנים עם קפיצה מותנית (למשל מועדון/ויתור/שעבוד/תוספות מיוחדות)
   // אם תוסיף לוגיקות תלויות בהמשך – אפשר להוסיף כאן.
 }
-// --- התחלת ה־prefill מה־URL ---
-
-window.addEventListener('DOMContentLoaded', prefillFromUrl);
 
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🌱 DOMContentLoaded התחיל');
+  parseUrlParams();
+  console.log('🔗 parseUrlParams הסתיים')
+  console.log('🔗 urlPrefillData:', urlPrefillData);
 
   // מעבר בין עמודים
   showSection(0);
