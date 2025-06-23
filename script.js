@@ -37,7 +37,6 @@ const availableOptions = {
     'afterSchoolProgram'
   ],
   'upTo3': [
-    'contentBuilding',
     'thirdParty',
     'deductibleCancellation',
     'teacherAccidents',
@@ -47,7 +46,6 @@ const availableOptions = {
     'incomeLoss'
   ],
   'over3': [
-    'contentBuilding',
     'thirdParty',
     'deductibleCancellation',
     'teacherAccidents',
@@ -63,56 +61,105 @@ const availableOptions = {
   ]
 };
 
+const descriptions = {
+  "צד ג'": "",
+  "פינוי באמבולנס": "",
+  "הרחבות ללא תוספת תשלום": `
+כיסוי בגין הרעלה או גוף זר במזון<br>
+פעילות חוץ אשר התקיימה מטעם הגן<br>
+פגיעת ילד בילד<br>
+חריג אחריות מקצועית מבוטל בהתייחס לנזקי גוף בלבד<br>
+פגיעה אישית, הוצאת דיבה, מעצר שווא עד ל־50,000 ש"ח<br>
+הגנה בהליכים פליליים עד 120,000 למקרה ותקופה (השתתפות עצמית 2,000 ש"ח)<br>
+הגנה משפטית גם במקרה של תביעה אזרחית עד 10,000 ש"ח
+  `.trim(),
+  "תאונות אישיות לילדים": `
+כפוף לרשימה שמית וכפוף לפוליסה לביטוח תאונות אישיות מהדורת אוקטובר 2017.<br>
+הוצאות רפואיות<br>
+על פגיעה בשיניים, שבר במשקפיים עקב תאונה<br>
+פיצוי על אשפוז מעל 3 ימים ועד 30 יום<br>
+נכות מתאונה<br>
+מוות מתאונה<br>
+אובדן שכר לימוד בגין ילד שנפגע מתאונה – עד 60 יום
+  `.trim(),
+  "חבות מעבידים": "",
+  "תכולה ומבנה": `
+ביטוח חפצים אישיים של ילדי הגן – עד 2,000 ש"ח למקרה, אך לא יותר מ־5,000 ש"ח בכלל המקרים לכל תקופת הביטוח<br>
+ביטוח שבר זכוכית, כלים סניטריים, לוחות שיש – עד 10,000 ש"ח, השתתפות עצמית 650 ש"ח<br>
+ביטוח שבר חפצים אישיים של בעלי הגן ועובדים – עד 2,000 ש"ח למקרה, 5,000 ש"ח לתקופה, השתתפות עצמית 300 ש"ח<br>
+ביטוח כספים – עד 2,500 ש"ח, השתתפות עצמית 2,500 ש"ח<br>
+שבר תאונתי טלוויזיה, מחשבים, מערכות אודיו/וידאו<br>
+קלקול תכולת מקררים בעקבות שריפה<br>
+ביטוח גניבה פשוטה, למעט רכוש מקובע בחצר – עד 20,000 ש"ח למקרה ולתקופה<br>
+ביטוח נזקי מים, נזקי טבע, רעידת אדמה<br>
+ביטוח חפצים אישיים של ילדי הגן – 2,000 ש"ח למקרה ו־5,000 ש"ח לתקופה
+  `.trim(),
+  "אובדן הכנסות": `
+במקרה בו לא ניתן להפעיל את המסגרת החינוכית עקב פגיעה במבנה (כמו הצפה, פיצוץ צינור, שריפה) – כלול בפוליסה פיצוי של 5,000 ש"ח למשך שלושה חודשי שיפוי<br>
+ניתן להרחיב את הכיסוי ומשך הזמן
+  `.trim(),
+};
+
+
 
 const policyFeaturesByTrack = {
   1: [
-    { title: "צד ג'", description: "כיסוי בגין נזקי גוף ורכוש שנגרמו לצד שלישי במסגרת פעילות הגן." },
-    { title: "פינוי באמבולנס", description: "כולל פינוי במקרי חירום בעקבות פגיעות ילדים או צוות." },
-    { title: "הרחבות ללא תוספת תשלום", description: "כיסוי להרעלת מזון, חפץ זר באוכל, פגיעת ילד בילד, פעילות מחוץ לגן, פגיעות גוף חריגות, הוצאת דיבה, הגנה פלילית ואזרחית." }
+    { title: "צד ג'", description: "" },
+    { title: "פינוי באמבולנס", description: "" },
+    { title: "הרחבות ללא תוספת תשלום", description: "" }
   ],
   2: [
-    { title: "צד ג'", description: "כיסוי אחריות כלפי צד שלישי." },
-    { title: "פינוי באמבולנס", description: "כיסוי מלא לפינוי במקרים רפואיים." },
-    { title: "הרחבות ללא תוספת תשלום", description: "כיסויים נוספים כגון פגיעות גוף בלתי רגילות, השמצה ועוד." },
-    { title: "תאונות אישיות לילדים", description: "כולל הוצאות רפואיות, שברים, נכות זמנית, נכות קבועה, פטירה, אובדן שכר לימוד עד 60 יום." }
+    { title: "צד ג'", description: "" },
+    { title: "פינוי באמבולנס", description: "" },
+    { title: "הרחבות ללא תוספת תשלום", description: "" },
+    { title: "תאונות אישיות לילדים", description: "" }
   ],
   3: [
-    { title: "צד ג'", description: "כיסוי לנזקי גוף או רכוש שנגרמו לגורמים חיצוניים." },
-    { title: "פינוי באמבולנס", description: "כיסוי פינוי בעת תאונה או פציעה במסגרת הגן." },
-    { title: "הרחבות ללא תוספת תשלום", description: "כיסוי להאשמות שווא, הוצאות משפטיות והגנה אישית." },
-    { title: "תאונות אישיות לילדים", description: "פוליסת תאונות רחבה לילדים." }
+    { title: "צד ג'", description: "" },
+    { title: "פינוי באמבולנס", description: "" },
+    { title: "הרחבות ללא תוספת תשלום", description: "" },
+    { title: "תאונות אישיות לילדים", description: "" }
   ],
   4: [
-    { title: "צד ג'", description: "כיסוי לאחריות כלפי הורים, מבקרים, ספקים ועוד." },
-    { title: "פינוי באמבולנס", description: "כיסוי מלא לפינוי חירום באמבולנס." },
-    { title: "הרחבות ללא תוספת תשלום", description: "הגנה מפני תביעות אזרחיות ופליליות, כולל עלויות הגנה." },
-    { title: "תאונות אישיות לילדים", description: "כיסוי מלא לאירועי תאונה לילדים כולל אובדן שכר לימוד." },
-    { title: "חבות מעבידים", description: "כיסוי משפטי וכלכלי לתביעות מצד עובדים." }
+    { title: "צד ג'", description: "" },
+    { title: "פינוי באמבולנס", description: "" },
+    { title: "הרחבות ללא תוספת תשלום", description: "" },
+    { title: "תאונות אישיות לילדים", description: "" },
+    { title: "חבות מעבידים", description: "" }
   ],
   5: [
-    { title: "צד ג'", description: "אחריות כלפי צד שלישי על פגיעות גוף או רכוש." },
-    { title: "פינוי באמבולנס", description: "פינוי חירום בעת פגיעה בילד/צוות." },
-    { title: "הרחבות ללא תוספת תשלום", description: "כיסויים נוספים למקרי קצה כגון פעילות חוץ או הרעלות." },
-    { title: "חבות מעבידים", description: "הגנה במקרה של פגיעת עובד במהלך העבודה." }
+    { title: "צד ג'", description: "" },
+    { title: "פינוי באמבולנס", description: "" },
+    { title: "הרחבות ללא תוספת תשלום", description: "" },
+    { title: "חבות מעבידים", description: "" }
   ],
   6: [
-    { title: "צד ג'", description: "אחריות משפטית לנזקים לגורמים חיצוניים." },
-    { title: "פינוי באמבולנס", description: "כולל פינוי רפואי מהיר בעת פגיעות." },
-    { title: "הרחבות ללא תוספת תשלום", description: "הגנות מורחבות למצבים נדירים או תביעות מורכבות." },
-    { title: "חבות מעבידים", description: "כיסוי לפגיעות של עובדים במהלך יום העבודה." },
-    { title: "תכולה ומבנה", description: "כיסוי לתכולה, נזקי זכוכית, ציוד אישי של עובדים ובעלי הגן, מזומן, קלקול במקרר, גניבה, נזקי מים, רעידת אדמה ועוד." },
-    { title: "אובדן הכנסות", description: "כיסוי של 5,000 ₪ ל־3 חודשים – ניתן להארכה." }
+    { title: "צד ג'", description: "" },
+    { title: "פינוי באמבולנס", description: "" },
+    { title: "הרחבות ללא תוספת תשלום", description: "" },
+    { title: "חבות מעבידים", description: "" },
+    { title: "תכולה ומבנה", description: "" },
+    { title: "אובדן הכנסות", description: "" }
   ],
   7: [
-    { title: "צד ג'", description: "אחריות צד שלישי – גוף ורכוש." },
-    { title: "פינוי באמבולנס", description: "כיסוי מלא לפינוי רפואי." },
-    { title: "הרחבות ללא תוספת תשלום", description: "כיסויים נוספים לפגיעות חריגות." },
-    { title: "תאונות אישיות לילדים", description: "כולל טיפולים רפואיים, נכות זמנית וקבועה, פטירה." },
-    { title: "חבות מעבידים", description: "פגיעות עובדים בגן." },
-    { title: "תכולה ומבנה", description: "נזק לתכולה ולמבנה עד גבולות אחריות מוגדרים." },
-    { title: "אובדן הכנסות", description: "כיסוי עד 5,000 ₪ למשך 3 חודשים – בתנאים מסוימים." }
+    { title: "צד ג'", description: "" },
+    { title: "פינוי באמבולנס", description: "" },
+    { title: "הרחבות ללא תוספת תשלום", description: "" },
+    { title: "תאונות אישיות לילדים", description: "" },
+    { title: "חבות מעבידים", description: "" },
+    { title: "תכולה ומבנה", description: "" },
+    { title: "אובדן הכנסות", description: "" }
   ]
 };
+
+for (const trackArr of Object.values(policyFeaturesByTrack)) {
+  for (const feature of trackArr) {
+    if (descriptions.hasOwnProperty(feature.title)) {
+      feature.description = descriptions[feature.title];
+    }
+  }
+}
+
 
 
 function showSection(index) {
@@ -142,10 +189,31 @@ function showSection(index) {
     // עדכון כיסויים – מסך תוספות כיסוי
     if (index === 4) {
       updateCoverageOptions();
-      // 📌 הרצה מחדש של prefill עבור שדות תוספות (למשל ביטוח אחריות מקצועית, תאונות אישיות וכו')
-      console.log('📥 prefillFromUrl() triggered again on coverage step');
-      prefillFromUrl();
+
+      const gardenTypeValue = gardenType.value;
+      const employees = parseInt(employeesCount.value) || 0;
+      const expectedOptions = (availableOptions[gardenTypeValue] || []).filter(opt => {
+        if (opt === 'employerLiability' && employees === 0) return false;
+        return true;
+      });
+
+      const waitUntilOptionsReady = () => {
+        const allPresent = expectedOptions.every(opt => {
+          return document.querySelector(`.coverage-option[data-option="${opt}"]`);
+        });
+
+        if (allPresent) {
+          prefillFromUrl();
+        } else {
+          const loaded = document.querySelectorAll('#coverageOptionsContainer .coverage-option').length;
+          setTimeout(waitUntilOptionsReady, 50);
+        }
+      };
+
+      waitUntilOptionsReady();
     }
+
+
 
     // הצגת פרמיה – רק במסכים הרלוונטיים
     const premiumDisplay = document.getElementById('premiumDisplay');
@@ -1098,84 +1166,189 @@ function setupYardValueButtons() {
   });
 }
 
+function selectCoverageOption(optionName, value) {
+  const optionDiv = document.querySelector(`.coverage-option[data-option="${optionName}"]`);
+  if (!optionDiv) return;
+
+  const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+  const interestedBtn = optionDiv.querySelector('.interested-button');
+  const notInterestedBtn = optionDiv.querySelector('.not-interested-button');
+  const conditionalSection = optionDiv.querySelector('.conditional-section');
+
+  if (value === 'true') {
+    hiddenInput.value = 'true';
+    interestedBtn.classList.add('selected');
+    notInterestedBtn.classList.remove('selected');
+    if (conditionalSection) conditionalSection.style.display = 'block';
+  } else {
+    hiddenInput.value = 'false';
+    interestedBtn.classList.remove('selected');
+    notInterestedBtn.classList.add('selected');
+    if (conditionalSection) conditionalSection.style.display = 'none';
+  }
+}
+
 function prefillFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
 
-  // --- קביעת ערך automation עם ברירת מחדל true ---
-  const automationParam = urlParams.get('automation');
-  window.formAutomationFlag = (automationParam === null || automationParam === 'true') ? 'true' : 'false';
+  // --- דגלים כלליים (automation, renewal) ---
+  window.formAutomationFlag = (urlParams.get('automation') === null || urlParams.get('automation') === 'true') ? 'true' : 'false';
+  window.formRenewalFlag = (urlParams.get('renewal') === null || urlParams.get('renewal') === 'true') ? 'true' : 'false';
 
-  // --- קביעת ערך renewal עם ברירת מחדל true ---
-  const renewalParam = urlParams.get('renewal');
-  window.formRenewalFlag = (renewalParam === null || renewalParam === 'true') ? 'true' : 'false';
+  // --- רשימות כיסויים לצורך טיפול בתוספות כיסוי ---
+  const coverageOptions = [
+    'deductibleCancellation', 'teacherAccidents', 'professionalLiability',
+    'cyberInsurance', 'employerLiability', 'thirdParty', 'incomeLoss', 'afterSchoolProgram'
+  ];
 
+  // --- טיפול בכל פרמטר ב-URL ---
   urlParams.forEach((value, key) => {
-    // --- תאריכי פוליסה ---
-    if (key === 'policyStartDate') {
-      const el = document.getElementById('policyStartDate');
-      if (el) el.value = value;
+    // 1. טיפול במילוי כפתורי תוספות כיסוי (מעוניין/לא מעוניין):
+    if (coverageOptions.includes(key)) {
+      const optionDiv = document.querySelector(`.coverage-option[data-option="${key}"]`);
+      if (optionDiv) {
+        const interestedBtn = optionDiv.querySelector('.interested-button');
+        const notInterestedBtn = optionDiv.querySelector('.not-interested-button');
+        if (value === 'true' && interestedBtn) interestedBtn.click();
+        if (value === 'false' && notInterestedBtn) notInterestedBtn.click();
+      }
     }
 
-    if (key === 'policyEndDate') {
-      const el = document.getElementById('policyEndDate');
-      if (el) el.value = value;
+    // גודל מבנה
+    const buildingSize = urlParams.get('buildingSize');
+    if (buildingSize) {
+      document.querySelectorAll('.building-size-button').forEach(btn => {
+        btn.classList.remove('selected');
+        if (btn.dataset.value === buildingSize) btn.classList.add('selected');
+      });
+      // אם בחר "מעל 100", הראה ושם ערך ב-exact
+      if (buildingSize === 'over100') {
+        document.getElementById('buildingSizeExtraInput').style.display = 'block';
+        const exact = urlParams.get('buildingSizeExact');
+        if (exact) document.getElementById('buildingSizeExact').value = exact;
+      }
     }
 
-    // --- פרטי בעלי נכס עם ויתור שיבוב ---
-    if (key === 'waiverCheckbox' && value === 'true') {
-      const waiverCheckbox = document.getElementById('waiverCheckbox');
-      if (waiverCheckbox) waiverCheckbox.checked = true;
+    // סכום תכולה
+    const contentSum = urlParams.get('contentSum');
+    if (contentSum) {
+      document.querySelectorAll('.content-value-button').forEach(btn => {
+        btn.classList.remove('selected');
+        if (btn.dataset.value === contentSum) btn.classList.add('selected');
+      });
+      if (contentSum === 'over200k') {
+        document.getElementById('contentSumExtraInput').style.display = 'block';
+        const exact = urlParams.get('contentSumExact');
+        if (exact) document.getElementById('contentSumExact').value = exact;
+      }
     }
 
-    if (key === 'propertyOwnerName') {
-      const nameField = document.getElementById('propertyOwnerName');
-      if (nameField) nameField.value = value;
+    // סכום חצר
+    const yardContentSum = urlParams.get('yardContentSum');
+    if (yardContentSum) {
+      document.querySelectorAll('.yard-value-button').forEach(btn => {
+        btn.classList.remove('selected');
+        if (btn.dataset.value === yardContentSum) btn.classList.add('selected');
+      });
+      if (yardContentSum === 'over20k') {
+        document.getElementById('yardContentSumExtraInput').style.display = 'block';
+        const exact = urlParams.get('yardContentSumExact');
+        if (exact) document.getElementById('yardContentSumExact').value = exact;
+      }
     }
 
-    if (key === 'propertyOwnerId') {
-      const idField = document.getElementById('propertyOwnerId');
-      if (idField) idField.value = value;
+    // סוג מבנה (select)
+    const buildingType = urlParams.get('buildingType');
+    if (buildingType) {
+      document.getElementById('buildingType').value = buildingType;
     }
 
-    // --- גננות תאונות אישיות ---
-    if (key === 'personalAccidentEmployees') {
-      const rows = value.split(';');
-      const coverageBtn = document.querySelector('.coverage-option[data-option="teacherAccidents"] .interested-button');
-      const paContainer = document.querySelector('#personalAccidentEmployeesRows');
-      const addPaBtn = document.getElementById('addPersonalAccidentEmployeeButton');
-      if (coverageBtn) coverageBtn.click();
+    // האם קיים שעבוד
+    const hasLien = urlParams.get('hasLien');
+    if (hasLien === 'true') {
+      document.getElementById('hasLien').checked = true;
+      document.getElementById('lienTypeSection').style.display = 'block';
+      // סוג משעבד
+      const lienType = urlParams.get('lienType');
+      if (lienType) {
+        document.querySelectorAll('.lien-type-button').forEach(btn => {
+          btn.classList.remove('selected');
+          if (btn.dataset.type === lienType) btn.classList.add('selected');
+        });
+        if (lienType === 'bank') {
+          document.getElementById('lienDetailsBank').style.display = 'block';
+          // פרטי הבנק
+          const lienBankName = urlParams.get('lienBankName');
+          if (lienBankName) document.getElementById('lienBankName').value = lienBankName;
+          const lienBankBranch = urlParams.get('lienBankBranch');
+          if (lienBankBranch) document.getElementById('lienBankBranch').value = lienBankBranch;
+          const lienBankAddress = urlParams.get('lienBankAddress');
+          if (lienBankAddress) document.getElementById('lienBankAddress').value = lienBankAddress;
+        }
+        if (lienType === 'company') {
+          document.getElementById('lienDetailsCompany').style.display = 'block';
+          const lienCompanyName = urlParams.get('lienCompanyName');
+          if (lienCompanyName) document.getElementById('lienCompanyName').value = lienCompanyName;
+          const lienCompanyId = urlParams.get('lienCompanyId');
+          if (lienCompanyId) document.getElementById('lienCompanyId').value = lienCompanyId;
+        }
+      }
+    }
+
+    // ויתור זכות שיבוב
+    const waiverCheckbox = urlParams.get('waiverCheckbox');
+    if (waiverCheckbox === 'true') {
+      document.getElementById('waiverCheckbox').checked = true;
+      document.getElementById('waiverDetails').style.display = 'block';
+      // שם בעל הנכס + ת"ז
+      const propertyOwnerName = urlParams.get('propertyOwnerName');
+      if (propertyOwnerName) document.getElementById('propertyOwnerName').value = propertyOwnerName;
+      const propertyOwnerId = urlParams.get('propertyOwnerId');
+      if (propertyOwnerId) document.getElementById('propertyOwnerId').value = propertyOwnerId;
+    }
+
+    // 2. טיפול בבחירות פנימיות (של תוספות – כמו select):
+    if (key === 'teacherAccidentsCoverage') {
+      const sel = document.querySelector('.teacherAccidentsCoverage');
+      if (sel) sel.value = value;
+    }
+    if (key === 'thirdPartyCoverage') {
+      const sel = document.querySelector('.thirdPartyCoverage');
+      if (sel) sel.value = value;
+    }
+    if (key === 'incomeLossDuration') {
+      const sel = document.querySelector('.incomeLossDuration');
+      if (sel) sel.value = value;
+    }
+
+    // --- תוספות כיסוי: תאונות אישיות לגננת ---
+    const paEmployees = urlParams.get('personalAccidentEmployees');
+    if (paEmployees) {
+      // פיצול לפי ;
+      const paList = paEmployees.split(';').filter(Boolean);
+      // נניח שכבר יש שורה אחת, ננקה הכל קודם (או אפשר לעדכן רק ריק)
+      const paContainer = document.querySelector('.personal-accident-employees-list');
       if (paContainer) paContainer.innerHTML = '';
-      rows.forEach(() => addPaBtn?.click());
-      const allPaRows = paContainer.querySelectorAll('.pa-employee-row');
-      allPaRows.forEach((el, index) => {
-        const [name, id] = rows[index].split('|');
-        const nameInp = el.querySelector('input[name="personalAccidentEmployeeName[]"]');
-        const idInp = el.querySelector('input[name="personalAccidentEmployeeId[]"]');
-        if (nameInp) nameInp.value = name;
-        if (idInp) idInp.value = id;
+      paList.forEach(entry => {
+        const [name, id] = entry.split('|');
+        addPersonalAccidentEmployeeRow(name, id);
       });
     }
 
-    // --- גננות אחריות מקצועית ---
-    if (key === 'professionalLiabilityEmployees') {
-      const rows = value.split(';');
-      const coverageBtn = document.querySelector('.coverage-option[data-option="professionalLiability"] .interested-button');
-      const profContainer = document.querySelector('#professionalLiabilityEmployeesRows');
-      const addProfBtn = document.getElementById('addProfessionalLiabilityEmployeeButton');
-      if (coverageBtn) coverageBtn.click();
+    // --- תוספות כיסוי: אחריות מקצועית ---
+    const profEmployees = urlParams.get('professionalLiabilityEmployees');
+    if (profEmployees) {
+      const profList = profEmployees.split(';').filter(Boolean);
+      const profContainer = document.querySelector('.professional-liability-list');
       if (profContainer) profContainer.innerHTML = '';
-      rows.forEach(() => addProfBtn?.click());
-      const allProfRows = profContainer.querySelectorAll('.professional-liability-row');
-      allProfRows.forEach((el, index) => {
-        const [name, id] = rows[index].split('|');
-        const nameInp = el.querySelector('input[name="professionalLiabilityEmployeeName[]"]');
-        const idInp = el.querySelector('input[name="professionalLiabilityEmployeeId[]"]');
-        if (nameInp) nameInp.value = name;
-        if (idInp) idInp.value = id;
+      profList.forEach(entry => {
+        const [name, id] = entry.split('|');
+        addProfessionalLiabilityEmployeeRow(name, id);
       });
     }
 
-    // --- סימון אוטומטי של כיסויי ביטוח (כפתור מעוניין/לא מעוניין) לפי insuranceOptions[...]
+
+    // 4. סימון כיסויי ביטוח (אם יש מבנה insuranceOptions[...])
     const optionMatch = key.match(/^insuranceOptions\[(.+)\]$/);
     if (optionMatch) {
       const optionName = optionMatch[1];
@@ -1193,7 +1366,7 @@ function prefillFromUrl() {
       }
     }
 
-    // --- קלטים רגילים ---
+    // 5. מילוי ערכים רגילים (inputs, selects, checkboxes, radios)
     let el = document.getElementById(key) || document.querySelector(`[name="${key}"]`);
     if (el) {
       if (el.type === 'checkbox') {
@@ -1204,17 +1377,42 @@ function prefillFromUrl() {
       } else {
         el.value = value;
       }
+      // טריגרים על שינוי (לא חובה, אבל עוזר לטריגרים דינמיים)
       el.dispatchEvent(new Event('change', { bubbles: true }));
       el.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
-    // --- לחצני ערכים ---
+    // 6. לחצני בחירה דינמיים (כמו buildingSize/contentSum וכדומה)
     let btn = document.querySelector(`button[data-value="${value}"]`);
-    if (btn) {
+    // לא נלחץ אם הכפתור לא שייך לסקשן הפעיל
+    if (btn && btn.closest('.form-section')?.classList.contains('active')) {
       btn.click();
     }
+
+    // 7. תאריכי פוליסה (לוודא שלא יפספס)
+    if (key === 'policyStartDate') {
+      const el = document.getElementById('policyStartDate');
+      if (el) el.value = value;
+    }
+    if (key === 'policyEndDate') {
+      const el = document.getElementById('policyEndDate');
+      if (el) el.value = value;
+    }
+
+    if (key === 'propertyOwnerName') {
+      const nameField = document.getElementById('propertyOwnerName');
+      if (nameField) nameField.value = value;
+    }
+    if (key === 'propertyOwnerId') {
+      const idField = document.getElementById('propertyOwnerId');
+      if (idField) idField.value = value;
+    }
   });
+
+  // טיפול סופי בסקשנים עם קפיצה מותנית (למשל מועדון/ויתור/שעבוד/תוספות מיוחדות)
+  // אם תוסיף לוגיקות תלויות בהמשך – אפשר להוסיף כאן.
 }
+// --- התחלת ה־prefill מה־URL ---
 
 window.addEventListener('DOMContentLoaded', prefillFromUrl);
 
