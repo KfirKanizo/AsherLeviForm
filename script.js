@@ -1,6 +1,7 @@
 const form = document.getElementById('insuranceForm');
 const gardenType = document.getElementById('gardenType');
 const childrenCount = document.getElementById('childrenCount');
+const employeesCount = document.getElementById('employeesCount');
 const premiumAmount = document.getElementById('premiumAmount');
 const isMemberCheckbox = document.getElementById('isMember');
 const membershipSection = document.getElementById('membershipSection');
@@ -24,6 +25,7 @@ const availableOptions = {
   'tamah': [
     'deductibleCancellation',
     'teacherAccidents',
+    'birthdayActivities',
     'afterSchoolProgram'
   ],
   'privateFamily': [
@@ -33,86 +35,147 @@ const availableOptions = {
     'professionalLiability',
     'employerLiability',
     'cyberInsurance',
+    'birthdayActivities',
     'afterSchoolProgram'
   ],
   'upTo3': [
-    'contentBuilding',
     'thirdParty',
     'deductibleCancellation',
     'teacherAccidents',
     'professionalLiability',
     'employerLiability',
     'cyberInsurance',
-    'incomeLoss'
+    'incomeLoss',
+    'birthdayActivities'
   ],
   'over3': [
-    'contentBuilding',
     'thirdParty',
     'deductibleCancellation',
     'teacherAccidents',
     'professionalLiability',
     'employerLiability',
     'cyberInsurance',
+    'birthdayActivities',
     'afterSchoolProgram'
   ],
   'afterSchool': [
     'thirdParty',
     'deductibleCancellation',
     'teacherAccidents',
-    'afterSchoolProgram'
+    'birthdayActivities'
   ]
 };
+
+const descriptions = {
+  "צד ג'": "",
+  "פינוי באמבולנס": "",
+  "הרחבות ללא תוספת תשלום": `
+כיסוי בגין הרעלה או גוף זר במזון<br>
+פעילות חוץ אשר התקיימה מטעם הגן<br>
+פגיעת ילד בילד<br>
+חריג אחריות מקצועית מבוטל בהתייחס לנזקי גוף בלבד<br>
+פגיעה אישית, הוצאת דיבה, מעצר שווא עד ל־50,000 ש"ח<br>
+הגנה בהליכים פליליים עד 120,000 למקרה ותקופה (השתתפות עצמית 2,000 ש"ח)<br>
+הגנה משפטית גם במקרה של תביעה אזרחית עד 10,000 ש"ח
+  `.trim(),
+  "תאונות אישיות לילדים": `
+כפוף לרשימה שמית וכפוף לפוליסה לביטוח תאונות אישיות מהדורת אוקטובר 2017.<br>
+הוצאות רפואיות<br>
+על פגיעה בשיניים, שבר במשקפיים עקב תאונה<br>
+פיצוי על אשפוז מעל 3 ימים ועד 30 יום<br>
+נכות מתאונה<br>
+מוות מתאונה<br>
+אובדן שכר לימוד בגין ילד שנפגע מתאונה – עד 60 יום
+  `.trim(),
+  "חבות מעבידים": "",
+  "תכולה ומבנה": `
+ביטוח חפצים אישיים של ילדי הגן – עד 2,000 ש"ח למקרה, אך לא יותר מ־5,000 ש"ח בכלל המקרים לכל תקופת הביטוח<br>
+ביטוח שבר זכוכית, כלים סניטריים, לוחות שיש – עד 10,000 ש"ח, השתתפות עצמית 650 ש"ח<br>
+ביטוח שבר חפצים אישיים של בעלי הגן ועובדים – עד 2,000 ש"ח למקרה, 5,000 ש"ח לתקופה, השתתפות עצמית 300 ש"ח<br>
+ביטוח כספים – עד 2,500 ש"ח, השתתפות עצמית 2,500 ש"ח<br>
+שבר תאונתי טלוויזיה, מחשבים, מערכות אודיו/וידאו<br>
+קלקול תכולת מקררים בעקבות שריפה<br>
+ביטוח גניבה פשוטה, למעט רכוש מקובע בחצר – עד 20,000 ש"ח למקרה ולתקופה<br>
+ביטוח נזקי מים, נזקי טבע, רעידת אדמה<br>
+ביטוח חפצים אישיים של ילדי הגן – 2,000 ש"ח למקרה ו־5,000 ש"ח לתקופה
+  `.trim(),
+  "אובדן הכנסות": `
+במקרה בו לא ניתן להפעיל את המסגרת החינוכית עקב פגיעה במבנה (כמו הצפה, פיצוץ צינור, שריפה) – כלול בפוליסה פיצוי של 5,000 ש"ח למשך שלושה חודשי שיפוי<br>
+ניתן להרחיב את הכיסוי ומשך הזמן
+  `.trim(),
+};
+
 
 
 const policyFeaturesByTrack = {
   1: [
-    { title: "צד ג'", description: "כיסוי בגין נזקי גוף ורכוש שנגרמו לצד שלישי במסגרת פעילות הגן." },
-    { title: "פינוי באמבולנס", description: "כולל פינוי במקרי חירום בעקבות פגיעות ילדים או צוות." },
-    { title: "הרחבות ללא תוספת תשלום", description: "כיסוי להרעלת מזון, חפץ זר באוכל, פגיעת ילד בילד, פעילות מחוץ לגן, פגיעות גוף חריגות, הוצאת דיבה, הגנה פלילית ואזרחית." }
+    { title: "צד ג'", description: "" },
+    { title: "פינוי באמבולנס", description: "" },
+    { title: "הרחבות ללא תוספת תשלום", description: "" }
   ],
   2: [
-    { title: "צד ג'", description: "כיסוי אחריות כלפי צד שלישי." },
-    { title: "פינוי באמבולנס", description: "כיסוי מלא לפינוי במקרים רפואיים." },
-    { title: "הרחבות ללא תוספת תשלום", description: "כיסויים נוספים כגון פגיעות גוף בלתי רגילות, השמצה ועוד." },
-    { title: "תאונות אישיות לילדים", description: "כולל הוצאות רפואיות, שברים, נכות זמנית, נכות קבועה, פטירה, אובדן שכר לימוד עד 60 יום." }
+    { title: "צד ג'", description: "" },
+    { title: "פינוי באמבולנס", description: "" },
+    { title: "הרחבות ללא תוספת תשלום", description: "" },
+    { title: "תאונות אישיות לילדים", description: "" }
   ],
   3: [
-    { title: "צד ג'", description: "כיסוי לנזקי גוף או רכוש שנגרמו לגורמים חיצוניים." },
-    { title: "פינוי באמבולנס", description: "כיסוי פינוי בעת תאונה או פציעה במסגרת הגן." },
-    { title: "הרחבות ללא תוספת תשלום", description: "כיסוי להאשמות שווא, הוצאות משפטיות והגנה אישית." },
-    { title: "תאונות אישיות לילדים", description: "פוליסת תאונות רחבה לילדים." }
+    { title: "צד ג'", description: "" },
+    { title: "פינוי באמבולנס", description: "" },
+    { title: "הרחבות ללא תוספת תשלום", description: "" },
+    { title: "תאונות אישיות לילדים", description: "" }
   ],
   4: [
-    { title: "צד ג'", description: "כיסוי לאחריות כלפי הורים, מבקרים, ספקים ועוד." },
-    { title: "פינוי באמבולנס", description: "כיסוי מלא לפינוי חירום באמבולנס." },
-    { title: "הרחבות ללא תוספת תשלום", description: "הגנה מפני תביעות אזרחיות ופליליות, כולל עלויות הגנה." },
-    { title: "תאונות אישיות לילדים", description: "כיסוי מלא לאירועי תאונה לילדים כולל אובדן שכר לימוד." },
-    { title: "חבות מעבידים", description: "כיסוי משפטי וכלכלי לתביעות מצד עובדים." }
+    { title: "צד ג'", description: "" },
+    { title: "פינוי באמבולנס", description: "" },
+    { title: "הרחבות ללא תוספת תשלום", description: "" },
+    { title: "תאונות אישיות לילדים", description: "" },
+    { title: "חבות מעבידים", description: "" }
   ],
   5: [
-    { title: "צד ג'", description: "אחריות כלפי צד שלישי על פגיעות גוף או רכוש." },
-    { title: "פינוי באמבולנס", description: "פינוי חירום בעת פגיעה בילד/צוות." },
-    { title: "הרחבות ללא תוספת תשלום", description: "כיסויים נוספים למקרי קצה כגון פעילות חוץ או הרעלות." },
-    { title: "חבות מעבידים", description: "הגנה במקרה של פגיעת עובד במהלך העבודה." }
+    { title: "צד ג'", description: "" },
+    { title: "פינוי באמבולנס", description: "" },
+    { title: "הרחבות ללא תוספת תשלום", description: "" },
+    { title: "חבות מעבידים", description: "" }
   ],
   6: [
-    { title: "צד ג'", description: "אחריות משפטית לנזקים לגורמים חיצוניים." },
-    { title: "פינוי באמבולנס", description: "כולל פינוי רפואי מהיר בעת פגיעות." },
-    { title: "הרחבות ללא תוספת תשלום", description: "הגנות מורחבות למצבים נדירים או תביעות מורכבות." },
-    { title: "חבות מעבידים", description: "כיסוי לפגיעות של עובדים במהלך יום העבודה." },
-    { title: "תכולה ומבנה", description: "כיסוי לתכולה, נזקי זכוכית, ציוד אישי של עובדים ובעלי הגן, מזומן, קלקול במקרר, גניבה, נזקי מים, רעידת אדמה ועוד." },
-    { title: "אובדן הכנסות", description: "כיסוי של 5,000 ₪ ל־3 חודשים – ניתן להארכה." }
+    { title: "צד ג'", description: "" },
+    { title: "פינוי באמבולנס", description: "" },
+    { title: "הרחבות ללא תוספת תשלום", description: "" },
+    { title: "חבות מעבידים", description: "" },
+    { title: "תכולה ומבנה", description: "" },
+    { title: "אובדן הכנסות", description: "" }
   ],
   7: [
-    { title: "צד ג'", description: "אחריות צד שלישי – גוף ורכוש." },
-    { title: "פינוי באמבולנס", description: "כיסוי מלא לפינוי רפואי." },
-    { title: "הרחבות ללא תוספת תשלום", description: "כיסויים נוספים לפגיעות חריגות." },
-    { title: "תאונות אישיות לילדים", description: "כולל טיפולים רפואיים, נכות זמנית וקבועה, פטירה." },
-    { title: "חבות מעבידים", description: "פגיעות עובדים בגן." },
-    { title: "תכולה ומבנה", description: "נזק לתכולה ולמבנה עד גבולות אחריות מוגדרים." },
-    { title: "אובדן הכנסות", description: "כיסוי עד 5,000 ₪ למשך 3 חודשים – בתנאים מסוימים." }
+    { title: "צד ג'", description: "" },
+    { title: "פינוי באמבולנס", description: "" },
+    { title: "הרחבות ללא תוספת תשלום", description: "" },
+    { title: "תאונות אישיות לילדים", description: "" },
+    { title: "חבות מעבידים", description: "" },
+    { title: "תכולה ומבנה", description: "" },
+    { title: "אובדן הכנסות", description: "" }
   ]
 };
+
+for (const trackArr of Object.values(policyFeaturesByTrack)) {
+  for (const feature of trackArr) {
+    if (descriptions.hasOwnProperty(feature.title)) {
+      feature.description = descriptions[feature.title];
+    }
+  }
+}
+
+
+let urlPrefillData = {};
+
+function parseUrlParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  urlPrefillData = {};
+  for (const [key, value] of urlParams.entries()) {
+    urlPrefillData[key] = value;
+  }
+}
+
 
 
 function showSection(index) {
@@ -133,13 +196,36 @@ function showSection(index) {
       if (i === index) section.classList.add('active');
     });
 
-    // עדכון כיסויים – מסך תוספות כיסוי
-    if (index === 4) updateCoverageOptions();
-
     // הצגת פרטי פוליסה – לפי המסלול
     if (index === 3) {
       const track = determinePolicyTrack();
       populatePolicyDetails(track);
+    }
+
+    // עדכון כיסויים – מסך תוספות כיסוי
+    if (index === 4) {
+      updateCoverageOptions();
+
+      const gardenTypeValue = gardenType.value;
+      const employees = parseInt(employeesCount.value) || 0;
+      const expectedOptions = (availableOptions[gardenTypeValue] || []).filter(opt => {
+        if (opt === 'employerLiability' && employees === 0) return false;
+        return true;
+      });
+
+      const waitUntilOptionsReady = () => {
+        const allPresent = expectedOptions.every(opt => {
+          return document.querySelector(`.coverage-option[data-option="${opt}"]`);
+        });
+
+        if (allPresent) {
+          prefillCoverageAddonsFromUrl();
+        } else {
+          setTimeout(waitUntilOptionsReady, 50);
+        }
+      };
+
+      waitUntilOptionsReady();
     }
 
     // הצגת פרמיה – רק במסכים הרלוונטיים
@@ -169,6 +255,7 @@ function showSection(index) {
     currentSectionIndex = index;
   }, 400);
 }
+
 
 
 
@@ -375,7 +462,11 @@ function updateCoverageOptions() {
   container.innerHTML = '';
   const templates = document.getElementById('coverageOptionsTemplates');
   const options = availableOptions[gardenTypeValue] || [];
+  const employees = parseInt(employeesCount.value) || 0;
+
   options.forEach(option => {
+    // הסתרת חבות מעבידים אם אין עובדים
+    if (option === 'employerLiability' && employees === 0) return;
     const template = templates.querySelector(`#coverage-${option}`);
     if (template) {
       const clone = template.cloneNode(true);
@@ -385,6 +476,7 @@ function updateCoverageOptions() {
   });
   calculatePremium();
   setupPersonalAccidentEmployees();
+  setupProfessionalLiabilityEmployees();
 }
 
 function addEventListenersToOption(optionDiv) {
@@ -434,38 +526,73 @@ function addEventListenersToOption(optionDiv) {
     calculatePremium();
   });
 
+  if (optionName === 'birthdayActivities') {
+    // ברירת מחדל: הסתר/הצג את השדה
+    const conditionalSection = optionDiv.querySelector('.conditional-section');
+    const interestedButton = optionDiv.querySelector('.interested-button');
+    const notInterestedButton = optionDiv.querySelector('.not-interested-button');
+    if (interestedButton && notInterestedButton) {
+      interestedButton.addEventListener('click', () => {
+        conditionalSection.style.display = 'block';
+      });
+      notInterestedButton.addEventListener('click', () => {
+        conditionalSection.style.display = 'none';
+      });
+    }
+  }
+
 
   // טריגר חישוב בעת שינוי שדות תנאי
   optionDiv.querySelectorAll('.conditional-section input, .conditional-section select').forEach(input => {
     input.addEventListener('change', calculatePremium);
   });
 
-  // טיפול בשעבוד (אם יש)
-  const hasLienCheckbox = document.getElementById('hasLien');
-  const lienHolderInput = document.getElementById('lienHolderInput');
-  if (hasLienCheckbox && lienHolderInput) {
-    hasLienCheckbox.addEventListener('change', () => {
-      lienHolderInput.style.display = hasLienCheckbox.checked ? 'block' : 'none';
+  const hasLien = document.getElementById("hasLien");
+  const lienTypeSection = document.getElementById("lienTypeSection");
+  const lienDetailsBank = document.getElementById("lienDetailsBank");
+  const lienDetailsCompany = document.getElementById("lienDetailsCompany");
+
+  if (hasLien) {
+    hasLien.addEventListener("change", () => {
+      const show = hasLien.checked;
+      lienTypeSection.style.display = show ? "block" : "none";
+      lienDetailsBank.style.display = "none";
+      lienDetailsCompany.style.display = "none";
     });
-    // במידה ויש ערך טעון - להראות את השדה בטעינה
-    lienHolderInput.style.display = hasLienCheckbox.checked ? 'block' : 'none';
   }
+
+  document.querySelectorAll(".lien-type-button").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".lien-type-button").forEach(b => b.classList.remove("selected"));
+      button.classList.add("selected");
+      if (button.dataset.type === "bank") {
+        lienDetailsBank.style.display = "block";
+        lienDetailsCompany.style.display = "none";
+      } else {
+        lienDetailsBank.style.display = "none";
+        lienDetailsCompany.style.display = "block";
+      }
+    });
+  });
+
 }
 
 function determinePolicyTrack() {
   const gardenTypeValue = gardenType.value;
   const children = parseInt(childrenCount.value) || 0;
   const hasContent = document.getElementById('hasContentBuilding')?.checked;
+  const employeesCount = parseInt(document.getElementById('employeesCount')?.value) || 0;
+
 
   if (gardenTypeValue === 'tamah') return 1;
-  if (gardenTypeValue === 'privateFamily') {
-    if (children <= 6) return 2;
-    if (children <= 9) return 3;
-    return 4;
+  if (gardenTypeValue === 'privateFamily' || gardenTypeValue === 'upTo3') {
+    if (children <= 6 && employeesCount === 0) return 2;
+    if (children <= 9 && !hasContent) return 3;
+    if (children >= 10 && !hasContent) return 4;
   }
-  if (gardenTypeValue === 'upTo3') return 7;
+  if ((gardenTypeValue === 'over3' || gardenTypeValue === 'afterSchool') && !hasContent) return 5;
   if ((gardenTypeValue === 'over3' || gardenTypeValue === 'afterSchool') && hasContent) return 6;
-  return 5;
+  if (gardenTypeValue === 'upTo3' && hasContent) return 7; // מסלול 7 כולל תכולה ומבנה
 }
 
 
@@ -503,9 +630,14 @@ function calculatePremium() {
       else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4 - מעל 10 ילדים, ללא מבנה/תכולה
       break;
 
-    case 'upTo3': // מסלול 7 - גן עד גיל 3 כולל מבנה ותכולה
-      if (childrenCountValue <= 12) basePremium = 1400;
-      else basePremium = 1400 + (childrenCountValue - 12) * 120;
+    case 'upTo3':
+      if (includeContentBuilding) {
+        if (childrenCountValue <= 12) basePremium = 1400; // מסלול 7 - כולל תכולה ומבנה
+        else basePremium = 1400 + (childrenCountValue - 12) * 120;
+      } else {
+        if (childrenCountValue <= 10) basePremium = 1100; // מסלול 4 - עד 10 ילדים
+        else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4 - מעל 10 ילדים
+      }
       break;
 
     case 'over3': // מסלול 5/6
@@ -528,12 +660,13 @@ function calculatePremium() {
   if (isMemberCheckbox && isMemberCheckbox.checked) {
     // מסלול 4+7: 10 ש"ח לילד, מסלול 5+6: 5 ש"ח לילד
     if (
-      (gardenTypeValue === 'privateFamily' && childrenCountValue >= 10) || // מסלול 4
-      (gardenTypeValue === 'upTo3')
+      (gardenTypeValue === 'privateFamily' && childrenCountValue >= 10) ||
+      (gardenTypeValue === 'upTo3' && childrenCountValue >= 10 && !includeContentBuilding) // upTo3 = מסלול 4 רק בלי תכולה
     ) {
       totalDiscount = childrenCountValue * 10;
-      minPremium = gardenTypeValue === 'upTo3' ? 1400 : 1100;
+      minPremium = 1100;
     }
+
     if (
       (gardenTypeValue === 'over3' || gardenTypeValue === 'afterSchool')
     ) {
@@ -549,29 +682,47 @@ function calculatePremium() {
 
   let totalPremium = Math.max(basePremium - totalDiscount, minPremium);
 
-  // הוספת תוספות (הרחבות) לפי בחירות
+  // ====== תוספת ביטוח תכולה ומבנה - לא חלק מהתוספות ======
+  if (includeContentBuilding) {
+    // מסלולים שבהם כבר כלול – אין תוספת
+    //if (!(gardenTypeValue === 'upTo3' || (gardenTypeValue === 'over3' && childrenCountValue <= 17))) {
+    // שווי תכולה
+    const contentSum = parseFloat(document.querySelector('.contentSum')?.value.replace(/[^0-9.]/g, '')) || 0;
+    let contentAddition = 0;
+    if (contentSum > 200000) {
+      contentAddition = ((contentSum - 200000) / 40000) * 82;
+    }
+    // שטח מבנה
+    const buildingSizeValue = document.getElementById('buildingSizeExact')?.value || '';
+    const buildingSize = parseFloat(buildingSizeValue.replace(/[^0-9.]/g, '')) || 0;
+    let buildingAddition = 0;
+    if (buildingSize > 100) {
+      buildingAddition = (((buildingSize - 100) * 5000) / 40000) * 82;
+    }
+    // הוסף לפרמיה הכוללת
+    totalPremium += Math.round(contentAddition + buildingAddition);
+   //} 
+  }
+
+  // תוספות כיסויים (לא כולל תכולה ומבנה!)
   document.querySelectorAll('.coverage-option').forEach(optionDiv => {
     const optionName = optionDiv.dataset.option;
+    if (optionName === 'contentBuilding') return; // לא לחשב פעמיים
     const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
     const cost = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
-
-    // כיסוי תכולה ומבנה (במסלולים בהם הוא תוספת)
-    if (optionName === 'contentBuilding') {
-      // במסלול 7 תמיד כלול ואין צורך להוסיף. במסלול 6 גם כלול בתעריף.
-      if (gardenTypeValue === 'upTo3' || (gardenTypeValue === 'over3' && includeContentBuilding && childrenCountValue <= 17)) {
-        optionDiv.querySelector('.option-cost').textContent = `כלול במסלול`;
-        return;
-      }
-      if (!includeContentBuilding) {
-        optionDiv.querySelector('.option-cost').textContent = `מחיר: ₪0`;
-        return;
-      }
-    }
     if (hiddenInput?.value === 'true') totalPremium += cost;
     if (optionDiv.querySelector('.option-cost')) {
       optionDiv.querySelector('.option-cost').textContent = `מחיר: ₪${cost.toLocaleString()}`;
     }
   });
+
+  // אחריות מקצועית (אם רלוונטי אצלך)
+  const liabilityRows = document.querySelectorAll('.professional-liability-row');
+  if (liabilityRows.length > 0) {
+    totalPremium += liabilityRows.length * 500;
+  }
+
+
 
   premiumAmount.textContent = `${totalPremium.toLocaleString()} ₪`;
 
@@ -589,22 +740,46 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
   let cost = 0;
 
   switch (optionName) {
-    case 'contentBuilding':
-      // במסלול 7 ו-6 כלול, בשאר - תוספת לפי מדיניות
-      if (gardenTypeValue === 'upTo3' || (gardenTypeValue === 'over3' && includeContentBuilding && childrenCountValue <= 17)) {
-        return 0; // כלול במסלול!
+    case 'contentBuilding': {
+      // כלול במסלול 7 ו־6
+      // if (gardenTypeValue === 'upTo3' || (gardenTypeValue === 'over3' && includeContentBuilding && childrenCountValue <= 17)) {
+      //    return 0;
+      //   }
+      // אם המשתמש לא בחר תכולה ומבנה - אין תוספת
+      if (!includeContentBuilding) {
+        return 0;
       }
-      // תוספת לפי שווי תכולה
-      cost = 300;
+
+      // ---- תוספת עבור תכולת גן ----
+      let contentAddition = 0;
       const contentSum = parseFloat(document.querySelector('.contentSum')?.value.replace(/[^0-9.]/g, '')) || 0;
-      if (contentSum > 200000) cost += (contentSum - 200000) * 0.001; // תוספת פר ש"ח
+      if (contentSum > 200000) {
+        contentAddition = ((contentSum - 200000) / 40000) * 82;
+      }
+
+      // ---- תוספת עבור שטח מבנה ----
+      let buildingAddition = 0;
+      const buildingSizeValue = document.getElementById('buildingSizeExact')?.value || '';
+      const buildingSize = parseFloat(buildingSizeValue.replace(/[^0-9.]/g, '')) || 0;
+      if (buildingSize > 100) {
+        buildingAddition = (((buildingSize - 100) * 5000) / 40000) * 82;
+      }
+
+      // ---- תכולת חצר – אין תוספת ----
+      // (לא מוסיפים שום דבר)
+
+      // סכום סופי, מעוגל לש"ח
+      cost = Math.round((contentAddition + buildingAddition));
       return cost;
+    }
+
 
     case 'thirdParty':
       // צד ג': מחיר לפי סכום ובחירה
       const coverage = document.querySelector('.thirdPartyCoverage')?.value || '5M';
       if (coverage === '5M')
         return childrenCountValue <= 20 ? 200 : 300;
+      if (coverage === '6M') return 400;
       if (coverage === '8M') return 1000;
       if (coverage === '10M') return 2000;
       return 0;
@@ -622,17 +797,13 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
       return basePrice * paCount;
 
     case 'professionalLiability':
-      return 250;
+      const count = document.querySelectorAll('.professional-liability-row').length || 1;
+      return count * 500;
 
     case 'employerLiability':
-      // עובדים נוספים: רגיל/עם תעודה
-      let countRegular = 0;
-      let countCertified = 0;
-      const allTypes = Array.from(document.querySelectorAll('select[name="employeeType[]"]')).map(e => e.value);
-      countRegular += allTypes.filter(type => type === 'regular').length;
-      countCertified += allTypes.filter(type => type === 'certified').length;
-      // עובד ראשון (במסלולים מסוימים כלול, בדוק בדרישה שלך)
-      return (countRegular * 105) + (countCertified * 500);
+      const employeesCount = parseInt(document.getElementById('employeesCount')?.value) || 0;
+      return employeesCount * 105;  // מחיר קבוע
+
 
     case 'cyberInsurance':
       return 450;
@@ -640,6 +811,13 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
     case 'incomeLoss':
       const duration = document.querySelector('.incomeLossDuration')?.value || '3';
       return duration === '3' ? 500 : duration === '6' ? 900 : 1500;
+
+    case 'birthdayActivities':
+      const type = document.querySelector('.birthdayActivitiesType')?.value;
+      if (type === 'internal') return 500;
+      if (type === 'external') return 2000;
+      return 0;
+
 
     case 'afterSchoolProgram':
       // צהרון: עד 20 ילדים 500 ש"ח, כל ילד נוסף 25 ש"ח
@@ -745,41 +923,25 @@ function collectFormData() {
     } else if (el.type === 'radio') {
       if (el.checked) payload[name] = el.value;
     } else if (name.endsWith('[]')) {
-      // דילוג - נטפל בהם בנפרד (עובדים נוספים)
+      // דילוג – נטפל בהם בנפרד (עובדים נוספים)
     } else {
       payload[name] = el.value;
     }
   });
 
-  // ---------- עובדים דינמיים ----------
-  const employeeNames = Array.from(document.querySelectorAll('input[name="employeeName[]"]')).map(e => e.value);
-  const employeeIds = Array.from(document.querySelectorAll('input[name="employeeId[]"]')).map(e => e.value);
-  const employeeTypes = Array.from(document.querySelectorAll('select[name="employeeType[]"]')).map(e => e.value);
-  let employeesArr = [];
-  for (let i = 0; i < employeeNames.length; i++) {
-    if (employeeNames[i] || employeeIds[i] || employeeTypes[i]) {
-      employeesArr.push(
-        [employeeNames[i] || '', employeeIds[i] || '', employeeTypes[i] || ''].join('|')
-      );
-    }
-  }
-  payload['employeesRaw'] = employeesArr.join(';');
+  // ---------- גננות - תאונות אישיות ----------
+  const paNames = Array.from(document.querySelectorAll('input[name="personalAccidentEmployeeName[]"]')).map(e => e.value.trim());
+  const paIds = Array.from(document.querySelectorAll('input[name="personalAccidentEmployeeId[]"]')).map(e => e.value.trim());
+  const paCombined = paNames.map((name, i) => `${name}|${paIds[i]}`).filter(x => x.includes('|')).join(';');
+  payload['personalAccidentEmployees'] = paCombined;
 
-  // ---------- גננות תאונות אישיות ----------
-  const paNames = Array.from(document.querySelectorAll('input[name="personalAccidentEmployeeName[]"]')).map(e => e.value);
-  const paIds = Array.from(document.querySelectorAll('input[name="personalAccidentEmployeeId[]"]')).map(e => e.value);
-  let paArr = [];
-  for (let i = 0; i < paNames.length; i++) {
-    if (paNames[i] || paIds[i]) {
-      paArr.push(
-        [paNames[i] || '', paIds[i] || ''].join('|')
-      );
-    }
-  }
-  payload['personalAccidentsRaw'] = paArr.join(';');
+  // ---------- גננות - אחריות מקצועית ----------
+  const profNames = Array.from(document.querySelectorAll('input[name="professionalLiabilityEmployeeName[]"]')).map(e => e.value.trim());
+  const profIds = Array.from(document.querySelectorAll('input[name="professionalLiabilityEmployeeId[]"]')).map(e => e.value.trim());
+  const profCombined = profNames.map((name, i) => `${name}|${profIds[i]}`).filter(x => x.includes('|')).join(';');
+  payload['professionalLiabilityEmployees'] = profCombined;
 
   // ---------- תוספות כיסוי ----------
-  // שים לב – רק מהקונטיינר שמוצג בפועל!
   document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
     const optionName = optionDiv.dataset.option;
     const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
@@ -787,28 +949,37 @@ function collectFormData() {
     console.log(`collectFormData: option [${optionName}] = ${hiddenInput?.value}`);
     payload[`insuranceOptions[${optionName}]`] = isInterested ? 'true' : 'false';
 
-    // details - רק אם יש ערך
     if (isInterested) {
-      const condInput = optionDiv.querySelector('.conditional-section select, .conditional-section input[type="number"], .conditional-section input[type="text"]');
-      if (condInput && condInput.value !== '') {
-        payload[`insuranceOptionsDetails[${optionName}]`] = condInput.value;
+      let value = '';
+      // ספציפי לכיסוי תאונות אישיות – נשלח את המסלול
+      if (optionName === 'teacherAccidents') {
+        const coverageSelect = optionDiv.querySelector('.teacherAccidentsCoverage');
+        if (coverageSelect) value = coverageSelect.value;
+      } else {
+        // לאחרים – נשלח את select כללי אם יש
+        const genericSelect = optionDiv.querySelector('.conditional-section select');
+        if (genericSelect) value = genericSelect.value;
+      }
+
+      if (value !== '') {
+        payload[`insuranceOptionsDetails[${optionName}]`] = value;
       }
     }
+
   });
 
   // ---------- button-groups ----------
   document.querySelectorAll('.button-group').forEach(group => {
     let selected = group.querySelector('button.selected');
     if (selected && selected.dataset.value) {
-      // עדיף להגדיר groupName באנגלית ב-data-attribute
       let groupName = group.closest('[data-option]')?.dataset.option ||
-        group.closest('.form-group')?.querySelector('label')?.innerText?.replace(/[^\w]/g, '') || // הסר תווים לא רצויים
+        group.closest('.form-group')?.querySelector('label')?.innerText?.replace(/[^\w]/g, '') ||
         selected.innerText;
       if (groupName) payload[`buttonGroup_${groupName}`] = selected.dataset.value;
     }
   });
 
-  // ---------- מבנה ותכולה - כל הערכים תחת contentBuildingDetails בלבד ----------
+  // ---------- מבנה ותכולה ----------
   const hasContentBuilding = document.getElementById('hasContentBuilding');
   if (hasContentBuilding && hasContentBuilding.checked) {
     payload['contentBuildingDetails[contentSum]'] = document.querySelector('.contentSum')?.value || '';
@@ -826,13 +997,13 @@ function collectFormData() {
   // ---------- automation מתוך URL ----------
   payload['automation'] = window.formAutomationFlag || 'true';
 
-  // (כאן מוסיפים קבצים וחתימות כמו קודם, אם צריך)
+  // ---------- renewal מתוך URL ----------
+  payload['renewal'] = window.formRenewalFlag || 'true';
 
+
+  console.log('🚀 Sending payload to webhook:', payload);
   return payload;
 }
-
-
-
 
 
 // --- הוספת גננות לכיסוי תאונות אישיות ---
@@ -888,6 +1059,58 @@ function addPersonalAccidentEmployeeRow(container, data = {}) {
   calculatePremium();
 }
 
+
+function setupProfessionalLiabilityEmployees() {
+  document.querySelectorAll('.coverage-option[data-option="professionalLiability"]').forEach(optionDiv => {
+    const interestedBtn = optionDiv.querySelector('.interested-button');
+    const notInterestedBtn = optionDiv.querySelector('.not-interested-button');
+    const condSection = optionDiv.querySelector('.conditional-section');
+    const employeesSection = condSection;
+    if (!employeesSection) return;
+
+    const rowsContainer = employeesSection.querySelector('#professionalLiabilityEmployeesRows');
+    const addButton = employeesSection.querySelector('#addProfessionalLiabilityEmployeeButton');
+    if (!rowsContainer || !addButton) return;
+
+    interestedBtn.addEventListener('click', () => {
+      employeesSection.style.display = 'block';
+      if (rowsContainer.children.length === 0) {
+        addProfessionalLiabilityEmployeeRow(rowsContainer);
+      }
+    });
+
+    notInterestedBtn.addEventListener('click', () => {
+      employeesSection.style.display = 'none';
+      rowsContainer.innerHTML = '';
+      calculatePremium();
+    });
+
+    employeesSection.style.display = interestedBtn.classList.contains('selected') ? 'block' : 'none';
+
+    addButton.onclick = () => addProfessionalLiabilityEmployeeRow(rowsContainer);
+  });
+}
+
+function addProfessionalLiabilityEmployeeRow(container, data = {}) {
+  const row = document.createElement('div');
+  row.className = 'form-group professional-liability-row';
+  row.style.display = 'flex';
+  row.style.gap = '8px';
+  row.style.alignItems = 'center';
+  row.innerHTML = `
+    <input type="text" name="professionalLiabilityEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2">
+    <input type="text" name="professionalLiabilityEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1">
+    <button type="button" class="removeProfessionalLiabilityEmployee" aria-label="הסר גננת"
+      style="background: #e74c3c; color: #fff; border:none; border-radius:6px; padding:6px 10px; margin-right:3px;">X</button>
+  `;
+  container.appendChild(row);
+
+  row.querySelector('.removeProfessionalLiabilityEmployee').onclick = () => {
+    row.remove();
+    calculatePremium();
+  };
+  calculatePremium();
+}
 
 
 
@@ -1011,76 +1234,293 @@ function setupYardValueButtons() {
   });
 }
 
+function selectCoverageOption(optionName, value) {
+  const optionDiv = document.querySelector(`.coverage-option[data-option="${optionName}"]`);
+  if (!optionDiv) return;
+
+  const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+  const interestedBtn = optionDiv.querySelector('.interested-button');
+  const notInterestedBtn = optionDiv.querySelector('.not-interested-button');
+  const conditionalSection = optionDiv.querySelector('.conditional-section');
+
+  if (value === 'true') {
+    hiddenInput.value = 'true';
+    interestedBtn.classList.add('selected');
+    notInterestedBtn.classList.remove('selected');
+    if (conditionalSection) conditionalSection.style.display = 'block';
+  } else {
+    hiddenInput.value = 'false';
+    interestedBtn.classList.remove('selected');
+    notInterestedBtn.classList.add('selected');
+    if (conditionalSection) conditionalSection.style.display = 'none';
+  }
+}
+
+function prefillCoverageAddonsFromUrl() {
+  if (!urlPrefillData) return;
+
+  // כל רשימת האופציות כפי שהיו אצלך
+  const coverageOptions = [
+    'deductibleCancellation', 'teacherAccidents', 'professionalLiability',
+    'cyberInsurance', 'employerLiability', 'thirdParty', 'incomeLoss', 'afterSchoolProgram'
+  ];
+
+  // סימון כיסויים (מעוניין/לא)
+  coverageOptions.forEach(optionName => {
+    const value = urlPrefillData[optionName] || urlPrefillData[`insuranceOptions[${optionName}]`];
+    if (!value) return;
+    const optionDiv = document.querySelector(`.coverage-option[data-option="${optionName}"]`);
+    if (!optionDiv) return;
+    const interestedBtn = optionDiv.querySelector('.interested-button');
+    const notInterestedBtn = optionDiv.querySelector('.not-interested-button');
+    if (value === 'true' && interestedBtn) interestedBtn.click();
+    if (value === 'false' && notInterestedBtn) notInterestedBtn.click();
+    // עדכן גם את הערך של ההיידן (שיהיה סנכרון מלא)
+    const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+    if (hiddenInput) hiddenInput.value = value;
+  });
+
+  // בחירות פנימיות של כיסויים
+  if (urlPrefillData['teacherAccidentsCoverage']) {
+    const sel = document.querySelector('.teacherAccidentsCoverage');
+    if (sel) sel.value = urlPrefillData['teacherAccidentsCoverage'];
+  }
+  if (urlPrefillData['thirdPartyCoverage']) {
+    const sel = document.querySelector('.thirdPartyCoverage');
+    if (sel) sel.value = urlPrefillData['thirdPartyCoverage'];
+  }
+  if (urlPrefillData['incomeLossDuration']) {
+    const sel = document.querySelector('.incomeLossDuration');
+    if (sel) sel.value = urlPrefillData['incomeLossDuration'];
+  }
+
+  // תאונות אישיות לגננת
+  if (urlPrefillData['personalAccidentEmployees']) {
+    const paList = urlPrefillData['personalAccidentEmployees'].split(';').filter(Boolean);
+    const paContainer = document.querySelector('.personal-accident-employees-list');
+    if (paContainer) paContainer.innerHTML = '';
+    paList.forEach(entry => {
+      const [name, id] = entry.split('|');
+      addPersonalAccidentEmployeeRow(paContainer, { name, id });
+    });
+  }
+  // אחריות מקצועית
+  if (urlPrefillData['professionalLiabilityEmployees']) {
+    const profList = urlPrefillData['professionalLiabilityEmployees'].split(';').filter(Boolean);
+    const profContainer = document.querySelector('.professional-liability-list');
+    if (profContainer) profContainer.innerHTML = '';
+    profList.forEach(entry => {
+      const [name, id] = entry.split('|');
+      addProfessionalLiabilityEmployeeRow(profContainer, { name, id });
+    });
+  }
+
+  // birthdayActivities - מהURL
+  if (urlPrefillData['birthdayActivities']) {
+    const birthdayDiv = document.querySelector('.coverage-option[data-option="birthdayActivities"]');
+    if (birthdayDiv) {
+      const interestedBtn = birthdayDiv.querySelector('.interested-button');
+      const notInterestedBtn = birthdayDiv.querySelector('.not-interested-button');
+      const hiddenInput = birthdayDiv.querySelector('input[name="insuranceOptions[birthdayActivities]"]');
+      const conditionalSection = birthdayDiv.querySelector('.conditional-section');
+      const typeSelect = birthdayDiv.querySelector('.birthdayActivitiesType');
+      if (urlPrefillData['birthdayActivities'] === 'true') {
+        interestedBtn.click();
+        hiddenInput.value = 'true';
+        conditionalSection.style.display = 'block';
+        if (urlPrefillData['birthdayActivitiesType'] && typeSelect) {
+          typeSelect.value = urlPrefillData['birthdayActivitiesType'];
+        }
+      } else {
+        notInterestedBtn.click();
+        hiddenInput.value = 'false';
+        conditionalSection.style.display = 'none';
+      }
+    }
+  }
+
+}
+
+
 function prefillFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
 
-  // --- קביעת ערך automation עם ברירת מחדל true ---
-  const automationParam = urlParams.get('automation');
-  window.formAutomationFlag = (automationParam === null || automationParam === 'true') ? 'true' : 'false';
+  // --- דגלים כלליים (automation, renewal) ---
+  window.formAutomationFlag = (urlParams.get('automation') === null || urlParams.get('automation') === 'true') ? 'true' : 'false';
+  window.formRenewalFlag = (urlParams.get('renewal') === null || urlParams.get('renewal') === 'true') ? 'true' : 'false';
 
+  // --- רשימות כיסויים לצורך טיפול בתוספות כיסוי ---
+  const coverageOptions = [
+    'deductibleCancellation', 'teacherAccidents', 'professionalLiability',
+    'cyberInsurance', 'employerLiability', 'thirdParty', 'incomeLoss', 'afterSchoolProgram'
+  ];
+
+  // --- טיפול בכל פרמטר ב-URL ---
   urlParams.forEach((value, key) => {
-    // --- עובדים דינמיים ---
-    // --- תפעול employeesRaw לפני שדות אחרים ---
-    if (urlParams.has('employeesRaw')) {
-      const value = urlParams.get('employeesRaw');
-      const rows = value.split(';');
-
-      // סימון תיבה והצגת הסקשן
-      const empCheckbox = document.getElementById('hasAdditionalEmployees');
-      const empSection = document.getElementById('employeesSection');
-      const container = document.getElementById('employeeRows');
-      const addBtn = document.getElementById('addEmployeeButton');
-      if (empCheckbox) empCheckbox.checked = true;
-      if (empSection) empSection.style.display = 'block';
-
-      // נקה שורות קיימות
-      if (container) container.innerHTML = '';
-
-      // הוסף שורה לכל ערך ב-rows
-      rows.forEach(() => { if (addBtn) addBtn.click(); });
-
-      // מלא ערכים בכל שורה
-      const allRows = container.querySelectorAll('.employee-row');
-      allRows.forEach((el, index) => {
-        const [name, id, type] = rows[index].split('|');
-        const nameInput = el.querySelector('input[name="employeeName[]"]');
-        const idInput = el.querySelector('input[name="employeeId[]"]');
-        const typeSel = el.querySelector('select[name="employeeType[]"]');
-        if (nameInput) nameInput.value = name;
-        if (idInput) idInput.value = id;
-        if (typeSel) typeSel.value = type;
-      });
+    // 1. טיפול במילוי כפתורי תוספות כיסוי (מעוניין/לא מעוניין):
+    if (coverageOptions.includes(key)) {
+      const optionDiv = document.querySelector(`.coverage-option[data-option="${key}"]`);
+      if (optionDiv) {
+        const interestedBtn = optionDiv.querySelector('.interested-button');
+        const notInterestedBtn = optionDiv.querySelector('.not-interested-button');
+        if (value === 'true' && interestedBtn) interestedBtn.click();
+        if (value === 'false' && notInterestedBtn) notInterestedBtn.click();
+      }
     }
 
+    // גודל מבנה
+    const buildingSize = urlParams.get('buildingSize');
+    if (buildingSize) {
+      document.querySelectorAll('.building-size-button').forEach(btn => {
+        btn.classList.remove('selected');
+        if (btn.dataset.value === buildingSize) btn.classList.add('selected');
+      });
+      // אם בחר "מעל 100", הראה ושם ערך ב-exact
+      if (buildingSize === 'over100') {
+        document.getElementById('buildingSizeExtraInput').style.display = 'block';
+        const exact = urlParams.get('buildingSizeExact');
+        if (exact) document.getElementById('buildingSizeExact').value = exact;
+      }
+    }
 
-    // --- כיסויי תאונות אישיות דינמיים ---
-    // --- תפעול personalAccidentsRaw לפני שדות אחרים ---
-    if (urlParams.has('personalAccidentsRaw')) {
-      const value = urlParams.get('personalAccidentsRaw');
-      const rows = value.split(';');
+    // סכום תכולה
+    const contentSum = urlParams.get('contentSum');
+    if (contentSum) {
+      document.querySelectorAll('.content-value-button').forEach(btn => {
+        btn.classList.remove('selected');
+        if (btn.dataset.value === contentSum) btn.classList.add('selected');
+      });
+      if (contentSum === 'over200k') {
+        document.getElementById('contentSumExtraInput').style.display = 'block';
+        const exact = urlParams.get('contentSumExact');
+        if (exact) document.getElementById('contentSumExact').value = exact;
+      }
+    }
 
-      // סימון והצגה
-      const coverageBtn = document.querySelector('.coverage-option[data-option="teacherAccidents"] .interested-button');
-      const paContainer = document.querySelector('.pa-employee-rows');
-      const addPaBtn = document.getElementById('addPersonalAccidentEmployeeButton');
-      if (coverageBtn) coverageBtn.click();
+    // סכום חצר
+    const yardContentSum = urlParams.get('yardContentSum');
+    if (yardContentSum) {
+      document.querySelectorAll('.yard-value-button').forEach(btn => {
+        btn.classList.remove('selected');
+        if (btn.dataset.value === yardContentSum) btn.classList.add('selected');
+      });
+      if (yardContentSum === 'over20k') {
+        document.getElementById('yardContentSumExtraInput').style.display = 'block';
+        const exact = urlParams.get('yardContentSumExact');
+        if (exact) document.getElementById('yardContentSumExact').value = exact;
+      }
+    }
+
+    // סוג מבנה (select)
+    const buildingType = urlParams.get('buildingType');
+    if (buildingType) {
+      document.getElementById('buildingType').value = buildingType;
+    }
+
+    // האם קיים שעבוד
+    const hasLien = urlParams.get('hasLien');
+    if (hasLien === 'true') {
+      document.getElementById('hasLien').checked = true;
+      document.getElementById('lienTypeSection').style.display = 'block';
+      // סוג משעבד
+      const lienType = urlParams.get('lienType');
+      if (lienType) {
+        document.querySelectorAll('.lien-type-button').forEach(btn => {
+          btn.classList.remove('selected');
+          if (btn.dataset.type === lienType) btn.classList.add('selected');
+        });
+        if (lienType === 'bank') {
+          document.getElementById('lienDetailsBank').style.display = 'block';
+          // פרטי הבנק
+          const lienBankName = urlParams.get('lienBankName');
+          if (lienBankName) document.getElementById('lienBankName').value = lienBankName;
+          const lienBankBranch = urlParams.get('lienBankBranch');
+          if (lienBankBranch) document.getElementById('lienBankBranch').value = lienBankBranch;
+          const lienBankAddress = urlParams.get('lienBankAddress');
+          if (lienBankAddress) document.getElementById('lienBankAddress').value = lienBankAddress;
+        }
+        if (lienType === 'company') {
+          document.getElementById('lienDetailsCompany').style.display = 'block';
+          const lienCompanyName = urlParams.get('lienCompanyName');
+          if (lienCompanyName) document.getElementById('lienCompanyName').value = lienCompanyName;
+          const lienCompanyId = urlParams.get('lienCompanyId');
+          if (lienCompanyId) document.getElementById('lienCompanyId').value = lienCompanyId;
+        }
+      }
+    }
+
+    // ויתור זכות שיבוב
+    const waiverCheckbox = urlParams.get('waiverCheckbox');
+    if (waiverCheckbox === 'true') {
+      document.getElementById('waiverCheckbox').checked = true;
+      document.getElementById('waiverDetails').style.display = 'block';
+      // שם בעל הנכס + ת"ז
+      const propertyOwnerName = urlParams.get('propertyOwnerName');
+      if (propertyOwnerName) document.getElementById('propertyOwnerName').value = propertyOwnerName;
+      const propertyOwnerId = urlParams.get('propertyOwnerId');
+      if (propertyOwnerId) document.getElementById('propertyOwnerId').value = propertyOwnerId;
+    }
+
+    // 2. טיפול בבחירות פנימיות (של תוספות – כמו select):
+    if (key === 'teacherAccidentsCoverage') {
+      const sel = document.querySelector('.teacherAccidentsCoverage');
+      if (sel) sel.value = value;
+    }
+    if (key === 'thirdPartyCoverage') {
+      const sel = document.querySelector('.thirdPartyCoverage');
+      if (sel) sel.value = value;
+    }
+    if (key === 'incomeLossDuration') {
+      const sel = document.querySelector('.incomeLossDuration');
+      if (sel) sel.value = value;
+    }
+
+    // --- תוספות כיסוי: תאונות אישיות לגננת ---
+    const paEmployees = urlParams.get('personalAccidentEmployees');
+    if (paEmployees) {
+      // פיצול לפי ;
+      const paList = paEmployees.split(';').filter(Boolean);
+      // נניח שכבר יש שורה אחת, ננקה הכל קודם (או אפשר לעדכן רק ריק)
+      const paContainer = document.querySelector('.personal-accident-employees-list');
       if (paContainer) paContainer.innerHTML = '';
-
-      // הוסף שורה לכל ערך ב-rows
-      rows.forEach(() => { if (addPaBtn) addPaBtn.click(); });
-
-      // מלא ערכים בכל שורה
-      const allPaRows = paContainer.querySelectorAll('.pa-employee-row');
-      allPaRows.forEach((el, index) => {
-        const [name, id] = rows[index].split('|');
-        const nameInp = el.querySelector('input[name="personalAccidentEmployeeName[]"]');
-        const idInp = el.querySelector('input[name="personalAccidentEmployeeId[]"]');
-        if (nameInp) nameInp.value = name;
-        if (idInp) idInp.value = id;
+      paList.forEach(entry => {
+        const [name, id] = entry.split('|');
+        addPersonalAccidentEmployeeRow(name, id);
       });
     }
 
-    // --- קלטים רגילים ---
+    // --- תוספות כיסוי: אחריות מקצועית ---
+    const profEmployees = urlParams.get('professionalLiabilityEmployees');
+    if (profEmployees) {
+      const profList = profEmployees.split(';').filter(Boolean);
+      const profContainer = document.querySelector('.professional-liability-list');
+      if (profContainer) profContainer.innerHTML = '';
+      profList.forEach(entry => {
+        const [name, id] = entry.split('|');
+        addProfessionalLiabilityEmployeeRow(name, id);
+      });
+    }
+
+
+    // 4. סימון כיסויי ביטוח (אם יש מבנה insuranceOptions[...])
+    const optionMatch = key.match(/^insuranceOptions\[(.+)\]$/);
+    if (optionMatch) {
+      const optionName = optionMatch[1];
+      const optionDiv = document.querySelector(`.coverage-option[data-option="${optionName}"]`);
+      if (optionDiv) {
+        const interestedBtn = optionDiv.querySelector('.interested-button');
+        const notInterestedBtn = optionDiv.querySelector('.not-interested-button');
+        const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+        if (value === 'true') {
+          if (interestedBtn) interestedBtn.click();
+        } else if (value === 'false') {
+          if (notInterestedBtn) notInterestedBtn.click();
+        }
+        if (hiddenInput) hiddenInput.value = value;
+      }
+    }
+
+    // 5. מילוי ערכים רגילים (inputs, selects, checkboxes, radios)
     let el = document.getElementById(key) || document.querySelector(`[name="${key}"]`);
     if (el) {
       if (el.type === 'checkbox') {
@@ -1091,48 +1531,122 @@ function prefillFromUrl() {
       } else {
         el.value = value;
       }
+      // טריגרים על שינוי (לא חובה, אבל עוזר לטריגרים דינמיים)
       el.dispatchEvent(new Event('change', { bubbles: true }));
       el.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
-    // --- לחצנים עם data-value (כמו תכולה/מבנה) ---
+    // 6. לחצני בחירה דינמיים (כמו buildingSize/contentSum וכדומה)
     let btn = document.querySelector(`button[data-value="${value}"]`);
-    if (btn) {
+    // לא נלחץ אם הכפתור לא שייך לסקשן הפעיל
+    if (btn && btn.closest('.form-section')?.classList.contains('active')) {
       btn.click();
     }
+
+    // 7. תאריכי פוליסה (לוודא שלא יפספס)
+    if (key === 'policyStartDate') {
+      const el = document.getElementById('policyStartDate');
+      if (el) el.value = value;
+    }
+    if (key === 'policyEndDate') {
+      const el = document.getElementById('policyEndDate');
+      if (el) el.value = value;
+    }
+
+    if (key === 'propertyOwnerName') {
+      const nameField = document.getElementById('propertyOwnerName');
+      if (nameField) nameField.value = value;
+    }
+    if (key === 'propertyOwnerId') {
+      const idField = document.getElementById('propertyOwnerId');
+      if (idField) idField.value = value;
+    }
   });
+
+  // טיפול סופי בסקשנים עם קפיצה מותנית (למשל מועדון/ויתור/שעבוד/תוספות מיוחדות)
+  // אם תוסיף לוגיקות תלויות בהמשך – אפשר להוסיף כאן.
 }
-window.addEventListener('DOMContentLoaded', prefillFromUrl);
 
 
-// קריאה לפונקציות לאחר טעינת העמוד
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('🌱 DOMContentLoaded התחיל');
+  parseUrlParams();
+  console.log('🔗 parseUrlParams הסתיים')
+  console.log('🔗 urlPrefillData:', urlPrefillData);
+
   // מעבר בין עמודים
   showSection(0);
-  gardenType.addEventListener('change', calculatePremium);
-  childrenCount.addEventListener('input', calculatePremium);
-  prefillFromUrl();
 
   // הגדרות לסקשן ביטוח תכולה ומבנה
+  console.log('🔧 setup building section');
   setupBuildingSizeButtons();
   setupContentValueButtons();
   setupYardValueButtons();
 
-  // --- טיפול בצ'קבוקס שעבוד קבוע בסקשן ביטוח תכולה ומבנה בלבד ---
-  const hasLienCheckbox = document.getElementById('hasLien');
-  const lienHolderInput = document.getElementById('lienHolderInput');
-  if (hasLienCheckbox && lienHolderInput) {
-    hasLienCheckbox.addEventListener('change', () => {
-      lienHolderInput.style.display = hasLienCheckbox.checked ? 'block' : 'none';
+  // הגדרות לכיסויים דינמיים
+  console.log('🔧 setup כיסויים דינמיים');
+  setupPersonalAccidentEmployees();
+  setupProfessionalLiabilityEmployees();
+
+  // חישוב פרמיה
+  console.log('📊 חיבור אירועים לחישוב פרמיה');
+  gardenType.addEventListener('change', calculatePremium);
+  childrenCount.addEventListener('input', calculatePremium);
+
+  // רק אחרי שהכל מוכן – prefill
+  console.log('📥 prefill מה-URL');
+  prefillFromUrl();
+
+  // ויתור שיבוב
+  const waiverCheckbox = document.getElementById('waiverCheckbox');
+  const waiverDetails = document.getElementById('waiverDetails');
+  if (waiverCheckbox && waiverDetails) {
+    console.log('⚙️ הגדרת waiverCheckbox');
+    waiverCheckbox.addEventListener('change', () => {
+      waiverDetails.style.display = waiverCheckbox.checked ? 'block' : 'none';
     });
-    lienHolderInput.style.display = hasLienCheckbox.checked ? 'block' : 'none';
+    waiverDetails.style.display = waiverCheckbox.checked ? 'block' : 'none';
   }
 
-  // --- טיפול בילדים מעל גיל 3 בספטמבר ---
+  // שעבוד
+  const hasLien = document.getElementById("hasLien");
+  const lienTypeSection = document.getElementById("lienTypeSection");
+  const lienDetailsBank = document.getElementById("lienDetailsBank");
+  const lienDetailsCompany = document.getElementById("lienDetailsCompany");
+  if (hasLien) {
+    console.log('⚙️ הגדרת hasLien');
+    hasLien.addEventListener("change", () => {
+      const show = hasLien.checked;
+      lienTypeSection.style.display = show ? "block" : "none";
+      lienDetailsBank.style.display = "none";
+      lienDetailsCompany.style.display = "none";
+    });
+  }
+
+  document.querySelectorAll(".lien-type-button").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".lien-type-button").forEach(b => b.classList.remove("selected"));
+      button.classList.add("selected");
+
+      const lienTypeInput = document.getElementById("lienType");
+      if (lienTypeInput) lienTypeInput.value = button.dataset.type;
+
+      if (button.dataset.type === "bank") {
+        lienDetailsBank.style.display = "block";
+        lienDetailsCompany.style.display = "none";
+      } else {
+        lienDetailsBank.style.display = "none";
+        lienDetailsCompany.style.display = "block";
+      }
+    });
+  });
+
+  // ילדים מעל גיל 3
   const hasOver3Checkbox = document.getElementById('hasOver3Children');
   const over3CountGroup = document.getElementById('over3ChildrenCountGroup');
   const over3CountInput = document.getElementById('over3ChildrenCount');
   if (hasOver3Checkbox && over3CountGroup) {
+    console.log('⚙️ הגדרת ילדים מעל גיל 3');
     hasOver3Checkbox.addEventListener('change', () => {
       over3CountGroup.style.display = hasOver3Checkbox.checked ? 'block' : 'none';
       if (!hasOver3Checkbox.checked && over3CountInput) over3CountInput.value = '';
@@ -1140,50 +1654,7 @@ document.addEventListener('DOMContentLoaded', () => {
     over3CountGroup.style.display = hasOver3Checkbox.checked ? 'block' : 'none';
   }
 
-  // --- עובדים נוספים דינמיים ---
-  const hasEmployeesCheckbox = document.getElementById('hasAdditionalEmployees');
-  const employeesSection = document.getElementById('employeesSection');
-  const employeeRows = document.getElementById('employeeRows');
-  const addEmployeeButton = document.getElementById('addEmployeeButton');
-
-  if (hasEmployeesCheckbox && employeesSection && addEmployeeButton && employeeRows) {
-    hasEmployeesCheckbox.addEventListener('change', () => {
-      employeesSection.style.display = hasEmployeesCheckbox.checked ? 'block' : 'none';
-      if (!hasEmployeesCheckbox.checked) {
-        employeeRows.innerHTML = '';
-      }
-    });
-
-    addEmployeeButton.addEventListener('click', () => addEmployeeRow());
-
-    // אוטומטית עובד ראשון אם הצ'קבוקס נבחר (גם ב-prefill)
-    if (hasEmployeesCheckbox.checked) employeesSection.style.display = 'block';
-  }
-  // הוספת שורה לעובד
-  function addEmployeeRow(data = {}) {
-    const rowId = `employeeRow${Date.now()}${Math.floor(Math.random() * 1000)}`;
-    const row = document.createElement('div');
-    row.className = 'form-group employee-row';
-    row.style.display = 'flex';
-    row.style.gap = '8px';
-    row.style.alignItems = 'center';
-    row.innerHTML = `
-    <input type="text" name="employeeName[]" placeholder="שם העובד" value="${data.name || ''}" style="flex:2">
-    <input type="text" name="employeeId[]" placeholder="ת.ז עובד" value="${data.id || ''}" style="flex:1">
-    <select name="employeeType[]" style="flex:1">
-      <option value="">סוג העובד</option>
-      <option value="regular" ${data.type === 'regular' ? 'selected' : ''}>ללא תעודה</option>
-      <option value="certified" ${data.type === 'certified' ? 'selected' : ''}>עם תעודה</option>
-    </select>
-    <button type="button" class="removeEmployee" aria-label="הסר עובד" style="background: #e74c3c; color: #fff; border:none; border-radius:6px; padding:6px 10px; margin-right:3px;">X</button>
-  `;
-    employeeRows.appendChild(row);
-
-    row.querySelector('.removeEmployee').onclick = () => {
-      row.remove();
-    };
-  }
-
+  // תצוגה לפי תיבות סימון שדורשות אישור
   document.querySelectorAll('.needsApprovalCheckbox').forEach(checkbox => {
     checkbox.addEventListener('change', function () {
       const infoDiv = this.closest('.form-group').querySelector('.approval-info-text');
@@ -1193,4 +1664,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  console.log('✅ כל ה־setup הסתיים');
 });

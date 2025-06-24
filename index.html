@@ -151,6 +151,31 @@
           <input id="childrenCount" min="1" name="childrenCount" required="" type="number" />
         </div>
         <div class="form-group">
+          <label for="employeesCount">מספר עובדים *
+            <button class="info-button"
+              data-tooltip="&lt;strong&gt;ציין את מספר העובדים בגן&lt;/strong&gt;&lt;br&gt;משפיע על חישוב הפרמיה"
+              type="button">
+              <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z">
+                </path>
+              </svg>
+            </button>
+          </label>
+          <input id="employeesCount" min="1" name="employeesCount" required="" type="number" />
+        </div>
+
+        <div class="form-group">
+          <label for="policyStartDate">תאריך תחילת הפוליסה *</label>
+          <input type="date" id="policyStartDate" name="policyStartDate" required />
+        </div>
+        <div class="form-group">
+          <label for="policyEndDate">תאריך סיום הפוליסה *</label>
+          <input type="date" id="policyEndDate" name="policyEndDate" required />
+        </div>
+
+
+        <div class="form-group">
           <label>
             <input type="checkbox" id="hasOver3Children" name="hasOver3Children">
             האם יש ילדים שמלאו להם 3 בספטמבר של שנת הלימודים של הפוליסה?
@@ -159,17 +184,6 @@
         <div class="form-group" id="over3ChildrenCountGroup" style="display: none;">
           <label for="over3ChildrenCount">כמה ילדים?</label>
           <input type="number" id="over3ChildrenCount" name="over3ChildrenCount" min="0">
-        </div>
-        <div class="form-group">
-          <label>
-            <input type="checkbox" id="hasAdditionalEmployees" name="hasAdditionalEmployees">
-            האם יש עובדים נוספים?
-          </label>
-        </div>
-        <div id="employeesSection" class="conditional-section" style="display: none;">
-          <div id="employeeRows"></div>
-          <button type="button" id="addEmployeeButton" class="add-employee-btn" style="margin-top: 10px;">הוסף
-            עובד</button>
         </div>
         <div class="form-group">
           <label>
@@ -209,10 +223,23 @@
             </svg>
           </button>
         </label>
+        <label>
+          <input id="supplementalInsurance" name="supplementalInsurance" type="checkbox"
+            value="supplementalInsurance" /> האם ברצונך לרכוש ביטוח משלים לדירה?
+          <button class="info-button"
+            data-tooltip="במקרה של שינוי בפרמיה בעקבות תביעה, נציגנו יצרו קשר ויאשרו מולך את הפקת הפוליסה.&lt;br&gt;לבינתיים, אנא השלימו את תהליך החידוש."
+            type="button">
+            <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z">
+              </path>
+            </svg>
+          </button>
+        </label>
         <div class="form-group">
           <label>
-            <input type="checkbox" id="hasContentBuilding" name="hasContentBuilding" checked>
-            האם יש תכולה ומבנה?
+            <input type="checkbox" id="hasContentBuilding" name="hasContentBuilding">
+            האם תרצה לבטח את המבנה ותכולת הגן?
           </label>
         </div>
 
@@ -225,7 +252,7 @@
       <div class="form-section" id="contentBuildingSection">
         <h2>ביטוח תכולה ומבנה</h2>
         <p>כל נזק שיכול להגרם למבנה ולתכולת הגן עקב פיצוץ בצנרת, נזקי טבע, רעידת אדמה, פריצה, שריפה וצד ג.הפוליסה מכסה
-          עד 100 מטר מבנה , תכולה של עד 200 אלף ותכולת חצר עד 20 אלף שח . במקרה והסכומים גבוהים יותר יש לציין כדי המנע
+          עד 100 מטר מבנה , תכולה של עד 200 אלף ותכולת חצר עד 20 אלף שח . במקרה והסכומים גבוהים יותר יש לציין כדי להמנע
           מתת ביטוח</p>
         <div class="form-group">
           <label>גודל המבנה</label>
@@ -282,10 +309,44 @@
             <input class="hasLien" id="hasLien" type="checkbox" /> האם קיים שעבוד
           </label>
         </div>
-        <div class="form-group" id="lienHolderInput" style="display: none;">
-          <label for="lienHolder">משועבד ל</label>
-          <input class="lienHolder" id="lienHolder" placeholder="ציין את הגורם" type="text" />
+        <div class="form-group" id="lienTypeSection" style="display: none;">
+          <label>סוג המשעבד:</label>
+          <div class="button-group">
+            <button type="button" class="lien-type-button" data-type="bank">בנק</button>
+            <button type="button" class="lien-type-button" data-type="company">חברה</button>
+            <input type="hidden" id="lienType" name="lienType" />
+          </div>
         </div>
+        <div class="conditional-section" id="lienDetailsBank" style="display: none;">
+          <div class="form-group"><label>בנק</label><input type="text" id="lienBankName" name="lienBankName" />
+          </div>
+          <div class="form-group"><label>סניף</label><input type="text" id="lienBankBranch" name="lienBankBranch" />
+          </div>
+          <div class="form-group"><label>כתובת</label><input type="text" id="lienBankAddress" name="lienBankAddress" />
+          </div>
+        </div>
+        <div class="conditional-section" id="lienDetailsCompany" style="display: none;">
+          <div class="form-group"><label>שם החברה</label><input type="text" id="lienCompanyName"
+              name="lienCompanyName" /></div>
+          <div class="form-group"><label>ח.פ</label><input type="text" id="lienCompanyId" name="lienCompanyId" /></div>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="waiverCheckbox" name="waiverCheckbox">
+            ויתור זכות שיבוב
+          </label>
+        </div>
+        <div class="conditional-section" id="waiverDetails" style="display: none;">
+          <div class="form-group">
+            <label for="propertyOwnerName">שם בעל הנכס</label>
+            <input type="text" id="propertyOwnerName" name="propertyOwnerName" />
+          </div>
+          <div class="form-group">
+            <label for="propertyOwnerId">ת.ז בעל הנכס</label>
+            <input type="text" id="propertyOwnerId" name="propertyOwnerId" />
+          </div>
+        </div>
+
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לפרטי הביטוח</button>
           <button class="next-button" type="button">למעבר לפרטי הפוליסה</button>
@@ -308,6 +369,8 @@
           <p id="premiumAmount">0 ₪</p>
           <p id="discountDisplay" style="color:#d03499; font-size:1.1em; margin-top: 12px;"></p>
         </div>
+        <p class="talah-info">האמור במסמך זה הינו לנוחיות בלבד ואינו מחייב. ייתכנו טעויות או השמטות בתום לב. המסמך אינו
+          מהווה תחליף לפוליסה המלאה, תנאיה, סייגיה והחרגותיה. ט.ל.ח.</p>
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לפרטי הפוליסה</button>
           <button class="next-button" type="button">למעבר לבחירת אמצעי תשלום</button>
@@ -346,14 +409,20 @@
             או לוואטסאפ את טופס עריכת הביטוח, נא להקפיד לציין מי מבקש האישור.
           </div>
         </div>
-
+        <p class="talah-info">הכיסוי הביטוחי יכנס לתוקף רק לאחר ביצוע התשלום והעברת התשלום</p>
         <div class="signature-wrapper">
           <label class="signature-label">חתימה:</label>
           <canvas height="150" id="signatureCanvasBank" width="300"></canvas>
           <button class="clear-signature-button" onclick="clearSignature('Bank')" type="button">נקה חתימה</button>
         </div>
-        <p class="talah-info">האמור במסמך זה הינו לנוחיות בלבד ואינו מחייב. ייתכנו טעויות או השמטות בתום לב. המסמך אינו
-          מהווה תחליף לפוליסה המלאה, תנאיה, סייגיה והחרגותיה. ט.ל.ח.</p>
+        <p class="talah-info">אנו החתומים מטה מצהירים בזה כי כל תשובתינו שפורטו לעיל הן מלאות ונכונות וכי לא העלמנו
+          עובדות או פרטים אשר יש בהם כדי להשפיע על הערכת הסיכון על ידי החברה מוסכם כי הצעה זו תהווה בסיס לחוזה הביטוח
+          בינינו לבין מגדל חברה לביטוח בע"מ. ידוע לי כי השאלות המופיעות בטופס זה תחשבנה לעניין מהותי לפי הוראות סעיף 6
+          לחוק חוזה ביטוח התשמ"א ,1981 אנחנו מצהירים בזאת כי המידע המבקש נמסר מרצוננו, בהסכמתנו, וידוע לנו כי הוא נחוץ
+          לחברת הביטוח לצורך הוצאת הפוליסה, גביית תשלומים בגינה, תשלום תגמולי ביטוח וביצוע פעולות נלוות. אני מסכים כי
+          המידע שנמסר יועבר לגורמים מטעמה של חברת הביטוח לשם מתן שירותי ביטוח וכן לצורך גביית תשלומים. האמור לעיל יחול
+          גם לגבי מידע שאמסור לחברת הביטוח בעתיד בקשר עם שירות הביטוח, ידוע לי כי הביטוח יכנס לתוקף רק לאחר שטופס ההצעה
+          יאושר בחתימת החברה.</p>
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לבחירת אמצעי תשלום</button>
           <button class="submit-button" type="submit">שלח</button>
@@ -376,13 +445,20 @@
             או לוואטסאפ את טופס עריכת הביטוח, נא להקפיד לציין מי מבקש האישור.
           </div>
         </div>
+        <p class="talah-info">הכיסוי הביטוחי יכנס לתוקף רק לאחר ביצוע התשלום והעברת התשלום</p>
         <div class="signature-wrapper">
           <label class="signature-label">חתימה:</label>
           <canvas height="150" id="signatureCanvasCredit" width="300"></canvas>
           <button class="clear-signature-button" onclick="clearSignature('Credit')" type="button">נקה חתימה</button>
         </div>
-        <p class="talah-info">האמור במסמך זה הינו לנוחיות בלבד ואינו מחייב. ייתכנו טעויות או השמטות בתום לב. המסמך אינו
-          מהווה תחליף לפוליסה המלאה, תנאיה, סייגיה והחרגותיה. ט.ל.ח.</p>
+        <p class="talah-info">אנו החתומים מטה מצהירים בזה כי כל תשובתינו שפורטו לעיל הן מלאות ונכונות וכי לא העלמנו
+          עובדות או פרטים אשר יש בהם כדי להשפיע על הערכת הסיכון על ידי החברה מוסכם כי הצעה זו תהווה בסיס לחוזה הביטוח
+          בינינו לבין מגדל חברה לביטוח בע"מ. ידוע לי כי השאלות המופיעות בטופס זה תחשבנה לעניין מהותי לפי הוראות סעיף 6
+          לחוק חוזה ביטוח התשמ"א ,1981 אנחנו מצהירים בזאת כי המידע המבקש נמסר מרצוננו, בהסכמתנו, וידוע לנו כי הוא נחוץ
+          לחברת הביטוח לצורך הוצאת הפוליסה, גביית תשלומים בגינה, תשלום תגמולי ביטוח וביצוע פעולות נלוות. אני מסכים כי
+          המידע שנמסר יועבר לגורמים מטעמה של חברת הביטוח לשם מתן שירותי ביטוח וכן לצורך גביית תשלומים. האמור לעיל יחול
+          גם לגבי מידע שאמסור לחברת הביטוח בעתיד בקשר עם שירות הביטוח, ידוע לי כי הביטוח יכנס לתוקף רק לאחר שטופס ההצעה
+          יאושר בחתימת החברה.</p>
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לבחירת אמצעי תשלום</button>
           <button class="submit-button" type="submit">שלח</button>
@@ -419,13 +495,20 @@
             או לוואטסאפ את טופס עריכת הביטוח, נא להקפיד לציין מי מבקש האישור.
           </div>
         </div>
+        <p class="talah-info">הכיסוי הביטוחי יכנס לתוקף רק לאחר ביצוע התשלום והעברת התשלום</p>
         <div class="signature-wrapper">
           <label class="signature-label">חתימה:</label>
           <canvas height="150" id="signatureCanvasDebit" width="300"></canvas>
           <button class="clear-signature-button" onclick="clearSignature('Debit')" type="button">נקה חתימה</button>
         </div>
-        <p class="talah-info">האמור במסמך זה הינו לנוחיות בלבד ואינו מחייב. ייתכנו טעויות או השמטות בתום לב. המסמך אינו
-          מהווה תחליף לפוליסה המלאה, תנאיה, סייגיה והחרגותיה. ט.ל.ח.</p>
+        <p class="talah-info">אנו החתומים מטה מצהירים בזה כי כל תשובתינו שפורטו לעיל הן מלאות ונכונות וכי לא העלמנו
+          עובדות או פרטים אשר יש בהם כדי להשפיע על הערכת הסיכון על ידי החברה מוסכם כי הצעה זו תהווה בסיס לחוזה הביטוח
+          בינינו לבין מגדל חברה לביטוח בע"מ. ידוע לי כי השאלות המופיעות בטופס זה תחשבנה לעניין מהותי לפי הוראות סעיף 6
+          לחוק חוזה ביטוח התשמ"א ,1981 אנחנו מצהירים בזאת כי המידע המבקש נמסר מרצוננו, בהסכמתנו, וידוע לנו כי הוא נחוץ
+          לחברת הביטוח לצורך הוצאת הפוליסה, גביית תשלומים בגינה, תשלום תגמולי ביטוח וביצוע פעולות נלוות. אני מסכים כי
+          המידע שנמסר יועבר לגורמים מטעמה של חברת הביטוח לשם מתן שירותי ביטוח וכן לצורך גביית תשלומים. האמור לעיל יחול
+          גם לגבי מידע שאמסור לחברת הביטוח בעתיד בקשר עם שירות הביטוח, ידוע לי כי הביטוח יכנס לתוקף רק לאחר שטופס ההצעה
+          יאושר בחתימת החברה.</p>
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לבחירת אמצעי תשלום</button>
           <button class="submit-button" type="submit">שלח</button>
@@ -454,8 +537,9 @@
               <label>סכום כיסוי צד ג'</label>
               <select class="thirdPartyCoverage">
                 <option value="5M">5 מיליון שח למקרה / 10 מיליון לתקופה</option>
-                <option value="8M">8 מיליון שח למקרה</option>
-                <option value="10M">10 מיליון שח למקרה</option>
+                <option value="6M">6 מיליון שח למקרה / 12 מיליון לתקופה</option>
+                <option value="8M">8 מיליון שח למקרה / 8 מיליון לתקופה</option>
+                <option value="10M">10 מיליון שח למקרה / 10 מיליון לתקופה</option>
               </select>
             </div>
           </div>
@@ -512,15 +596,26 @@
           <p>כיסוי זה ניתן לבעלות הסמכה בלבד ונותן כיסוי ביטוחי בעת תביעה בהקשר המקצועי.</p>
           <input name="insuranceOptions[professionalLiability]" type="hidden" value="false" />
           <div class="button-group">
-            <button class="interested-button" type="button">מעוניין</button>
-            <button class="not-interested-button selected" type="button">לא מעוניין</button>
+            <button type="button" class="interested-button">מעוניין</button>
+            <button type="button" class="not-interested-button selected">לא מעוניין</button>
           </div>
-          <div class="conditional-section" style="display: none;"></div>
+          <div class="conditional-section professional-liability-employees-section" style="display: none;">
+            <div id="professionalLiabilityEmployeesRows"></div>
+            <button type="button" id="addProfessionalLiabilityEmployeeButton" class="add-personal-accident-btn"
+              style="margin-top: 10px;">
+              הוסף גננת
+            </button>
+          </div>
+          <div class="option-cost"></div>
         </div>
+
+
         <!-- חבות מעבידים -->
         <div class="coverage-option" data-option="employerLiability" id="coverage-employerLiability">
           <h3>חבות מעבידים <span class="option-cost">מחיר: ₪0</span></h3>
-          <p>במקרה של תאונת עבודה, הכיסוי מעניק פיצוי לעובדים בגין נזקי גוף.</p>
+          <p></p>הכיסוי תקף רק לעובדים בשכר
+          במקרה של תאונת עבודה המוכרת על ידי המוסד לביטוח לאומי, ניתן להפעיל כיסוי זה. גבול אחריות למקרה ותקופה 20,000 ₪
+          ו-650 ₪ השתתפות עצמית.</p>
           <input name="insuranceOptions[employerLiability]" type="hidden" value="false" />
           <div class="button-group">
             <button class="interested-button" type="button">מעוניין</button>
@@ -530,7 +625,7 @@
         <!-- ביטוח סייבר -->
         <div class="coverage-option" data-option="cyberInsurance" id="coverage-cyberInsurance">
           <h3>תוספת ביטוח סייבר <span class="option-cost">מחיר: ₪0</span></h3>
-          <p>ביטוח סייבר עבור המידע הנשמר במצלמות ובמערכות המחשוב של הגן.</p>
+          <p></p>ביטוח סייבר מתייחס לכיסוי ביטוחי עבור המידע הנשמר במצלמות הגן וכבמקרה של פריצת המחשבים בגן.</p>
           <input name="insuranceOptions[cyberInsurance]" type="hidden" value="false" />
           <div class="button-group">
             <button class="interested-button" type="button">מעוניין</button>
@@ -558,10 +653,33 @@
             </div>
           </div>
         </div>
+        <!-- הפעלות ימי הולדת / חוגים בגן -->
+        <div class="coverage-option" data-option="birthdayActivities" id="coverage-birthdayActivities">
+          <h3>
+            הפעלות ימי הולדת / חוגים בגן
+            <span class="option-cost">מחיר: ₪0</span>
+          </h3>
+          <div class="button-group">
+            <button type="button" class="interested-button selected">מעוניין</button>
+            <button type="button" class="not-interested-button">לא מעוניין</button>
+          </div>
+          <input type="hidden" name="insuranceOptions[birthdayActivities]" value="false" />
+          <div class="conditional-section" style="display: none;">
+            <label>בחרו את סוג המפעיל:</label>
+            <select class="birthdayActivitiesType" name="birthdayActivitiesType">
+              <option value="">בחר סוג מפעיל</option>
+              <option value="internal">מפעיל מצוות הגן</option>
+              <option value="external">מפעיל חיצוני</option>
+            </select>
+          </div>
+        </div>
+
+
         <!-- תוספת צהרון -->
         <div class="coverage-option" data-option="afterSchoolProgram" id="coverage-afterSchoolProgram">
           <h3>תוספת צהרון לפוליסת הגן <span class="option-cost">מחיר: ₪0</span></h3>
-          <p>ביטוח נוסף לפעילות צהרון בגן.</p>
+          <p></p>במקרה של פעילות הגן מתווספת פעילות של צהרון, ניתן לבטח את הילדים בעלות מוזלת של 25 שח לילד .
+          עלות המינימום לתוספת צהרון היא 500 שח </p>
           <input name="insuranceOptions[afterSchoolProgram]" type="hidden" value="false" />
           <div class="button-group">
             <button class="interested-button" type="button">מעוניין</button>
