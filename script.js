@@ -682,32 +682,42 @@ function calculatePremium() {
 
   let totalPremium = Math.max(basePremium - totalDiscount, minPremium);
 
-  // הוספת תוספות (הרחבות) לפי בחירות
+  // ====== תוספת ביטוח תכולה ומבנה - לא חלק מהתוספות ======
+  if (includeContentBuilding) {
+    // מסלולים שבהם כבר כלול – אין תוספת
+    //if (!(gardenTypeValue === 'upTo3' || (gardenTypeValue === 'over3' && childrenCountValue <= 17))) {
+    // שווי תכולה
+    const contentSum = parseFloat(document.querySelector('.contentSum')?.value.replace(/[^0-9.]/g, '')) || 0;
+    let contentAddition = 0;
+    if (contentSum > 200000) {
+      contentAddition = ((contentSum - 200000) / 40000) * 82;
+    }
+    // שטח מבנה
+    const buildingSizeValue = document.getElementById('buildingSizeExact')?.value || '';
+    const buildingSize = parseFloat(buildingSizeValue.replace(/[^0-9.]/g, '')) || 0;
+    let buildingAddition = 0;
+    if (buildingSize > 100) {
+      buildingAddition = (((buildingSize - 100) * 5000) / 40000) * 82;
+    }
+    // הוסף לפרמיה הכוללת
+    totalPremium += Math.round(contentAddition + buildingAddition);
+   //} 
+  }
+
+  // תוספות כיסויים (לא כולל תכולה ומבנה!)
   document.querySelectorAll('.coverage-option').forEach(optionDiv => {
     const optionName = optionDiv.dataset.option;
+    if (optionName === 'contentBuilding') return; // לא לחשב פעמיים
     const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
     const cost = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
-
-    // כיסוי תכולה ומבנה (במסלולים בהם הוא תוספת)
-    if (optionName === 'contentBuilding') {
-      // במסלול 7 תמיד כלול ואין צורך להוסיף. במסלול 6 גם כלול בתעריף.
-      if (gardenTypeValue === 'upTo3' || (gardenTypeValue === 'over3' && includeContentBuilding && childrenCountValue <= 17)) {
-        optionDiv.querySelector('.option-cost').textContent = `כלול במסלול`;
-        return;
-      }
-      if (!includeContentBuilding) {
-        optionDiv.querySelector('.option-cost').textContent = `מחיר: ₪0`;
-        return;
-      }
-    }
     if (hiddenInput?.value === 'true') totalPremium += cost;
     if (optionDiv.querySelector('.option-cost')) {
       optionDiv.querySelector('.option-cost').textContent = `מחיר: ₪${cost.toLocaleString()}`;
     }
   });
 
+  // אחריות מקצועית (אם רלוונטי אצלך)
   const liabilityRows = document.querySelectorAll('.professional-liability-row');
-  console.log('אחריות מקצועית - שורות קיימות:', liabilityRows.length);
   if (liabilityRows.length > 0) {
     totalPremium += liabilityRows.length * 500;
   }
@@ -730,16 +740,39 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
   let cost = 0;
 
   switch (optionName) {
-    case 'contentBuilding':
-      // במסלול 7 ו-6 כלול, בשאר - תוספת לפי מדיניות
-      if (gardenTypeValue === 'upTo3' || (gardenTypeValue === 'over3' && includeContentBuilding && childrenCountValue <= 17)) {
-        return 0; // כלול במסלול!
+    case 'contentBuilding': {
+      // כלול במסלול 7 ו־6
+      // if (gardenTypeValue === 'upTo3' || (gardenTypeValue === 'over3' && includeContentBuilding && childrenCountValue <= 17)) {
+      //    return 0;
+      //   }
+      // אם המשתמש לא בחר תכולה ומבנה - אין תוספת
+      if (!includeContentBuilding) {
+        return 0;
       }
-      // תוספת לפי שווי תכולה
-      cost = 300;
+
+      // ---- תוספת עבור תכולת גן ----
+      let contentAddition = 0;
       const contentSum = parseFloat(document.querySelector('.contentSum')?.value.replace(/[^0-9.]/g, '')) || 0;
-      if (contentSum > 200000) cost += (contentSum - 200000) * 0.001; // תוספת פר ש"ח
+      if (contentSum > 200000) {
+        contentAddition = ((contentSum - 200000) / 40000) * 82;
+      }
+
+      // ---- תוספת עבור שטח מבנה ----
+      let buildingAddition = 0;
+      const buildingSizeValue = document.getElementById('buildingSizeExact')?.value || '';
+      const buildingSize = parseFloat(buildingSizeValue.replace(/[^0-9.]/g, '')) || 0;
+      if (buildingSize > 100) {
+        buildingAddition = (((buildingSize - 100) * 5000) / 40000) * 82;
+      }
+
+      // ---- תכולת חצר – אין תוספת ----
+      // (לא מוסיפים שום דבר)
+
+      // סכום סופי, מעוגל לש"ח
+      cost = Math.round((contentAddition + buildingAddition));
       return cost;
+    }
+
 
     case 'thirdParty':
       // צד ג': מחיר לפי סכום ובחירה
