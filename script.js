@@ -25,6 +25,7 @@ const availableOptions = {
   'tamah': [
     'deductibleCancellation',
     'teacherAccidents',
+    'birthdayActivities',
     'afterSchoolProgram'
   ],
   'privateFamily': [
@@ -34,6 +35,7 @@ const availableOptions = {
     'professionalLiability',
     'employerLiability',
     'cyberInsurance',
+    'birthdayActivities',
     'afterSchoolProgram'
   ],
   'upTo3': [
@@ -43,7 +45,8 @@ const availableOptions = {
     'professionalLiability',
     'employerLiability',
     'cyberInsurance',
-    'incomeLoss'
+    'incomeLoss',
+    'birthdayActivities'
   ],
   'over3': [
     'thirdParty',
@@ -52,12 +55,14 @@ const availableOptions = {
     'professionalLiability',
     'employerLiability',
     'cyberInsurance',
+    'birthdayActivities',
     'afterSchoolProgram'
   ],
   'afterSchool': [
     'thirdParty',
     'deductibleCancellation',
-    'teacherAccidents'
+    'teacherAccidents',
+    'birthdayActivities'
   ]
 };
 
@@ -521,6 +526,21 @@ function addEventListenersToOption(optionDiv) {
     calculatePremium();
   });
 
+  if (optionName === 'birthdayActivities') {
+    // ברירת מחדל: הסתר/הצג את השדה
+    const conditionalSection = optionDiv.querySelector('.conditional-section');
+    const interestedButton = optionDiv.querySelector('.interested-button');
+    const notInterestedButton = optionDiv.querySelector('.not-interested-button');
+    if (interestedButton && notInterestedButton) {
+      interestedButton.addEventListener('click', () => {
+        conditionalSection.style.display = 'block';
+      });
+      notInterestedButton.addEventListener('click', () => {
+        conditionalSection.style.display = 'none';
+      });
+    }
+  }
+
 
   // טריגר חישוב בעת שינוי שדות תנאי
   optionDiv.querySelectorAll('.conditional-section input, .conditional-section select').forEach(input => {
@@ -758,6 +778,13 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
     case 'incomeLoss':
       const duration = document.querySelector('.incomeLossDuration')?.value || '3';
       return duration === '3' ? 500 : duration === '6' ? 900 : 1500;
+
+    case 'birthdayActivities':
+      const type = document.querySelector('.birthdayActivitiesType')?.value;
+      if (type === 'internal') return 500;
+      if (type === 'external') return 2000;
+      return 0;
+
 
     case 'afterSchoolProgram':
       // צהרון: עד 20 ילדים 500 ש"ח, כל ילד נוסף 25 ש"ח
@@ -1254,6 +1281,31 @@ function prefillCoverageAddonsFromUrl() {
       addProfessionalLiabilityEmployeeRow(profContainer, { name, id });
     });
   }
+
+  // birthdayActivities - מהURL
+  if (urlPrefillData['birthdayActivities']) {
+    const birthdayDiv = document.querySelector('.coverage-option[data-option="birthdayActivities"]');
+    if (birthdayDiv) {
+      const interestedBtn = birthdayDiv.querySelector('.interested-button');
+      const notInterestedBtn = birthdayDiv.querySelector('.not-interested-button');
+      const hiddenInput = birthdayDiv.querySelector('input[name="insuranceOptions[birthdayActivities]"]');
+      const conditionalSection = birthdayDiv.querySelector('.conditional-section');
+      const typeSelect = birthdayDiv.querySelector('.birthdayActivitiesType');
+      if (urlPrefillData['birthdayActivities'] === 'true') {
+        interestedBtn.click();
+        hiddenInput.value = 'true';
+        conditionalSection.style.display = 'block';
+        if (urlPrefillData['birthdayActivitiesType'] && typeSelect) {
+          typeSelect.value = urlPrefillData['birthdayActivitiesType'];
+        }
+      } else {
+        notInterestedBtn.click();
+        hiddenInput.value = 'false';
+        conditionalSection.style.display = 'none';
+      }
+    }
+  }
+
 }
 
 

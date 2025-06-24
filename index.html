@@ -653,6 +653,28 @@
             </div>
           </div>
         </div>
+        <!-- הפעלות ימי הולדת / חוגים בגן -->
+        <div class="coverage-option" data-option="birthdayActivities" id="coverage-birthdayActivities">
+          <h3>
+            הפעלות ימי הולדת / חוגים בגן
+            <span class="option-cost">מחיר: ₪0</span>
+          </h3>
+          <div class="button-group">
+            <button type="button" class="interested-button selected">מעוניין</button>
+            <button type="button" class="not-interested-button">לא מעוניין</button>
+          </div>
+          <input type="hidden" name="insuranceOptions[birthdayActivities]" value="false" />
+          <div class="conditional-section" style="display: none;">
+            <label>בחרו את סוג המפעיל:</label>
+            <select class="birthdayActivitiesType" name="birthdayActivitiesType">
+              <option value="">בחר סוג מפעיל</option>
+              <option value="internal">מפעיל מצוות הגן</option>
+              <option value="external">מפעיל חיצוני</option>
+            </select>
+          </div>
+        </div>
+
+
         <!-- תוספת צהרון -->
         <div class="coverage-option" data-option="afterSchoolProgram" id="coverage-afterSchoolProgram">
           <h3>תוספת צהרון לפוליסת הגן <span class="option-cost">מחיר: ₪0</span></h3>
