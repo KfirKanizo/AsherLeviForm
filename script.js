@@ -701,7 +701,7 @@ function calculatePremium() {
     }
     // הוסף לפרמיה הכוללת
     totalPremium += Math.round(contentAddition + buildingAddition);
-   //} 
+    //} 
   }
 
   // תוספות כיסויים (לא כולל תכולה ומבנה!)
@@ -809,8 +809,25 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
       return 450;
 
     case 'incomeLoss':
-      const duration = document.querySelector('.incomeLossDuration')?.value || '3';
-      return duration === '3' ? 500 : duration === '6' ? 900 : 1500;
+      // קח את האלמנטים הרלוונטיים מתוך הדיב של אובדן הכנסות
+      const optionDiv = document.querySelector('.coverage-option[data-option="incomeLoss"]');
+      if (!optionDiv) return 0;
+      const hiddenInput = optionDiv.querySelector('input[name="insuranceOptions[incomeLoss]"]');
+      if (!hiddenInput || hiddenInput.value !== 'true') return 0;
+
+      // קריאת ערכים מהשדות החדשים
+      const months = parseInt(optionDiv.querySelector('.incomeLossDuration')?.value) || 3;
+      const monthlyAmount = parseInt(optionDiv.querySelector('.incomeLossAmount')?.value) || 10000;
+
+      // נוסחת החישוב:
+      // 1. מכפילים את הסכום החודשי ב-12
+      // 2. מחלקים ב-10,000
+      // 3. מכפילים במקדם לפי חודשים
+      let multiplier = 40;
+      if (months === 6) multiplier = 45;
+      if (months === 9) multiplier = 60;
+      const result = ((monthlyAmount * 12) / 10000) * multiplier;
+      return Math.round(result);
 
     case 'birthdayActivities':
       const type = document.querySelector('.birthdayActivitiesType')?.value;
@@ -967,6 +984,23 @@ function collectFormData() {
     }
 
   });
+
+  // --- תוספת: קליטת שני שדות לאובדן הכנסות ---
+  const incomeLossDiv = document.querySelector('.coverage-option[data-option="incomeLoss"]');
+  if (incomeLossDiv) {
+    const isInterested = incomeLossDiv.querySelector('input[name="insuranceOptions[incomeLoss]"]')?.value === 'true';
+    if (isInterested) {
+      // אורך הכיסוי (חודשים)
+      payload['incomeLossDuration'] = incomeLossDiv.querySelector('.incomeLossDuration')?.value || '';
+      // סכום פיצוי חודשי
+      payload['incomeLossAmount'] = incomeLossDiv.querySelector('.incomeLossAmount')?.value || '';
+    } else {
+      // אם לא מעוניין, שלח ערכים ריקים (או תוריד שורות אלה אם לא צריך)
+      payload['incomeLossDuration'] = '';
+      payload['incomeLossAmount'] = '';
+    }
+  }
+
 
   // ---------- button-groups ----------
   document.querySelectorAll('.button-group').forEach(group => {
@@ -1289,10 +1323,31 @@ function prefillCoverageAddonsFromUrl() {
     const sel = document.querySelector('.thirdPartyCoverage');
     if (sel) sel.value = urlPrefillData['thirdPartyCoverage'];
   }
-  if (urlPrefillData['incomeLossDuration']) {
-    const sel = document.querySelector('.incomeLossDuration');
-    if (sel) sel.value = urlPrefillData['incomeLossDuration'];
+
+  // --- מילוי אוטומטי לאובדן הכנסות ---
+  const incomeLossDiv = document.querySelector('.coverage-option[data-option="incomeLoss"]');
+  if (incomeLossDiv) {
+    // האם לבחור "מעוניין"?
+    if (urlPrefillData['insuranceOptions[incomeLoss]'] === 'true' || urlPrefillData['incomeLoss'] === 'true') {
+      incomeLossDiv.querySelector('.interested-button')?.click();
+      setTimeout(() => {
+        if (urlPrefillData['incomeLossDuration']) {
+          const sel = incomeLossDiv.querySelector('.incomeLossDuration');
+          if (sel) sel.value = urlPrefillData['incomeLossDuration'];
+        }
+        if (urlPrefillData['incomeLossAmount']) {
+          const sel = incomeLossDiv.querySelector('.incomeLossAmount');
+          if (sel) sel.value = urlPrefillData['incomeLossAmount'];
+        }
+        calculatePremium();
+      }, 100);
+    }
+    // אם רוצים לא מעוניין
+    if (urlPrefillData['insuranceOptions[incomeLoss]'] === 'false' || urlPrefillData['incomeLossInterested'] === 'false') {
+      incomeLossDiv.querySelector('.not-interested-button')?.click();
+    }
   }
+
 
   // תאונות אישיות לגננת
   if (urlPrefillData['personalAccidentEmployees']) {
