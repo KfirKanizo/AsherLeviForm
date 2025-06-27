@@ -94,6 +94,22 @@
           <input id="gardenName" name="gardenName" required="" type="text" />
         </div>
         <div class="form-group">
+          <label for="policyHolderName">שם בעל הפוליסה *
+            <button class="info-button" data-tooltip="כפי שתבקשו שיופיע בפוליסה" type="button">
+              <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z">
+                </path>
+              </svg>
+            </button>
+          </label>
+          <input id="policyHolderName" name="policyHolderName" required="" type="text" />
+        </div>
+        <div class="form-group">
+          <label for="policyHolderDate">תאריך לידה של בעל הפוליסה *</label>
+          <input type="date" id="policyHolderDate" name="policyHolderDate" required />
+        </div>
+        <div class="form-group">
           <label for="gardenType">סוג הגן *
             <button class="info-button" data-tooltip="בחר את סוג הגן המתאים" type="button">
               <svg class="info-icon" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -671,8 +687,8 @@
             <span class="option-cost">מחיר: ₪0</span>
           </h3>
           <div class="button-group">
-            <button type="button" class="interested-button selected">מעוניין</button>
-            <button type="button" class="not-interested-button">לא מעוניין</button>
+            <button type="button" class="interested-button">מעוניין</button>
+            <button type="button" class="not-interested-button selected">לא מעוניין</button>
           </div>
           <input type="hidden" name="insuranceOptions[birthdayActivities]" value="false" />
           <div class="conditional-section" style="display: none;">
