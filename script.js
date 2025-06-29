@@ -67,7 +67,8 @@ const availableOptions = {
 };
 
 const descriptions = {
-  "צד ג'": "",
+  "צד ג'": "3,000,000 למקרה, 6,000,000 לתקופה",
+  "צד ג' מסלול 1": "2,000,000 למקרה ולתקופה ",
   "פינוי באמבולנס": "",
   "הרחבות ללא תוספת תשלום": `
 כיסוי בגין הרעלה או גוף זר במזון<br>
@@ -109,7 +110,7 @@ const descriptions = {
 
 const policyFeaturesByTrack = {
   1: [
-    { title: "צד ג'", description: "" },
+    { title: "צד ג' מסלול 1", description: "" },
     { title: "פינוי באמבולנס", description: "" },
     { title: "הרחבות ללא תוספת תשלום", description: "" }
   ],
@@ -199,6 +200,7 @@ function showSection(index) {
     // הצגת פרטי פוליסה – לפי המסלול
     if (index === 3) {
       const track = determinePolicyTrack();
+      console.log(`Determined policy track: ${track}`);
       populatePolicyDetails(track);
     }
 
@@ -459,14 +461,19 @@ function populatePolicyDetails(trackNumber) {
 function updateCoverageOptions() {
   const gardenTypeValue = gardenType.value;
   const container = document.getElementById('coverageOptionsContainer');
+  const track = determinePolicyTrack();
   container.innerHTML = '';
   const templates = document.getElementById('coverageOptionsTemplates');
   const options = availableOptions[gardenTypeValue] || [];
   const employees = parseInt(employeesCount.value) || 0;
 
   options.forEach(option => {
-    // הסתרת חבות מעבידים אם אין עובדים
-    if (option === 'employerLiability' && employees === 0) return;
+    // הסתרת חבות מעבידים אם אין עובדים או אם הכיסוי כלול במסלול
+    if (option === 'employerLiability') {
+      if (employees === 0) return;
+      if ([4, 5, 6, 7].includes(track)) return; // מסלולים שבהם זה כלול
+    }
+
     const template = templates.querySelector(`#coverage-${option}`);
     if (template) {
       const clone = template.cloneNode(true);
@@ -474,6 +481,7 @@ function updateCoverageOptions() {
       addEventListenersToOption(clone);
     }
   });
+
   calculatePremium();
   setupPersonalAccidentEmployees();
   setupProfessionalLiabilityEmployees();
@@ -513,6 +521,23 @@ function addEventListenersToOption(optionDiv) {
     newNotInterestedButton.classList.remove('selected');
     if (conditionalSection) conditionalSection.style.display = 'block';
     console.log(`Clicked Interested: [${optionName}], value now:`, hiddenInput.value);
+    if (optionName === 'afterSchoolProgram') {
+      const input = document.querySelector('.afterSchoolChildrenCount');
+      if (input) input.required = true;
+    }
+
+    if (optionName === 'teacherAccidents') {
+      document.querySelectorAll('input[name="personalAccidentEmployeeName[]"], input[name="personalAccidentEmployeeId[]"], input[name="personalAccidentEmployeeBirthdate[]"]').forEach(input => {
+        input.required = true;
+      });
+    }
+
+    if (optionName === 'professionalLiability') {
+      document.querySelectorAll('input[name="professionalLiabilityEmployeeName[]"], input[name="professionalLiabilityEmployeeId[]"], input[name="professionalLiabilityEmployeeBirthdate[]"]').forEach(input => {
+        input.required = true;
+      });
+    }
+
     calculatePremium();
   });
 
@@ -523,6 +548,23 @@ function addEventListenersToOption(optionDiv) {
     newInterestedButton.classList.remove('selected');
     if (conditionalSection) conditionalSection.style.display = 'none';
     console.log(`Clicked Not Interested: [${optionName}], value now:`, hiddenInput.value);
+    if (optionName === 'afterSchoolProgram') {
+      const input = document.querySelector('.afterSchoolChildrenCount');
+      if (input) input.required = false;
+    }
+
+    if (optionName === 'teacherAccidents') {
+      document.querySelectorAll('input[name="personalAccidentEmployeeName[]"], input[name="personalAccidentEmployeeId[]"], input[name="personalAccidentEmployeeBirthdate[]"]').forEach(input => {
+        input.required = false;
+      });
+    }
+
+    if (optionName === 'professionalLiability') {
+      document.querySelectorAll('input[name="professionalLiabilityEmployeeName[]"], input[name="professionalLiabilityEmployeeId[]"], input[name="professionalLiabilityEmployeeBirthdate[]"]').forEach(input => {
+        input.required = false;
+      });
+    }
+
     calculatePremium();
   });
 
@@ -635,7 +677,10 @@ function calculatePremium() {
         if (childrenCountValue <= 12) basePremium = 1400; // מסלול 7 - כולל תכולה ומבנה
         else basePremium = 1400 + (childrenCountValue - 12) * 120;
       } else {
-        if (childrenCountValue <= 10) basePremium = 1100; // מסלול 4 - עד 10 ילדים
+        if (childrenCountValue <= 6) basePremium = 650; // מסלול 2 - עד 6 ילדים, ללא עובדים
+        else if (childrenCountValue <= 8) basePremium = 900; // מסלול 3 - עד 8 ילדים ללא מבנה/תכולה
+        else if (childrenCountValue === 9) basePremium = 900 + 105; // מסלול 3 - 9 ילדים (ילד אחד נוסף)
+        else if (childrenCountValue <= 10) basePremium = 1100; // מסלול 4 - עד 10 ילדים
         else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4 - מעל 10 ילדים
       }
       break;
@@ -1035,6 +1080,9 @@ function collectFormData() {
 
   // ---------- renewal מתוך URL ----------
   payload['renewal'] = window.formRenewalFlag || 'true';
+
+  // ---------- policyNumber מתוך URL ----------
+  payload['policyNumber'] = window.policyNumber || '';
 
   // ---------- מספר מסלול ----------
   payload['policyTrack'] = determinePolicyTrack();
@@ -1448,9 +1496,10 @@ function prefillCoverageAddonsFromUrl() {
 function prefillFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
 
-  // --- דגלים כלליים (automation, renewal) ---
+  // --- דגלים כלליים (automation, renewal, policyNumber) ---
   window.formAutomationFlag = (urlParams.get('automation') === null || urlParams.get('automation') === 'true') ? 'true' : 'false';
   window.formRenewalFlag = (urlParams.get('renewal') === null || urlParams.get('renewal') === 'true') ? 'true' : 'false';
+  window.policyNumber = urlParams.get('policyNumber');
 
   // --- קודם כל: מילוי שדות בסיסיים (inputs, selects, checkboxes, radios) ---
   urlParams.forEach((value, key) => {
