@@ -628,7 +628,7 @@ function determinePolicyTrack() {
 
   if (gardenTypeValue === 'tamah') return 1;
   if (gardenTypeValue === 'privateFamily' || gardenTypeValue === 'upTo3') {
-    if (children <= 6 && employeesCount === 0) return 2;
+    if (children <= 6 && employeesCount === 0 && !hasContent) return 2;
     if (children <= 9 && !hasContent) return 3;
     if (children >= 10 && !hasContent) return 4;
   }
@@ -1174,9 +1174,12 @@ function addPersonalAccidentEmployeeRow(container, data = {}) {
   row.style.gap = '8px';
   row.style.alignItems = 'center';
   row.innerHTML = `
-    <input type="text" name="personalAccidentEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2">
-    <input type="text" name="personalAccidentEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1">
-    <input type="date" name="personalAccidentEmployeeBirthdate[]" placeholder="ת.לידה גננת" value="${data.birthdate || ''}" style="flex:1">
+    <input type="text" name="personalAccidentEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2" required>
+    <input type="text" name="personalAccidentEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" required>
+    <div style="flex:1">
+      <label style="display:block; font-size: 0.85em;">תאריך לידה:</label>
+      <input type="date" name="personalAccidentEmployeeBirthdate[]" value="${data.birthdate || ''}" required>
+    </div>
     <button type="button" class="removePersonalAccidentEmployee" aria-label="הסר גננת"
       style="background: #e74c3c; color: #fff; border:none; border-radius:6px; padding:6px 10px; margin-right:3px;">X</button>
   `;
@@ -1228,10 +1231,12 @@ function addProfessionalLiabilityEmployeeRow(container, data = {}) {
   row.style.gap = '8px';
   row.style.alignItems = 'center';
   row.innerHTML = `
-    <input type="text" name="professionalLiabilityEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2">
-    <input type="text" name="professionalLiabilityEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1">
-    <input type="date" name="professionalLiabilityEmployeeBirthdate[]" placeholder="ת.לידה גננת" value="${data.birthdate || ''}" style="flex:1">
-    <button type="button" class="removeProfessionalLiabilityEmployee" aria-label="הסר גננת"
+    <input type="text" name="professionalLiabilityEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2" required>
+    <input type="text" name="professionalLiabilityEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" required>
+    <div style="flex:1">
+      <label style="display:block; font-size: 0.85em;">תאריך לידה:</label>
+      <input type="date" name="professionalLiabilityEmployeeBirthdate[]" value="${data.birthdate || ''}" required>
+    </div>    <button type="button" class="removeProfessionalLiabilityEmployee" aria-label="הסר גננת"
       style="background: #e74c3c; color: #fff; border:none; border-radius:6px; padding:6px 10px; margin-right:3px;">X</button>
   `;
   container.appendChild(row);
