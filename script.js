@@ -628,7 +628,7 @@ function determinePolicyTrack() {
 
   if (gardenTypeValue === 'tamah') return 1;
   if (gardenTypeValue === 'privateFamily' || gardenTypeValue === 'upTo3') {
-    if (children <= 6 && employeesCount === 0) return 2;
+    if (children <= 6 && employeesCount === 0 && !hasContent) return 2;
     if (children <= 9 && !hasContent) return 3;
     if (children >= 10 && !hasContent) return 4;
   }
