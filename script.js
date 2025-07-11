@@ -1774,5 +1774,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
+  const policyStartDate = document.getElementById('policyStartDate');
+  const policyEndDate = document.getElementById('policyEndDate');
+
+  if (policyStartDate && policyEndDate) {
+    // שים תמיד disabled
+    policyStartDate.disabled = true;
+    policyEndDate.disabled = true;
+
+    // בדוק אם הגיע ערך מה-URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const startValue = urlParams.get('policyStartDate');
+    const endValue = urlParams.get('policyEndDate');
+
+    if (startValue) {
+      policyStartDate.value = startValue;
+    }
+    if (endValue) {
+      policyEndDate.value = endValue;
+    }
+  }
+
   console.log('✅ כל ה־setup הסתיים');
 });
