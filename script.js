@@ -631,10 +631,10 @@ function determinePolicyTrack() {
     if (children <= 6 && employeesCount === 0 && !hasContent) return 2;
     if (children <= 9 && !hasContent) return 3;
     if (children >= 10 && !hasContent) return 4;
+    if (hasContent) return 7; // מסלול 7 כולל תכולה ומבנה 
   }
   if ((gardenTypeValue === 'over3' || gardenTypeValue === 'afterSchool') && !hasContent) return 5;
   if ((gardenTypeValue === 'over3' || gardenTypeValue === 'afterSchool') && hasContent) return 6;
-  if (gardenTypeValue === 'upTo3' && hasContent) return 7; // מסלול 7 כולל תכולה ומבנה
 }
 
 
@@ -1646,7 +1646,13 @@ function prefillFromUrl() {
   }
 }
 
-
+function isCanvasBlank(canvas) {
+  const context = canvas.getContext('2d');
+  const pixelBuffer = new Uint32Array(
+    context.getImageData(0, 0, canvas.width, canvas.height).data.buffer
+  );
+  return !pixelBuffer.some(color => color !== 0);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🌱 DOMContentLoaded התחיל');
@@ -1743,6 +1749,93 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+
+  // מצא את כפתור השליחה במסך אשראי
+  const creditCardSection = document.getElementById('creditCardSection');
+  if (creditCardSection) {
+    const submitBtn = creditCardSection.querySelector('.submit-button[type="submit"], #creditCardSubmit');
+    if (submitBtn) {
+      submitBtn.addEventListener('click', function (e) {
+        if (sections[currentSectionIndex].id === 'creditCardSection') {
+          const signatureCanvas = document.getElementById('signatureCanvasCredit');
+          if (isCanvasBlank(signatureCanvas)) {
+            e.preventDefault();
+            alert('יש לחתום על הטופס לפני השליחה.');
+            signatureCanvas.style.border = "2px solid red";
+            setTimeout(() => signatureCanvas.style.border = "", 2000);
+            signatureCanvas.scrollIntoView({ behavior: "smooth", block: "center" });
+            return;
+          }
+          // רק אם חתמו ממשיכים:
+          const paymentUrl = "https://icom.yaad.net/cgi-bin/yaadpay/yaadpay3ds.pl?...";
+          window.open(paymentUrl, '_blank');
+          setTimeout(() => {
+            const thankYouSectionIndex = sections.findIndex(sec => sec.id === 'thankYouSection');
+            if (thankYouSectionIndex !== -1) {
+              showSection(thankYouSectionIndex);
+            }
+          }, 100);
+        }
+      });
+    }
+  }
+
+
+  const policyStartDate = document.getElementById('policyStartDate');
+  const policyEndDate = document.getElementById('policyEndDate');
+
+  if (policyStartDate && policyEndDate) {
+    // שים תמיד disabled
+    policyStartDate.disabled = true;
+    policyEndDate.disabled = true;
+
+    // בדוק אם הגיע ערך מה-URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const startValue = urlParams.get('policyStartDate');
+    const endValue = urlParams.get('policyEndDate');
+
+    if (startValue) {
+      policyStartDate.value = startValue;
+    }
+    if (endValue) {
+      policyEndDate.value = endValue;
+    }
+  }
+
+  // הגדרה לפי עמודי התשלום
+  const payments = [
+    { sectionId: 'bankTransferSection', canvasId: 'signatureCanvasBank', buttonSelector: '.submit-button' },
+    { sectionId: 'creditCardSection', canvasId: 'signatureCanvasCredit', buttonSelector: '.submit-button' },
+    { sectionId: 'debitAuthSection', canvasId: 'signatureCanvasDebit', buttonSelector: '.submit-button' }
+  ];
+
+  payments.forEach(({ sectionId, canvasId, buttonSelector }) => {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    // בוחר רק את כפתור השליחה שבתוך הסקשן הרלוונטי!
+    const submitBtn = section.querySelector(buttonSelector);
+    const signatureCanvas = document.getElementById(canvasId);
+
+    if (submitBtn && signatureCanvas) {
+      submitBtn.addEventListener('click', function (e) {
+        // נוודא שאכן נמצאים ב-section הנכון (זהירות עם מעבר בין סקשנים)
+        if (sections[currentSectionIndex].id !== sectionId) return;
+
+        if (isCanvasBlank(signatureCanvas)) {
+          e.preventDefault();
+          alert('יש לחתום על הטופס לפני השליחה.');
+          signatureCanvas.style.border = "2px solid red";
+          setTimeout(() => signatureCanvas.style.border = "", 2000);
+          signatureCanvas.scrollIntoView({ behavior: "smooth", block: "center" });
+          return false;
+        }
+        // אחרת ממשיך כרגיל
+      });
+    }
+  });
+
 
   console.log('✅ כל ה־setup הסתיים');
 });

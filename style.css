@@ -214,16 +214,16 @@ input[type="checkbox"] {
   border: none;
   padding: 0;
   cursor: pointer;
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
 .info-icon {
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
   fill: #d03499;
   transition: transform 0.3s ease;
 }
