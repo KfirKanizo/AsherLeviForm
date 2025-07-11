@@ -1646,7 +1646,13 @@ function prefillFromUrl() {
   }
 }
 
-
+function isCanvasBlank(canvas) {
+  const context = canvas.getContext('2d');
+  const pixelBuffer = new Uint32Array(
+    context.getImageData(0, 0, canvas.width, canvas.height).data.buffer
+  );
+  return !pixelBuffer.some(color => color !== 0);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🌱 DOMContentLoaded התחיל');
@@ -1751,17 +1757,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitBtn = creditCardSection.querySelector('.submit-button[type="submit"], #creditCardSubmit');
     if (submitBtn) {
       submitBtn.addEventListener('click', function (e) {
-        // בדוק אם אנחנו בסקשן אשראי בלבד
         if (sections[currentSectionIndex].id === 'creditCardSection') {
-          // כתובת עמוד התשלום באשראי - להחליף בכתובת הנכונה שלך!
-          const paymentUrl = "https://icom.yaad.net/cgi-bin/yaadpay/yaadpay3ds.pl?..."; // הכנס כתובת נכונה
-
-          // פתח טאב חדש לעמוד התשלום
+          const signatureCanvas = document.getElementById('signatureCanvasCredit');
+          if (isCanvasBlank(signatureCanvas)) {
+            e.preventDefault();
+            alert('יש לחתום על הטופס לפני השליחה.');
+            signatureCanvas.style.border = "2px solid red";
+            setTimeout(() => signatureCanvas.style.border = "", 2000);
+            signatureCanvas.scrollIntoView({ behavior: "smooth", block: "center" });
+            return;
+          }
+          // רק אם חתמו ממשיכים:
+          const paymentUrl = "https://icom.yaad.net/cgi-bin/yaadpay/yaadpay3ds.pl?...";
           window.open(paymentUrl, '_blank');
-
-          // המשך התהליך כרגיל - שלח את הטופס ועבור למסך הבא
-          // לא עוצרים את ברירת המחדל כי form אמור להישלח ולהמשיך לפלואו
-          // נוודא שממשיכים למסך תודה
           setTimeout(() => {
             const thankYouSectionIndex = sections.findIndex(sec => sec.id === 'thankYouSection');
             if (thankYouSectionIndex !== -1) {
@@ -1794,6 +1802,40 @@ document.addEventListener('DOMContentLoaded', () => {
       policyEndDate.value = endValue;
     }
   }
+
+  // הגדרה לפי עמודי התשלום
+  const payments = [
+    { sectionId: 'bankTransferSection', canvasId: 'signatureCanvasBank', buttonSelector: '.submit-button' },
+    { sectionId: 'creditCardSection', canvasId: 'signatureCanvasCredit', buttonSelector: '.submit-button' },
+    { sectionId: 'debitAuthSection', canvasId: 'signatureCanvasDebit', buttonSelector: '.submit-button' }
+  ];
+
+  payments.forEach(({ sectionId, canvasId, buttonSelector }) => {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+
+    // בוחר רק את כפתור השליחה שבתוך הסקשן הרלוונטי!
+    const submitBtn = section.querySelector(buttonSelector);
+    const signatureCanvas = document.getElementById(canvasId);
+
+    if (submitBtn && signatureCanvas) {
+      submitBtn.addEventListener('click', function (e) {
+        // נוודא שאכן נמצאים ב-section הנכון (זהירות עם מעבר בין סקשנים)
+        if (sections[currentSectionIndex].id !== sectionId) return;
+
+        if (isCanvasBlank(signatureCanvas)) {
+          e.preventDefault();
+          alert('יש לחתום על הטופס לפני השליחה.');
+          signatureCanvas.style.border = "2px solid red";
+          setTimeout(() => signatureCanvas.style.border = "", 2000);
+          signatureCanvas.scrollIntoView({ behavior: "smooth", block: "center" });
+          return false;
+        }
+        // אחרת ממשיך כרגיל
+      });
+    }
+  });
+
 
   console.log('✅ כל ה־setup הסתיים');
 });
