@@ -1744,5 +1744,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+
+  // מצא את כפתור השליחה במסך אשראי
+  const creditCardSection = document.getElementById('creditCardSection');
+  if (creditCardSection) {
+    const submitBtn = creditCardSection.querySelector('.submit-button[type="submit"], #creditCardSubmit');
+    if (submitBtn) {
+      submitBtn.addEventListener('click', function (e) {
+        // בדוק אם אנחנו בסקשן אשראי בלבד
+        if (sections[currentSectionIndex].id === 'creditCardSection') {
+          // כתובת עמוד התשלום באשראי - להחליף בכתובת הנכונה שלך!
+          const paymentUrl = "https://icom.yaad.net/cgi-bin/yaadpay/yaadpay3ds.pl?..."; // הכנס כתובת נכונה
+
+          // פתח טאב חדש לעמוד התשלום
+          window.open(paymentUrl, '_blank');
+
+          // המשך התהליך כרגיל - שלח את הטופס ועבור למסך הבא
+          // לא עוצרים את ברירת המחדל כי form אמור להישלח ולהמשיך לפלואו
+          // נוודא שממשיכים למסך תודה
+          setTimeout(() => {
+            const thankYouSectionIndex = sections.findIndex(sec => sec.id === 'thankYouSection');
+            if (thankYouSectionIndex !== -1) {
+              showSection(thankYouSectionIndex);
+            }
+          }, 100);
+        }
+      });
+    }
+  }
+
+
   console.log('✅ כל ה־setup הסתיים');
 });
