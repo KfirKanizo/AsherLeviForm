@@ -631,10 +631,10 @@ function determinePolicyTrack() {
     if (children <= 6 && employeesCount === 0 && !hasContent) return 2;
     if (children <= 9 && !hasContent) return 3;
     if (children >= 10 && !hasContent) return 4;
+    if (hasContent) return 7; // מסלול 7 כולל תכולה ומבנה 
   }
   if ((gardenTypeValue === 'over3' || gardenTypeValue === 'afterSchool') && !hasContent) return 5;
   if ((gardenTypeValue === 'over3' || gardenTypeValue === 'afterSchool') && hasContent) return 6;
-  if (gardenTypeValue === 'upTo3' && hasContent) return 7; // מסלול 7 כולל תכולה ומבנה
 }
 
 
