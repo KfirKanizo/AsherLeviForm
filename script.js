@@ -1391,6 +1391,21 @@ function selectCoverageOption(optionName, value) {
   }
 }
 
+
+function updateBuildingTypeRequired() {
+  const buildingType = document.getElementById('buildingType');
+  const hasContentBuilding = document.getElementById('hasContentBuilding');
+  const contentBuildingGroup = document.getElementById('contentBuildingGroup');
+  if (!buildingType || !hasContentBuilding) return;
+  if (hasContentBuilding.checked && contentBuildingGroup.style.display !== 'none') {
+    buildingType.required = true;
+  } else {
+    buildingType.required = false;
+    buildingType.value = ""; // לאפס אם מוסתר/לא נדרש
+  }
+}
+
+
 function prefillCoverageAddonsFromUrl() {
   if (!urlPrefillData) return;
 
@@ -1835,6 +1850,14 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   });
+
+  // (שים אחרי כל קריאות ה-prefill שלך)
+  updateBuildingTypeRequired();
+  const hasContentBuilding = document.getElementById('hasContentBuilding');
+  if (hasContentBuilding) {
+    hasContentBuilding.addEventListener('change', updateBuildingTypeRequired);
+  }
+
 
 
   console.log('✅ כל ה־setup הסתיים');
