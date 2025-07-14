@@ -1858,6 +1858,24 @@ document.addEventListener('DOMContentLoaded', () => {
     hasContentBuilding.addEventListener('change', updateBuildingTypeRequired);
   }
 
+  // --- הצגה/הסתרה של צ'קבוקס "האם תרצה לבטח את המבנה ותכולת הגן?" ---
+  const hasContentBuildingGroup = document.getElementById('hasContentBuildingGroup');
+  const gardenTypeSelect = document.getElementById('gardenType');
+
+  function updateHasContentBuildingVisibility() {
+    if (gardenTypeSelect.value === 'tamah' || gardenTypeSelect.value === '') {
+      hasContentBuildingGroup.style.display = 'none';
+      document.getElementById('hasContentBuilding').checked = false;
+    } else {
+      hasContentBuildingGroup.style.display = '';
+    }
+  }
+
+  // קריאה ראשונית
+  updateHasContentBuildingVisibility();
+
+  // האזנה לשינויים
+  gardenTypeSelect.addEventListener('change', updateHasContentBuildingVisibility);
 
 
   console.log('✅ כל ה־setup הסתיים');
