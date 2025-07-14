@@ -183,30 +183,32 @@
 
         <div class="form-group">
           <label for="policyStartDate">תאריך תחילת הפוליסה *</label>
-          <input type="date" id="policyStartDate" name="policyStartDate"/>
+          <input type="date" id="policyStartDate" name="policyStartDate" />
         </div>
         <div class="form-group">
           <label for="policyEndDate">תאריך סיום הפוליסה *</label>
-          <input type="date" id="policyEndDate" name="policyEndDate"/>
+          <input type="date" id="policyEndDate" name="policyEndDate" />
         </div>
 
 
         <div class="form-group">
-          <label>
-            <input type="checkbox" id="hasOver3Children" name="hasOver3Children">
-            האם יש ילדים שמלאו להם 3 בספטמבר של שנת הלימודים של הפוליסה?
-          </label>
+          <label>האם יש ילדים שמלאו להם 3 בספטמבר של שנת הלימודים של הפוליסה?</label>
+          <div class="yesno-toggle" data-field="hasOver3Children">
+            <button type="button" class="yes-btn">כן</button>
+            <button type="button" class="no-btn">לא</button>
+            <input type="hidden" id="hasOver3Children" name="hasOver3Children">
+          </div>
         </div>
         <div class="form-group" id="over3ChildrenCountGroup" style="display: none;">
           <label for="over3ChildrenCount">כמה ילדים?</label>
           <input type="number" id="over3ChildrenCount" name="over3ChildrenCount" min="0">
         </div>
+
         <div class="form-group">
           <label>
-            <input type="checkbox" id="isMember" name="isMember" value="isMember"> האם חבר באחד מארגוני הגנים?
+            האם חבר באחד מארגוני הגנים?
             <button type="button" class="info-button"
-              data-popup="<strong>אם את/ה שייך/ת לאחד מהמועדונים הבאים</strong><br>התאחדות המעונות / חיב\" ה / חלמיש -
-              קבל/י הנחה">
+              data-popup="<strong>אם את/ה שייך/ת לאחד מהמועדונים הבאים</strong><br>התאחדות המעונות / חיב&quot;ה / חלמיש - קבל/י הנחה">
               <svg class="info-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="10" fill="none" />
                 <path
@@ -214,6 +216,11 @@
               </svg>
             </button>
           </label>
+          <div class="yesno-toggle" data-field="isMember">
+            <button type="button" class="yes-btn">כן</button>
+            <button type="button" class="no-btn">לא</button>
+            <input type="hidden" id="isMember" name="isMember">
+          </div>
         </div>
         <div id="membershipSection" class="conditional-section" style="display: none;">
           <div class="form-group">
@@ -227,38 +234,55 @@
           </div>
         </div>
 
-        <label>
-          <input id="claimsLastYear" name="claimsLastYear" type="checkbox" value="claimsLastYear" /> האם היו תביעות בשנה
-          האחרונה?
-          <button class="info-button"
-            data-tooltip="במקרה של שינוי בפרמיה בעקבות תביעה, נציגנו יצרו קשר ויאשרו מולך את הפקת הפוליסה.&lt;br&gt;לבינתיים, אנא השלימו את תהליך החידוש."
-            type="button">
-            <svg class="info-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" fill="none" />
-              <path
-                d="M12 17a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3c-.55 0-1-.45-1-1v-.13c0-.58.3-.93.76-1.3.52-.42 1.24-.99 1.24-1.9 0-.7-.57-1.17-1.19-1.17-.48 0-.89.34-.98.8a.75.75 0 1 1-1.48-.27C9.62 7.9 10.67 7 12 7c1.26 0 2.19.89 2.19 2.07 0 1.19-.82 1.84-1.46 2.36-.32.26-.54.45-.54.71V13c0 .55-.45 1-1 1z" />
-            </svg>
-          </button>
-        </label>
-        <label>
-          <input id="supplementalInsurance" name="supplementalInsurance" type="checkbox"
-            value="supplementalInsurance" /> האם ברצונך לרכוש ביטוח משלים לדירה?
-          <button class="info-button"
-            data-tooltip="במקרה של שינוי בפרמיה בעקבות תביעה, נציגנו יצרו קשר ויאשרו מולך את הפקת הפוליסה.&lt;br&gt;לבינתיים, אנא השלימו את תהליך החידוש."
-            type="button">
-            <svg class="info-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" fill="none" />
-              <path
-                d="M12 17a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3c-.55 0-1-.45-1-1v-.13c0-.58.3-.93.76-1.3.52-.42 1.24-.99 1.24-1.9 0-.7-.57-1.17-1.19-1.17-.48 0-.89.34-.98.8a.75.75 0 1 1-1.48-.27C9.62 7.9 10.67 7 12 7c1.26 0 2.19.89 2.19 2.07 0 1.19-.82 1.84-1.46 2.36-.32.26-.54.45-.54.71V13c0 .55-.45 1-1 1z" />
-            </svg>
-          </button>
-        </label>
-        <div class="form-group" id="hasContentBuildingGroup">
+        <div class="form-group">
           <label>
-            <input type="checkbox" id="hasContentBuilding" name="hasContentBuilding">
-            האם תרצה לבטח את המבנה ותכולת הגן?
+            האם היו תביעות בשנה האחרונה?
+            <button class="info-button"
+              data-tooltip="במקרה של שינוי בפרמיה בעקבות תביעה, נציגנו יצרו קשר ויאשרו מולך את הפקת הפוליסה.<br>לבינתיים, אנא השלימו את תהליך החידוש."
+              type="button">
+              <svg class="info-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="none" />
+                <path
+                  d="M12 17a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3c-.55 0-1-.45-1-1v-.13c0-.58.3-.93.76-1.3.52-.42 1.24-.99 1.24-1.9 0-.7-.57-1.17-1.19-1.17-.48 0-.89.34-.98.8a.75.75 0 1 1-1.48-.27C9.62 7.9 10.67 7 12 7c1.26 0 2.19.89 2.19 2.07 0 1.19-.82 1.84-1.46 2.36-.32.26-.54.45-.54.71V13c0 .55-.45 1-1 1z" />
+              </svg>
+            </button>
           </label>
+          <div class="yesno-toggle" data-field="claimsLastYear">
+            <button type="button" class="yes-btn">כן</button>
+            <button type="button" class="no-btn">לא</button>
+            <input type="hidden" id="claimsLastYear" name="claimsLastYear">
+          </div>
         </div>
+
+        <div class="form-group">
+          <label>
+            האם ברצונך לרכוש ביטוח משלים לדירה?
+            <button class="info-button"
+              data-tooltip="במקרה של שינוי בפרמיה בעקבות תביעה, נציגנו יצרו קשר ויאשרו מולך את הפקת הפוליסה.<br>לבינתיים, אנא השלימו את תהליך החידוש."
+              type="button">
+              <svg class="info-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="none" />
+                <path
+                  d="M12 17a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3c-.55 0-1-.45-1-1v-.13c0-.58.3-.93.76-1.3.52-.42 1.24-.99 1.24-1.9 0-.7-.57-1.17-1.19-1.17-.48 0-.89.34-.98.8a.75.75 0 1 1-1.48-.27C9.62 7.9 10.67 7 12 7c1.26 0 2.19.89 2.19 2.07 0 1.19-.82 1.84-1.46 2.36-.32.26-.54.45-.54.71V13c0 .55-.45 1-1 1z" />
+              </svg>
+            </button>
+          </label>
+          <div class="yesno-toggle" data-field="supplementalInsurance">
+            <button type="button" class="yes-btn">כן</button>
+            <button type="button" class="no-btn">לא</button>
+            <input type="hidden" id="supplementalInsurance" name="supplementalInsurance">
+          </div>
+        </div>
+
+        <div class="form-group" id="hasContentBuildingGroup">
+          <label>האם תרצה לבטח את המבנה ותכולת הגן?</label>
+          <div class="yesno-toggle" data-field="hasContentBuilding">
+            <button type="button" class="yes-btn">כן</button>
+            <button type="button" class="no-btn">לא</button>
+            <input type="hidden" id="hasContentBuilding" name="hasContentBuilding">
+          </div>
+        </div>
+
 
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לפרטי קשר</button>
@@ -322,9 +346,12 @@
           </select>
         </div>
         <div class="form-group">
-          <label>
-            <input class="hasLien" id="hasLien" type="checkbox" /> האם קיים שעבוד
-          </label>
+          <label>האם קיים שעבוד?</label>
+          <div class="yesno-toggle" data-field="hasLien">
+            <button type="button" class="yes-btn">כן</button>
+            <button type="button" class="no-btn">לא</button>
+            <input type="hidden" class="hasLien" id="hasLien" name="hasLien">
+          </div>
         </div>
         <div class="form-group" id="lienTypeSection" style="display: none;">
           <label>סוג המשעבד:</label>
@@ -335,8 +362,7 @@
           </div>
         </div>
         <div class="conditional-section" id="lienDetailsBank" style="display: none;">
-          <div class="form-group"><label>בנק</label><input type="text" id="lienBankName" name="lienBankName" />
-          </div>
+          <div class="form-group"><label>בנק</label><input type="text" id="lienBankName" name="lienBankName" /></div>
           <div class="form-group"><label>סניף</label><input type="text" id="lienBankBranch" name="lienBankBranch" />
           </div>
           <div class="form-group"><label>כתובת</label><input type="text" id="lienBankAddress" name="lienBankAddress" />
@@ -347,11 +373,14 @@
               name="lienCompanyName" /></div>
           <div class="form-group"><label>ח.פ</label><input type="text" id="lienCompanyId" name="lienCompanyId" /></div>
         </div>
+
         <div class="form-group">
-          <label>
-            <input type="checkbox" id="waiverCheckbox" name="waiverCheckbox">
-            ויתור זכות שיבוב
-          </label>
+          <label>ויתור זכות שיבוב</label>
+          <div class="yesno-toggle" data-field="waiverCheckbox">
+            <button type="button" class="yes-btn">כן</button>
+            <button type="button" class="no-btn">לא</button>
+            <input type="hidden" id="waiverCheckbox" name="waiverCheckbox">
+          </div>
         </div>
         <div class="conditional-section" id="waiverDetails" style="display: none;">
           <div class="form-group">
@@ -363,6 +392,7 @@
             <input type="text" id="propertyOwnerId" name="propertyOwnerId" />
           </div>
         </div>
+
 
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לפרטי הביטוח</button>
