@@ -283,7 +283,7 @@ document.querySelectorAll('.next-button').forEach(button => {
     // דילוג על ביטוח תכולה אם לא מסומן — וקפיצה ל־policyDetails
     if (sections[currentSectionIndex].id === 'insuranceDetails') {
       const hasContentBuilding = document.getElementById('hasContentBuilding');
-      if (hasContentBuilding && !hasContentBuilding.checked) {
+      if (hasContentBuilding && hasContentBuilding.value === "false") {
         const policyIndex = sections.findIndex(sec => sec.id === 'policyDetails');
         if (policyIndex !== -1) {
           currentSectionIndex = policyIndex;
@@ -337,7 +337,7 @@ document.querySelectorAll('.back-button').forEach(button => {
     // במידה ותכולה לא מסומנת - חזור ישירות ל־insuranceDetails (דילוג אחורה)
     if (sections[currentSectionIndex].id === 'coverageAddons') {
       const hasContentBuilding = document.getElementById('hasContentBuilding');
-      if (hasContentBuilding && !hasContentBuilding.checked) {
+      if (hasContentBuilding && hasContentBuilding.value === "false") {
         const insuranceDetailsIndex = sections.findIndex(sec => sec.id === 'insuranceDetails');
         if (insuranceDetailsIndex !== -1) {
           currentSectionIndex = insuranceDetailsIndex;
@@ -646,7 +646,7 @@ function calculatePremium() {
 
   // משתנה עזר - האם בחר ביטוח תכולה ומבנה
   const hasContentBuilding = document.getElementById('hasContentBuilding');
-  const includeContentBuilding = hasContentBuilding ? hasContentBuilding.checked : false;
+  const includeContentBuilding = hasContentBuilding ? hasContentBuilding.value === "true" : false;
 
   // אם אין גן או אין ילדים, תמיד 0
   if (!gardenTypeValue || childrenCountValue < 1) {
@@ -1062,7 +1062,7 @@ function collectFormData() {
 
   // ---------- מבנה ותכולה ----------
   const hasContentBuilding = document.getElementById('hasContentBuilding');
-  if (hasContentBuilding && hasContentBuilding.checked) {
+  if (hasContentBuilding && hasContentBuilding.value === "true") {
     payload['contentBuildingDetails[contentSum]'] = document.querySelector('.contentSum')?.value || '';
     payload['contentBuildingDetails[buildingSum]'] = document.querySelector('.buildingSum')?.value || '';
     payload['contentBuildingDetails[yardContentSum]'] = document.querySelector('.yardContentSum')?.value || '';
@@ -1397,7 +1397,7 @@ function updateBuildingTypeRequired() {
   const hasContentBuilding = document.getElementById('hasContentBuilding');
   const contentBuildingGroup = document.getElementById('contentBuildingGroup');
   if (!buildingType || !hasContentBuilding) return;
-  if (hasContentBuilding.checked && contentBuildingGroup.style.display !== 'none') {
+  if (hasContentBuilding.value === "true" && contentBuildingGroup.style.display !== 'none') {
     buildingType.required = true;
   } else {
     buildingType.required = false;
@@ -1783,7 +1783,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           }
           // רק אם חתמו ממשיכים:
-          const paymentUrl = "https://icom.yaad.net/cgi-bin/yaadpay/yaadpay3ds.pl?...";
+          const paymentUrl = "https://icom.yaad.net/cgi-bin/yaadpay/yaadpay3ds.pl?Amount=1&Coin=1&FixTash=True&Info=%F4%E5%EC%E9%F1%FA%20%E1%E9%E8%E5%E7%20%EE%F9%F4%E7%FA%E5%EF%2F%E2%EF%20%E9%EC%E3%E9%ED%2F%F6%E4%F8%E5%EF&Masof=4501600320&MoreData=True&PageLang=HEB&Postpone=True&ShowEngTashText=True&Tash=1&UTF8out=True&action=pay&freq=1&sendemail=True&signature=f3de6f68f2cba7605e251da1152f9cbd02c9ef4935cf9a5398a5032a9c38e700";
           window.open(paymentUrl, '_blank');
           setTimeout(() => {
             const thankYouSectionIndex = sections.findIndex(sec => sec.id === 'thankYouSection');
@@ -1858,6 +1858,147 @@ document.addEventListener('DOMContentLoaded', () => {
     hasContentBuilding.addEventListener('change', updateBuildingTypeRequired);
   }
 
+  // --- הצגה/הסתרה של צ'קבוקס "האם תרצה לבטח את המבנה ותכולת הגן?" ---
+  const hasContentBuildingGroup = document.getElementById('hasContentBuildingGroup');
+  const gardenTypeSelect = document.getElementById('gardenType');
+
+  function updateHasContentBuildingVisibility() {
+    if (gardenTypeSelect.value === 'tamah' || gardenTypeSelect.value === '') {
+      hasContentBuildingGroup.style.display = 'none';
+      document.getElementById('hasContentBuilding').checked = false;
+    } else {
+      hasContentBuildingGroup.style.display = '';
+    }
+  }
+
+  // קריאה ראשונית
+  updateHasContentBuildingVisibility();
+
+  // האזנה לשינויים
+  gardenTypeSelect.addEventListener('change', updateHasContentBuildingVisibility);
+
+  document.querySelectorAll('.yesno-toggle').forEach(toggle => {
+    const field = toggle.dataset.field;
+    const yesBtn = toggle.querySelector('.yes-btn');
+    const noBtn = toggle.querySelector('.no-btn');
+    const hiddenInput = toggle.querySelector('input[type="hidden"]');
+
+    // פונקציה אחידה
+    const setValue = val => {
+      hiddenInput.value = val;
+      if (val === "true") {
+        yesBtn.classList.add('selected');
+        noBtn.classList.remove('selected');
+      } else if (val === "false") {
+        yesBtn.classList.remove('selected');
+        noBtn.classList.add('selected');
+      } else {
+        yesBtn.classList.remove('selected');
+        noBtn.classList.remove('selected');
+        hiddenInput.value = "";
+      }
+    };
+
+    yesBtn.onclick = () => setValue("true");
+    noBtn.onclick = () => setValue("false");
+
+    // מילוי אוטומטי מה־URL (אם יש)
+    if (typeof urlPrefillData !== "undefined" && urlPrefillData[field] !== undefined) {
+      setValue(urlPrefillData[field] === "true" ? "true" : "false");
+    } else {
+      setValue(""); // בלי בחירה
+    }
+  });
+
+  function setupYesNoDependencies() {
+    // 1. האם יש ילדים שמלאו להם 3 בספטמבר של שנת הלימודים של הפוליסה?
+    function updateOver3ChildrenGroup() {
+      const value = document.getElementById('hasOver3Children').value;
+      document.getElementById('over3ChildrenCountGroup').style.display = value === "true" ? "block" : "none";
+    }
+    updateOver3ChildrenGroup();
+    document.querySelectorAll('[data-field="hasOver3Children"] .yes-btn, [data-field="hasOver3Children"] .no-btn').forEach(btn =>
+      btn.addEventListener('click', updateOver3ChildrenGroup)
+    );
+
+    // 2. האם חבר באחד מארגוני הגנים?
+    function updateMembershipSection() {
+      const value = document.getElementById('isMember').value;
+      document.getElementById('membershipSection').style.display = value === "true" ? "block" : "none";
+    }
+    updateMembershipSection();
+    document.querySelectorAll('[data-field="isMember"] .yes-btn, [data-field="isMember"] .no-btn').forEach(btn =>
+      btn.addEventListener('click', updateMembershipSection)
+    );
+
+    // 3. האם היו תביעות בשנה האחרונה?  (אין לו סקשן דינמי – אם רק צריך value, לא צריך קוד נוסף)
+
+    // 4. האם ברצונך לרכוש ביטוח משלים לדירה?  (אין לו סקשן דינמי – אם רק צריך value, לא צריך קוד נוסף)
+
+    // 5. האם תרצה לבטח את המבנה ותכולת הגן?
+    // לדוג' – אם צריך להפעיל קבוצה/חישוב/הגיון (אם אין סקשן, אפשר להסיר)
+    // דוגמה: עדכון חישוב פרמיה/הצגת קבוצות
+    function updateContentBuildingLogic() {
+      // כאן שים כל לוגיקה שקשורה ל"hasContentBuilding"
+      // למשל: חישוב פרמיה/עדכון תצוגה
+      // calculatePremium();
+      // showSection();
+      // ... לפי הצורך שלך
+    }
+    document.querySelectorAll('[data-field="hasContentBuilding"] .yes-btn, [data-field="hasContentBuilding"] .no-btn').forEach(btn =>
+      btn.addEventListener('click', updateContentBuildingLogic)
+    );
+    // אפשר גם להפעיל פעם אחת בטעינה (אם דרוש):
+    // updateContentBuildingLogic();
+  }
+  setupYesNoDependencies();
+
+
+  function setupLienAndWaiverLogic() {
+    // האם קיים שעבוד?
+    function updateLienSections() {
+      const hasLien = document.getElementById('hasLien').value;
+      const lienTypeSection = document.getElementById('lienTypeSection');
+      const lienDetailsBank = document.getElementById('lienDetailsBank');
+      const lienDetailsCompany = document.getElementById('lienDetailsCompany');
+      // הצג/הסתר בחירה של סוג משעבד
+      lienTypeSection.style.display = hasLien === "true" ? "block" : "none";
+      // הסתר את שניהם אם אין שעבוד
+      if (hasLien !== "true") {
+        lienDetailsBank.style.display = "none";
+        lienDetailsCompany.style.display = "none";
+      }
+    }
+    updateLienSections();
+    document.querySelectorAll('[data-field="hasLien"] .yes-btn, [data-field="hasLien"] .no-btn').forEach(btn =>
+      btn.addEventListener('click', updateLienSections)
+    );
+
+    // סוג המשעבד (כפתורי "בנק"/"חברה")
+    document.querySelectorAll('.lien-type-button').forEach(btn => {
+      btn.addEventListener('click', function () {
+        // עיצוב נבחר
+        document.querySelectorAll('.lien-type-button').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        // עדכון value
+        document.getElementById('lienType').value = btn.dataset.type;
+        // הצגת סקשן מתאים
+        document.getElementById('lienDetailsBank').style.display = btn.dataset.type === 'bank' ? 'block' : 'none';
+        document.getElementById('lienDetailsCompany').style.display = btn.dataset.type === 'company' ? 'block' : 'none';
+      });
+    });
+
+    // ויתור זכות שיבוב
+    function updateWaiverDetails() {
+      const value = document.getElementById('waiverCheckbox').value;
+      document.getElementById('waiverDetails').style.display = value === "true" ? "block" : "none";
+    }
+    updateWaiverDetails();
+    document.querySelectorAll('[data-field="waiverCheckbox"] .yes-btn, [data-field="waiverCheckbox"] .no-btn').forEach(btn =>
+      btn.addEventListener('click', updateWaiverDetails)
+    );
+  }
+  setupLienAndWaiverLogic();
 
 
   console.log('✅ כל ה־setup הסתיים');

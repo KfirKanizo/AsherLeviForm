@@ -788,3 +788,39 @@ input[type="date"]:focus {
   background: #d03499;
   color: #fff;
 }
+
+.yesno-toggle {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  margin: 0 0 8px 0;
+}
+
+.yesno-toggle .yes-btn,
+.yesno-toggle .no-btn {
+  flex: unset;
+  width: 90px;
+  /* אפשר להקטין או להגדיל כאן לפי הצורך */
+  padding: 7px 0;
+  background: #e0e4ec;
+  color: #4362cc;
+  border: none;
+  border-radius: 10px;
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s, color 0.2s, border 0.2s;
+  border: 2px solid transparent;
+}
+
+.yesno-toggle .yes-btn.selected {
+  background: #d03499;
+  color: #fff;
+  border: 2px solid #4362cc;
+}
+
+.yesno-toggle .no-btn.selected {
+  background: #d03499;
+  color: #fff;
+  border: 2px solid #4362cc;
+}
