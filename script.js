@@ -1783,7 +1783,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           }
           // רק אם חתמו ממשיכים:
-          const paymentUrl = "https://icom.yaad.net/cgi-bin/yaadpay/yaadpay3ds.pl?...";
+          const paymentUrl = "https://icom.yaad.net/cgi-bin/yaadpay/yaadpay3ds.pl?Amount=1&Coin=1&FixTash=True&Info=%F4%E5%EC%E9%F1%FA%20%E1%E9%E8%E5%E7%20%EE%F9%F4%E7%FA%E5%EF%2F%E2%EF%20%E9%EC%E3%E9%ED%2F%F6%E4%F8%E5%EF&Masof=4501600320&MoreData=True&PageLang=HEB&Postpone=True&ShowEngTashText=True&Tash=1&UTF8out=True&action=pay&freq=1&sendemail=True&signature=f3de6f68f2cba7605e251da1152f9cbd02c9ef4935cf9a5398a5032a9c38e700";
           window.open(paymentUrl, '_blank');
           setTimeout(() => {
             const thankYouSectionIndex = sections.findIndex(sec => sec.id === 'thankYouSection');
