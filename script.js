@@ -1,7 +1,6 @@
 const form = document.getElementById('insuranceForm');
 const gardenType = document.getElementById('gardenType');
 const childrenCount = document.getElementById('childrenCount');
-const employeesCount = document.getElementById('employeesCount');
 const premiumAmount = document.getElementById('premiumAmount');
 const isMemberCheckbox = document.getElementById('isMember');
 const membershipSection = document.getElementById('membershipSection');
@@ -209,11 +208,7 @@ function showSection(index) {
       updateCoverageOptions();
 
       const gardenTypeValue = gardenType.value;
-      const employees = parseInt(employeesCount.value) || 0;
-      const expectedOptions = (availableOptions[gardenTypeValue] || []).filter(opt => {
-        if (opt === 'employerLiability' && employees === 0) return false;
-        return true;
-      });
+      const expectedOptions = (availableOptions[gardenTypeValue] || []);
 
       const waitUntilOptionsReady = () => {
         const allPresent = expectedOptions.every(opt => {
@@ -465,12 +460,10 @@ function updateCoverageOptions() {
   container.innerHTML = '';
   const templates = document.getElementById('coverageOptionsTemplates');
   const options = availableOptions[gardenTypeValue] || [];
-  const employees = parseInt(employeesCount.value) || 0;
 
   options.forEach(option => {
     // הסתרת חבות מעבידים אם אין עובדים או אם הכיסוי כלול במסלול
     if (option === 'employerLiability') {
-      if (employees === 0) return;
       if ([4, 5, 6, 7].includes(track)) return; // מסלולים שבהם זה כלול
     }
 
@@ -617,6 +610,36 @@ function addEventListenersToOption(optionDiv) {
     });
   });
 
+  if (optionName === 'employerLiability') {
+    const conditionalSection = optionDiv.querySelector('.conditional-section');
+    const interestedButton = optionDiv.querySelector('.interested-button');
+    const notInterestedButton = optionDiv.querySelector('.not-interested-button');
+    const employeesInput = optionDiv.querySelector('#employerLiabilityEmployeesCount');
+    if (interestedButton && notInterestedButton && conditionalSection) {
+      interestedButton.addEventListener('click', () => {
+        conditionalSection.style.display = 'block';
+        if (employeesInput) employeesInput.required = true;
+        calculatePremium();
+      });
+      notInterestedButton.addEventListener('click', () => {
+        conditionalSection.style.display = 'none';
+        if (employeesInput) employeesInput.required = false;
+        calculatePremium();
+      });
+      // Always trigger premium calculation on input change
+      if (employeesInput) {
+        employeesInput.addEventListener('input', calculatePremium);
+      }
+      // Set initial state
+      if (interestedButton.classList.contains('selected')) {
+        conditionalSection.style.display = 'block';
+        if (employeesInput) employeesInput.required = true;
+      } else {
+        conditionalSection.style.display = 'none';
+        if (employeesInput) employeesInput.required = false;
+      }
+    }
+  }
 }
 
 function determinePolicyTrack() {
@@ -842,12 +865,16 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
       return basePrice * paCount;
 
     case 'professionalLiability':
-      const count = document.querySelectorAll('.professional-liability-row').length || 1;
+      const count = document.querySelectorAll('.professional-liability-row').length || 0;
       return count * 500;
 
-    case 'employerLiability':
-      const employeesCount = parseInt(document.getElementById('employeesCount')?.value) || 0;
-      return employeesCount * 105;  // מחיר קבוע
+    case 'employerLiability': {
+      const optionDiv = document.querySelector('.coverage-option[data-option="employerLiability"]');
+      const hiddenInput = optionDiv?.querySelector('input[name="insuranceOptions[employerLiability]"]');
+      if (!optionDiv || !hiddenInput || hiddenInput.value !== 'true') return 0;
+      const employeesCount = parseInt(optionDiv.querySelector('#employerLiabilityEmployeesCount')?.value) || 0;
+      return employeesCount * 105;
+    }
 
 
     case 'cyberInsurance':
@@ -1019,6 +1046,9 @@ function collectFormData() {
       if (optionName === 'teacherAccidents') {
         const coverageSelect = optionDiv.querySelector('.teacherAccidentsCoverage');
         if (coverageSelect) value = coverageSelect.value;
+      } else if (optionName === 'employerLiability') {
+        const employeesInput = optionDiv.querySelector('#employerLiabilityEmployeesCount');
+        if (employeesInput) value = employeesInput.value;
       } else {
         // לאחרים – נשלח את select כללי אם יש
         const genericSelect = optionDiv.querySelector('.conditional-section select');
@@ -1675,6 +1705,37 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('🔗 parseUrlParams הסתיים')
   console.log('🔗 urlPrefillData:', urlPrefillData);
 
+  // --- הגבלת מספר ילדים עבור גן תמ"ת ---
+  function updateChildrenCountMax() {
+    const warning = document.getElementById('childrenCountTamahWarning');
+    if (gardenType.value === 'tamah') {
+      childrenCount.setAttribute('max', '6');
+      if (parseInt(childrenCount.value) > 6) {
+        childrenCount.value = 6;
+        childrenCount.dispatchEvent(new Event('input'));
+        if (warning) warning.style.display = 'block';
+      } else {
+        if (warning) warning.style.display = 'none';
+      }
+    } else {
+      childrenCount.removeAttribute('max');
+      if (warning) warning.style.display = 'none';
+    }
+  }
+  gardenType.addEventListener('change', updateChildrenCountMax);
+  childrenCount.addEventListener('input', function() {
+    const warning = document.getElementById('childrenCountTamahWarning');
+    if (gardenType.value === 'tamah' && parseInt(childrenCount.value) > 6) {
+      childrenCount.value = 6;
+      childrenCount.dispatchEvent(new Event('input'));
+      if (warning) warning.style.display = 'block';
+    } else {
+      if (warning) warning.style.display = 'none';
+    }
+  });
+  // הפעלה ראשונית
+  updateChildrenCountMax();
+
   // מעבר בין עמודים
   showSection(0);
 
@@ -2002,4 +2063,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   console.log('✅ כל ה־setup הסתיים');
+
+  // ברירת מחדל: כל כפתורי כן/לא בעמוד פרטי ביטוח על 'לא'
+  function setInsuranceDetailsYesNoDefaults() {
+    const yesNoFields = [
+      'hasOver3Children',
+      'isMember',
+      'claimsLastYear',
+      'supplementalInsurance',
+      'hasContentBuilding'
+    ];
+    yesNoFields.forEach(field => {
+      const group = document.querySelector(`[data-field="${field}"]`);
+      if (!group) return;
+      const yesBtn = group.querySelector('.yes-btn');
+      const noBtn = group.querySelector('.no-btn');
+      const hidden = group.querySelector('input[type="hidden"]');
+      if (noBtn && yesBtn && hidden) {
+        yesBtn.classList.remove('selected');
+        noBtn.classList.add('selected');
+        hidden.value = 'false';
+      }
+    });
+  }
+  setInsuranceDetailsYesNoDefaults();
 });
