@@ -785,10 +785,10 @@ function calculatePremium() {
   });
 
   // אחריות מקצועית (אם רלוונטי אצלך)
-  const liabilityRows = document.querySelectorAll('.professional-liability-row');
-  if (liabilityRows.length > 0) {
-    totalPremium += liabilityRows.length * 500;
-  }
+  // const liabilityRows = document.querySelectorAll('.professional-liability-row');
+  // if (liabilityRows.length > 0) {
+  //   totalPremium += liabilityRows.length * 500;
+  // }
 
 
 
