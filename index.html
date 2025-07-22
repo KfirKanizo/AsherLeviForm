@@ -165,20 +165,8 @@
             </button>
           </label>
           <input id="childrenCount" min="0" name="childrenCount" type="number" />
-        </div>
-        <div class="form-group">
-          <label for="employeesCount">מספר עובדים *
-            <button class="info-button"
-              data-tooltip="&lt;strong&gt;ציין את מספר העובדים בגן&lt;/strong&gt;&lt;br&gt;משפיע על חישוב הפרמיה"
-              type="button">
-              <svg class="info-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" fill="none" />
-                <path
-                  d="M12 17a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-3c-.55 0-1-.45-1-1v-.13c0-.58.3-.93.76-1.3.52-.42 1.24-.99 1.24-1.9 0-.7-.57-1.17-1.19-1.17-.48 0-.89.34-.98.8a.75.75 0 1 1-1.48-.27C9.62 7.9 10.67 7 12 7c1.26 0 2.19.89 2.19 2.07 0 1.19-.82 1.84-1.46 2.36-.32.26-.54.45-.54.71V13c0 .55-.45 1-1 1z" />
-              </svg>
-            </button>
-          </label>
-          <input id="employeesCount" min="0" name="employeesCount" type="number" />
+          <div id="childrenCountTamahWarning" style="display:none; color:#d03499; font-size:0.95em; margin-top:4px;">בגן
+            תמ"ת לא ניתן לבחור יותר מ-6 ילדים.</div>
         </div>
 
         <div class="form-group">
@@ -568,7 +556,7 @@
       <!-- Coverage Options Templates -->
       <div id="coverageOptionsTemplates" style="display: none;">
         <div class="coverage-option" data-option="thirdParty" id="coverage-thirdParty">
-          <h3>צד ג' <span class="option-cost">מחיר: ₪0</span></h3>
+          <h3>הגדלת גבולות אחריות <span class="option-cost">מחיר: ₪0</span></h3>
           <p>כל אדם שנכנס לגן, הורה, סבא, ספק, עובד. חובה שיהיה בפוליסה כיסוי לצד ג וכדי לקבל פיצוי צריך להוכיח רשלנות
           </p>
           <input name="insuranceOptions[thirdParty]" type="hidden" value="false" />
@@ -578,12 +566,12 @@
           </div>
           <div class="conditional-section" style="display: none;">
             <div class="form-group">
-              <label>סכום כיסוי צד ג'</label>
+              <label>סכום גבול אחריות:</label>
               <select class="thirdPartyCoverage">
-                <option value="5M">5 מיליון שח למקרה / 10 מיליון לתקופה</option>
-                <option value="6M">6 מיליון שח למקרה / 12 מיליון לתקופה</option>
-                <option value="8M">8 מיליון שח למקרה / 8 מיליון לתקופה</option>
-                <option value="10M">10 מיליון שח למקרה / 10 מיליון לתקופה</option>
+                <option value="5M">5 מיליון ש"ח למקרה / 10 מיליון לתקופה (₪200 עד 20 ילדים, ₪300 מעל 20 ילדים)</option>
+                <option value="6M">6 מיליון ש"ח למקרה / 12 מיליון לתקופה (₪400)</option>
+                <option value="8M">8 מיליון ש"ח למקרה / 8 מיליון לתקופה (₪1,000)</option>
+                <option value="10M">10 מיליון ש"ח למקרה / 10 מיליון לתקופה (₪2,000)</option>
               </select>
             </div>
           </div>
@@ -627,9 +615,9 @@
             <div class="form-group">
               <label>מסלול כיסוי</label>
               <select class="teacherAccidentsCoverage">
-                <option value="A">מסלול א: 250,000 שח מוות/נכות</option>
-                <option value="B">מסלול ב: 150,000 שח + פיצוי שבועי 1,000 שח</option>
-                <option value="C">מסלול ג: 300,000 שח + פיצוי שבועי 2,000 שח</option>
+                <option value="A">מסלול א: 250,000 ש"ח מוות/נכות (₪200)</option>
+                <option value="B">מסלול ב: 150,000 ש"ח + פיצוי שבועי 1,000 ש"ח (₪600)</option>
+                <option value="C">מסלול ג: 300,000 ש"ח + פיצוי שבועי 2,000 ש"ח (₪800)</option>
               </select>
             </div>
           </div>
@@ -664,6 +652,13 @@
           <div class="button-group">
             <button class="interested-button" type="button">מעוניין</button>
             <button class="not-interested-button selected" type="button">לא מעוניין</button>
+          </div>
+          <div class="conditional-section" style="display: none;">
+            <div class="form-group">
+              <label for="employerLiabilityEmployeesCount">מספר עובדים</label>
+              <input id="employerLiabilityEmployeesCount" name="employerLiabilityEmployeesCount" type="number" min="1"
+                value="1" required />
+            </div>
           </div>
         </div>
         <!-- ביטוח סייבר -->
