@@ -532,6 +532,7 @@ function addEventListenersToOption(optionDiv) {
     }
 
     calculatePremium();
+    updateCoverageOptionPrices();
   });
 
   newNotInterestedButton.addEventListener('click', () => {
@@ -559,6 +560,7 @@ function addEventListenersToOption(optionDiv) {
     }
 
     calculatePremium();
+    updateCoverageOptionPrices();
   });
 
   if (optionName === 'birthdayActivities') {
@@ -579,7 +581,14 @@ function addEventListenersToOption(optionDiv) {
 
   // טריגר חישוב בעת שינוי שדות תנאי
   optionDiv.querySelectorAll('.conditional-section input, .conditional-section select').forEach(input => {
-    input.addEventListener('change', calculatePremium);
+    input.addEventListener('change', () => {
+      calculatePremium();
+      updateCoverageOptionPrices();
+    });
+    input.addEventListener('input', () => {
+      calculatePremium();
+      updateCoverageOptionPrices();
+    });
   });
 
   const hasLien = document.getElementById("hasLien");
@@ -620,11 +629,13 @@ function addEventListenersToOption(optionDiv) {
         conditionalSection.style.display = 'block';
         if (employeesInput) employeesInput.required = true;
         calculatePremium();
+        updateCoverageOptionPrices();
       });
       notInterestedButton.addEventListener('click', () => {
         conditionalSection.style.display = 'none';
         if (employeesInput) employeesInput.required = false;
         calculatePremium();
+        updateCoverageOptionPrices();
       });
       // Always trigger premium calculation on input change
       if (employeesInput) {
@@ -777,7 +788,24 @@ function calculatePremium() {
     }
   }
 
-  let totalPremium = Math.max(basePremium - totalDiscount, minPremium);
+  // סכום תוספות שנבחרו
+  let addonsTotal = 0;
+  document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
+    const optionName = optionDiv.dataset.option;
+    const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+    if (!optionName || !hiddenInput) return;
+    if (hiddenInput.value === 'true') {
+      let price = 0;
+      try {
+        price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
+      } catch (e) {
+        price = 0;
+      }
+      addonsTotal += price;
+    }
+  });
+
+  let totalPremium = Math.max(basePremium - totalDiscount, minPremium) + addonsTotal;
   premiumAmount.textContent = totalPremium + ' ₪';
   const discountDisplay = document.getElementById('discountDisplay');
   if (discountDisplay) {
@@ -1199,11 +1227,19 @@ function addPersonalAccidentEmployeeRow(container, data = {}) {
   `;
   container.appendChild(row);
 
+  // עדכון מחיר גם על שינוי ערך בשדות
+  row.querySelectorAll('input, select').forEach(input => {
+    input.addEventListener('input', updateCoverageOptionPrices);
+    input.addEventListener('change', updateCoverageOptionPrices);
+  });
+
   row.querySelector('.removePersonalAccidentEmployee').onclick = () => {
     row.remove();
     calculatePremium();
+    updateCoverageOptionPrices();
   };
   calculatePremium();
+  updateCoverageOptionPrices();
 }
 
 
@@ -1255,11 +1291,19 @@ function addProfessionalLiabilityEmployeeRow(container, data = {}) {
   `;
   container.appendChild(row);
 
+  // עדכון מחיר גם על שינוי ערך בשדות
+  row.querySelectorAll('input, select').forEach(input => {
+    input.addEventListener('input', updateCoverageOptionPrices);
+    input.addEventListener('change', updateCoverageOptionPrices);
+  });
+
   row.querySelector('.removeProfessionalLiabilityEmployee').onclick = () => {
     row.remove();
     calculatePremium();
+    updateCoverageOptionPrices();
   };
   calculatePremium();
+  updateCoverageOptionPrices();
 }
 
 
@@ -2071,4 +2115,113 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   setInsuranceDetailsYesNoDefaults();
+
+  // ... existing code ...
+  function updateCoverageOptionPrices() {
+    const gardenTypeValue = gardenType.value;
+    const childrenCountValue = parseInt(childrenCount.value) || 0;
+    const hasContentBuilding = document.getElementById('hasContentBuilding');
+    const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
+
+    document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
+      const optionName = optionDiv.dataset.option;
+      const priceSpan = optionDiv.querySelector('.option-cost');
+      let price = 0;
+      try {
+        price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
+      } catch (e) {
+        price = 0;
+      }
+      if (priceSpan) {
+        priceSpan.textContent = `מחיר: ₪${price}`;
+        console.log('עדכון מחיר עבור', optionName, '->', price);
+      } else {
+        console.warn('לא נמצא option-cost עבור', optionName);
+      }
+    });
+    updateAddonsTotal();
+  }
+  window.updateCoverageOptionPrices = updateCoverageOptionPrices;
+  // ... existing code ...
+
+  // ... existing code ...
+  function updateAddonsTotal() {
+    let total = 0;
+    const gardenTypeValue = gardenType.value;
+    const childrenCountValue = parseInt(childrenCount.value) || 0;
+    const hasContentBuilding = document.getElementById('hasContentBuilding');
+    const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
+    document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
+      const optionName = optionDiv.dataset.option;
+      const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+      if (!optionName || !hiddenInput) return;
+      if (hiddenInput.value === 'true') {
+        let price = 0;
+        try {
+          price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
+        } catch (e) {
+          price = 0;
+        }
+        total += price;
+      }
+    });
+    const totalDisplay = document.getElementById('addonsTotalDisplay');
+    if (totalDisplay) totalDisplay.textContent = `סך הכל תוספות: ₪${total}`;
+  }
+
+  // קריאה לפונקציה בכל עדכון מחירי תוספות
+  const originalUpdateCoverageOptionPrices = updateCoverageOptionPrices;
+  updateCoverageOptionPrices = function() {
+    ensureOptionCostSpans();
+    originalUpdateCoverageOptionPrices.apply(this, arguments);
+    updateAddonsTotal();
+  };
+  // ... existing code ...
+
+  // ... existing code ...
+  // עדכון מחיר מיידי כשמוסיפים/מסירים גננת
+  function observePersonalAccidentRows() {
+    const container = document.getElementById('personalAccidentEmployeesRows');
+    if (!container) return;
+    const observer = new MutationObserver(() => {
+      calculatePremium();
+    });
+    observer.observe(container, { childList: true, subtree: false });
+  }
+  function observeProfessionalLiabilityRows() {
+    const container = document.getElementById('professionalLiabilityEmployeesRows');
+    if (!container) return;
+    const observer = new MutationObserver(() => {
+      calculatePremium();
+    });
+    observer.observe(container, { childList: true, subtree: false });
+  }
+  // הפעלה אחרי כל עדכון הרחבות
+  const originalUpdateCoverageOptions2 = updateCoverageOptions;
+  updateCoverageOptions = function() {
+    originalUpdateCoverageOptions2.apply(this, arguments);
+    setTimeout(() => {
+      observePersonalAccidentRows();
+      observeProfessionalLiabilityRows();
+    }, 0);
+  };
+  // ... existing code ...
 });
+
+// חיזוק: ודא שלכל כיסוי יש option-cost
+function ensureOptionCostSpans() {
+  document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
+    let priceSpan = optionDiv.querySelector('.option-cost');
+    if (!priceSpan) {
+      // הוסף ליד הכותרת (h4 או h3)
+      let header = optionDiv.querySelector('h4, h3, .option-title');
+      if (header) {
+        priceSpan = document.createElement('span');
+        priceSpan.className = 'option-cost';
+        priceSpan.style.marginRight = '8px';
+        header.appendChild(priceSpan);
+        console.log('Created option-cost span for', optionDiv.dataset.option);
+      }
+    }
+  });
+}
