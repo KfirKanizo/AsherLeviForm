@@ -532,6 +532,7 @@ function addEventListenersToOption(optionDiv) {
     }
 
     calculatePremium();
+    updateCoverageOptionPrices();
   });
 
   newNotInterestedButton.addEventListener('click', () => {
@@ -559,6 +560,7 @@ function addEventListenersToOption(optionDiv) {
     }
 
     calculatePremium();
+    updateCoverageOptionPrices();
   });
 
   if (optionName === 'birthdayActivities') {
@@ -579,7 +581,14 @@ function addEventListenersToOption(optionDiv) {
 
   // טריגר חישוב בעת שינוי שדות תנאי
   optionDiv.querySelectorAll('.conditional-section input, .conditional-section select').forEach(input => {
-    input.addEventListener('change', calculatePremium);
+    input.addEventListener('change', () => {
+      calculatePremium();
+      updateCoverageOptionPrices();
+    });
+    input.addEventListener('input', () => {
+      calculatePremium();
+      updateCoverageOptionPrices();
+    });
   });
 
   const hasLien = document.getElementById("hasLien");
@@ -620,11 +629,13 @@ function addEventListenersToOption(optionDiv) {
         conditionalSection.style.display = 'block';
         if (employeesInput) employeesInput.required = true;
         calculatePremium();
+        updateCoverageOptionPrices();
       });
       notInterestedButton.addEventListener('click', () => {
         conditionalSection.style.display = 'none';
         if (employeesInput) employeesInput.required = false;
         calculatePremium();
+        updateCoverageOptionPrices();
       });
       // Always trigger premium calculation on input change
       if (employeesInput) {
@@ -645,7 +656,8 @@ function addEventListenersToOption(optionDiv) {
 function determinePolicyTrack() {
   const gardenTypeValue = gardenType.value;
   const children = parseInt(childrenCount.value) || 0;
-  const hasContent = document.getElementById('hasContentBuilding')?.checked;
+  const hasContentBuildingElem = document.getElementById('hasContentBuilding');
+  const hasContent = hasContentBuildingElem ? (hasContentBuildingElem.checked || hasContentBuildingElem.value === "true") : false;
   const employeesCount = parseInt(document.getElementById('employeesCount')?.value) || 0;
 
 
@@ -669,7 +681,7 @@ function calculatePremium() {
 
   // משתנה עזר - האם בחר ביטוח תכולה ומבנה
   const hasContentBuilding = document.getElementById('hasContentBuilding');
-  const includeContentBuilding = hasContentBuilding ? hasContentBuilding.value === "true" : false;
+  const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
 
   // אם אין גן או אין ילדים, תמיד 0
   if (!gardenTypeValue || childrenCountValue < 1) {
@@ -679,53 +691,81 @@ function calculatePremium() {
     return;
   }
 
-  // חישוב basePremium לפי סוג גן ומבנה/תכולה:
-  switch (gardenTypeValue) {
-    case 'tamah': // מסלול 1 - תמ"ת
-      if (childrenCountValue <= 6) basePremium = 500;
-      else if (childrenCountValue <= 10) basePremium = 1000;
-      else basePremium = 1000 + (childrenCountValue - 10) * 100;
-      break;
-
-    case 'privateFamily': // מסלול 2/3/4
-      if (childrenCountValue <= 6) basePremium = 650; // מסלול 2 - עד 6 ילדים, ללא עובדים
-      else if (childrenCountValue <= 8) basePremium = 900; // מסלול 3 - עד 8 ילדים ללא מבנה/תכולה
-      else if (childrenCountValue === 9) basePremium = 900 + 105; // מסלול 3 - 9 ילדים (ילד אחד נוסף)
-      else if (childrenCountValue <= 10) basePremium = 1100; // מסלול 4 - עד 10 ילדים, ללא מבנה/תכולה
-      else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4 - מעל 10 ילדים, ללא מבנה/תכולה
-      break;
-
-    case 'upTo3':
-      if (includeContentBuilding) {
-        if (childrenCountValue <= 12) basePremium = 1400; // מסלול 7 - כולל תכולה ומבנה
-        else basePremium = 1400 + (childrenCountValue - 12) * 120;
-      } else {
+  // חישוב לפי מסלול
+  const track = determinePolicyTrack();
+  if ([3, 4, 5, 6, 7].includes(track)) {
+    // טבלת מחירים חדשה
+    let min = 0, perChild = 0;
+    switch (track) {
+      case 3:
+        min = 900;
+        perChild = 105;
+        break;
+      case 4:
+        min = 1100;
+        perChild = 110;
+        break;
+      case 5:
+        min = 1100;
+        perChild = 55;
+        break;
+      case 6:
+        min = 1400;
+        perChild = 80;
+        break;
+      case 7:
+        min = 1400;
+        perChild = 120;
+        break;
+    }
+    basePremium = Math.max(childrenCountValue * perChild, min);
+  } else {
+    // חישוב basePremium לפי סוג גן ומבנה/תכולה (לשאר המסלולים, כולל מדרגות)
+    switch (gardenTypeValue) {
+      case 'tamah': // מסלול 1 - תמ"ת
+        if (childrenCountValue <= 6) basePremium = 500;
+        else if (childrenCountValue <= 10) basePremium = 1000;
+        else basePremium = 1000 + (childrenCountValue - 10) * 100;
+        break;
+      case 'privateFamily': // מסלול 2/3/4
         if (childrenCountValue <= 6) basePremium = 650; // מסלול 2 - עד 6 ילדים, ללא עובדים
         else if (childrenCountValue <= 8) basePremium = 900; // מסלול 3 - עד 8 ילדים ללא מבנה/תכולה
         else if (childrenCountValue === 9) basePremium = 900 + 105; // מסלול 3 - 9 ילדים (ילד אחד נוסף)
-        else if (childrenCountValue <= 10) basePremium = 1100; // מסלול 4 - עד 10 ילדים
-        else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4 - מעל 10 ילדים
-      }
-      break;
-
-    case 'over3': // מסלול 5/6
-    case 'afterSchool':
-      // מבדילים לפי checkbox של תכולה/מבנה (מסלול 6 אם יש, 5 אם לא)
-      if (includeContentBuilding) {
-        if (childrenCountValue <= 17) basePremium = 1400; // מסלול 6 - עד 17 ילדים
-        else basePremium = 1400 + (childrenCountValue - 17) * 80; // מסלול 6 - מעל 17 ילדים
-      } else {
-        if (childrenCountValue <= 20) basePremium = 1100; // מסלול 5 - עד 20 ילדים
-        else basePremium = 1100 + (childrenCountValue - 20) * 55; // מסלול 5 - מעל 20 ילדים
-      }
-      break;
+        else if (childrenCountValue <= 10) basePremium = 1100; // מסלול 4 - עד 10 ילדים, ללא מבנה/תכולה
+        else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4 - מעל 10 ילדים, ללא מבנה/תכולה
+        break;
+      case 'upTo3':
+        if (includeContentBuilding) {
+          if (childrenCountValue <= 12) basePremium = 1400; // מסלול 7 - כולל תכולה ומבנה
+          else basePremium = 1400 + (childrenCountValue - 12) * 120;
+        } else {
+          if (childrenCountValue <= 6) basePremium = 650; // מסלול 2 - עד 6 ילדים, ללא עובדים
+          else if (childrenCountValue <= 8) basePremium = 900; // מסלול 3 - עד 8 ילדים ללא מבנה/תכולה
+          else if (childrenCountValue === 9) basePremium = 900 + 105; // מסלול 3 - 9 ילדים (ילד אחד נוסף)
+          else if (childrenCountValue <= 10) basePremium = 1100; // מסלול 4 - עד 10 ילדים
+          else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4 - מעל 10 ילדים
+        }
+        break;
+      case 'over3': // מסלול 5/6
+      case 'afterSchool':
+        // מבדילים לפי checkbox של תכולה/מבנה (מסלול 6 אם יש, 5 אם לא)
+        if (includeContentBuilding) {
+          if (childrenCountValue <= 17) basePremium = 1400; // מסלול 6 - עד 17 ילדים
+          else basePremium = 1400 + (childrenCountValue - 17) * 80; // מסלול 6 - מעל 17 ילדים
+        } else {
+          if (childrenCountValue <= 20) basePremium = 1100; // מסלול 5 - עד 20 ילדים
+          else basePremium = 1100 + (childrenCountValue - 20) * 55; // מסלול 5 - מעל 20 ילדים
+        }
+        break;
+    }
   }
 
-  // הנחות מועדון
+  // הנחות מועדון (לפי הקיים)
   const isMemberCheckbox = document.getElementById('isMember');
+  const isMember = isMemberCheckbox && (isMemberCheckbox.checked || isMemberCheckbox.value === "true");
   let totalDiscount = 0;
   let minPremium = basePremium;
-  if (isMemberCheckbox && isMemberCheckbox.checked) {
+  if (isMember) {
     // מסלול 4+7: 10 ש"ח לילד, מסלול 5+6: 5 ש"ח לילד
     if (
       (gardenTypeValue === 'privateFamily' && childrenCountValue >= 10) ||
@@ -748,56 +788,28 @@ function calculatePremium() {
     }
   }
 
-  let totalPremium = Math.max(basePremium - totalDiscount, minPremium);
-
-  // ====== תוספת ביטוח תכולה ומבנה - לא חלק מהתוספות ======
-  if (includeContentBuilding) {
-    // מסלולים שבהם כבר כלול – אין תוספת
-    //if (!(gardenTypeValue === 'upTo3' || (gardenTypeValue === 'over3' && childrenCountValue <= 17))) {
-    // שווי תכולה
-    const contentSum = parseFloat(document.querySelector('.contentSum')?.value.replace(/[^0-9.]/g, '')) || 0;
-    let contentAddition = 0;
-    if (contentSum > 200000) {
-      contentAddition = ((contentSum - 200000) / 40000) * 82;
-    }
-    // שטח מבנה
-    const buildingSizeValue = document.getElementById('buildingSizeExact')?.value || '';
-    const buildingSize = parseFloat(buildingSizeValue.replace(/[^0-9.]/g, '')) || 0;
-    let buildingAddition = 0;
-    if (buildingSize > 100) {
-      buildingAddition = (((buildingSize - 100) * 5000) / 40000) * 82;
-    }
-    // הוסף לפרמיה הכוללת
-    totalPremium += Math.round(contentAddition + buildingAddition);
-    //} 
-  }
-
-  // תוספות כיסויים (לא כולל תכולה ומבנה!)
-  document.querySelectorAll('.coverage-option').forEach(optionDiv => {
+  // סכום תוספות שנבחרו
+  let addonsTotal = 0;
+  document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
     const optionName = optionDiv.dataset.option;
-    if (optionName === 'contentBuilding') return; // לא לחשב פעמיים
     const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
-    const cost = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
-    if (hiddenInput?.value === 'true') totalPremium += cost;
-    if (optionDiv.querySelector('.option-cost')) {
-      optionDiv.querySelector('.option-cost').textContent = `מחיר: ₪${cost.toLocaleString()}`;
+    if (!optionName || !hiddenInput) return;
+    if (hiddenInput.value === 'true') {
+      let price = 0;
+      try {
+        price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
+      } catch (e) {
+        price = 0;
+      }
+      addonsTotal += price;
     }
   });
 
-  // אחריות מקצועית (אם רלוונטי אצלך)
-  // const liabilityRows = document.querySelectorAll('.professional-liability-row');
-  // if (liabilityRows.length > 0) {
-  //   totalPremium += liabilityRows.length * 500;
-  // }
-
-
-
-  premiumAmount.textContent = `${totalPremium.toLocaleString()} ₪`;
-
-  // תצוגת הנחה
+  let totalPremium = Math.max(basePremium - totalDiscount, minPremium) + addonsTotal;
+  premiumAmount.textContent = totalPremium + ' ₪';
   const discountDisplay = document.getElementById('discountDisplay');
   if (discountDisplay) {
-    discountDisplay.textContent = totalDiscount > 0 ? `הנחת מועדון: ₪${totalDiscount}` : '';
+    discountDisplay.textContent = totalDiscount > 0 ? `הנחת מועדון: ${totalDiscount} ש"ח` : '';
   }
 }
 
@@ -1215,11 +1227,19 @@ function addPersonalAccidentEmployeeRow(container, data = {}) {
   `;
   container.appendChild(row);
 
+  // עדכון מחיר גם על שינוי ערך בשדות
+  row.querySelectorAll('input, select').forEach(input => {
+    input.addEventListener('input', updateCoverageOptionPrices);
+    input.addEventListener('change', updateCoverageOptionPrices);
+  });
+
   row.querySelector('.removePersonalAccidentEmployee').onclick = () => {
     row.remove();
     calculatePremium();
+    updateCoverageOptionPrices();
   };
   calculatePremium();
+  updateCoverageOptionPrices();
 }
 
 
@@ -1271,11 +1291,19 @@ function addProfessionalLiabilityEmployeeRow(container, data = {}) {
   `;
   container.appendChild(row);
 
+  // עדכון מחיר גם על שינוי ערך בשדות
+  row.querySelectorAll('input, select').forEach(input => {
+    input.addEventListener('input', updateCoverageOptionPrices);
+    input.addEventListener('change', updateCoverageOptionPrices);
+  });
+
   row.querySelector('.removeProfessionalLiabilityEmployee').onclick = () => {
     row.remove();
     calculatePremium();
+    updateCoverageOptionPrices();
   };
   calculatePremium();
+  updateCoverageOptionPrices();
 }
 
 
@@ -2002,7 +2030,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateContentBuildingLogic() {
       // כאן שים כל לוגיקה שקשורה ל"hasContentBuilding"
       // למשל: חישוב פרמיה/עדכון תצוגה
-      // calculatePremium();
+      calculatePremium();
       // showSection();
       // ... לפי הצורך שלך
     }
@@ -2087,4 +2115,113 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   setInsuranceDetailsYesNoDefaults();
+
+  // ... existing code ...
+  function updateCoverageOptionPrices() {
+    const gardenTypeValue = gardenType.value;
+    const childrenCountValue = parseInt(childrenCount.value) || 0;
+    const hasContentBuilding = document.getElementById('hasContentBuilding');
+    const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
+
+    document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
+      const optionName = optionDiv.dataset.option;
+      const priceSpan = optionDiv.querySelector('.option-cost');
+      let price = 0;
+      try {
+        price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
+      } catch (e) {
+        price = 0;
+      }
+      if (priceSpan) {
+        priceSpan.textContent = `מחיר: ₪${price}`;
+        console.log('עדכון מחיר עבור', optionName, '->', price);
+      } else {
+        console.warn('לא נמצא option-cost עבור', optionName);
+      }
+    });
+    updateAddonsTotal();
+  }
+  window.updateCoverageOptionPrices = updateCoverageOptionPrices;
+  // ... existing code ...
+
+  // ... existing code ...
+  function updateAddonsTotal() {
+    let total = 0;
+    const gardenTypeValue = gardenType.value;
+    const childrenCountValue = parseInt(childrenCount.value) || 0;
+    const hasContentBuilding = document.getElementById('hasContentBuilding');
+    const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
+    document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
+      const optionName = optionDiv.dataset.option;
+      const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+      if (!optionName || !hiddenInput) return;
+      if (hiddenInput.value === 'true') {
+        let price = 0;
+        try {
+          price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
+        } catch (e) {
+          price = 0;
+        }
+        total += price;
+      }
+    });
+    const totalDisplay = document.getElementById('addonsTotalDisplay');
+    if (totalDisplay) totalDisplay.textContent = `סך הכל תוספות: ₪${total}`;
+  }
+
+  // קריאה לפונקציה בכל עדכון מחירי תוספות
+  const originalUpdateCoverageOptionPrices = updateCoverageOptionPrices;
+  updateCoverageOptionPrices = function() {
+    ensureOptionCostSpans();
+    originalUpdateCoverageOptionPrices.apply(this, arguments);
+    updateAddonsTotal();
+  };
+  // ... existing code ...
+
+  // ... existing code ...
+  // עדכון מחיר מיידי כשמוסיפים/מסירים גננת
+  function observePersonalAccidentRows() {
+    const container = document.getElementById('personalAccidentEmployeesRows');
+    if (!container) return;
+    const observer = new MutationObserver(() => {
+      calculatePremium();
+    });
+    observer.observe(container, { childList: true, subtree: false });
+  }
+  function observeProfessionalLiabilityRows() {
+    const container = document.getElementById('professionalLiabilityEmployeesRows');
+    if (!container) return;
+    const observer = new MutationObserver(() => {
+      calculatePremium();
+    });
+    observer.observe(container, { childList: true, subtree: false });
+  }
+  // הפעלה אחרי כל עדכון הרחבות
+  const originalUpdateCoverageOptions2 = updateCoverageOptions;
+  updateCoverageOptions = function() {
+    originalUpdateCoverageOptions2.apply(this, arguments);
+    setTimeout(() => {
+      observePersonalAccidentRows();
+      observeProfessionalLiabilityRows();
+    }, 0);
+  };
+  // ... existing code ...
 });
+
+// חיזוק: ודא שלכל כיסוי יש option-cost
+function ensureOptionCostSpans() {
+  document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
+    let priceSpan = optionDiv.querySelector('.option-cost');
+    if (!priceSpan) {
+      // הוסף ליד הכותרת (h4 או h3)
+      let header = optionDiv.querySelector('h4, h3, .option-title');
+      if (header) {
+        priceSpan = document.createElement('span');
+        priceSpan.className = 'option-cost';
+        priceSpan.style.marginRight = '8px';
+        header.appendChild(priceSpan);
+        console.log('Created option-cost span for', optionDiv.dataset.option);
+      }
+    }
+  });
+}
