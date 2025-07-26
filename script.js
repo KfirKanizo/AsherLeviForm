@@ -699,7 +699,7 @@ function calculatePremium() {
     switch (track) {
       case 3:
         min = 900;
-        perChild = 105;
+        perChild = 112.5;
         break;
       case 4:
         min = 1100;
