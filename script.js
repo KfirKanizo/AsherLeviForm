@@ -699,7 +699,7 @@ function calculatePremium() {
     switch (track) {
       case 3:
         min = 900;
-        perChild = 105;
+        perChild = 112.5;
         break;
       case 4:
         min = 1100;
@@ -760,31 +760,22 @@ function calculatePremium() {
     }
   }
 
-  // הנחות מועדון (לפי הקיים)
+  // הנחות מועדון (לפי המסלול)
   const isMemberCheckbox = document.getElementById('isMember');
   const isMember = isMemberCheckbox && (isMemberCheckbox.checked || isMemberCheckbox.value === "true");
   let totalDiscount = 0;
   let minPremium = basePremium;
+  
   if (isMember) {
+    const currentTrack = determinePolicyTrack();
+    
     // מסלול 4+7: 10 ש"ח לילד, מסלול 5+6: 5 ש"ח לילד
-    if (
-      (gardenTypeValue === 'privateFamily' && childrenCountValue >= 10) ||
-      (gardenTypeValue === 'upTo3' && childrenCountValue >= 10 && !includeContentBuilding) // upTo3 = מסלול 4 רק בלי תכולה
-    ) {
+    if (currentTrack === 4 || currentTrack === 7) {
       totalDiscount = childrenCountValue * 10;
-      minPremium = 1100;
-    }
-
-    if (
-      (gardenTypeValue === 'over3' || gardenTypeValue === 'afterSchool')
-    ) {
-      if (includeContentBuilding) {
-        totalDiscount = childrenCountValue * 5; // מסלול 6
-        minPremium = 1400;
-      } else {
-        totalDiscount = childrenCountValue * 5; // מסלול 5
-        minPremium = 1100;
-      }
+      minPremium = currentTrack === 4 ? 1100 : 1400;
+    } else if (currentTrack === 5 || currentTrack === 6) {
+      totalDiscount = childrenCountValue * 5;
+      minPremium = currentTrack === 5 ? 1100 : 1400;
     }
   }
 
@@ -804,6 +795,12 @@ function calculatePremium() {
       addonsTotal += price;
     }
   });
+
+  // הוספת תוספת תכולה ומבנה אם נבחרה (גם אם אין אופציה כזו ב-coverage options)
+  if (includeContentBuilding) {
+    const contentBuildingCost = getOptionCost('contentBuilding', gardenTypeValue, childrenCountValue, includeContentBuilding);
+    addonsTotal += contentBuildingCost;
+  }
 
   let totalPremium = Math.max(basePremium - totalDiscount, minPremium) + addonsTotal;
   premiumAmount.textContent = totalPremium + ' ₪';
@@ -1575,7 +1572,7 @@ function prefillFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
 
   // --- דגלים כלליים (automation, renewal, policyNumber) ---
-  window.formAutomationFlag = (urlParams.get('automation') === null || urlParams.get('automation') === 'true') ? 'true' : 'false';
+  window.formAutomationFlag = urlParams.get('automation') || 'true';
   window.formRenewalFlag = (urlParams.get('renewal') === null || urlParams.get('renewal') === 'true') ? 'true' : 'false';
   window.policyNumber = urlParams.get('policyNumber');
 
