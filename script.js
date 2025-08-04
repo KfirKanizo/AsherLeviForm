@@ -270,6 +270,16 @@ document.querySelectorAll('.next-button').forEach(button => {
       }
     });
 
+    const phoneInput = document.getElementById('phoneNumber');
+    if (phoneInput && phoneInput.closest('.form-section').classList.contains('active')) {
+      if (!isValidPhoneNumber(phoneInput.value)) {
+        isValid = false;
+        phoneInput.style.borderColor = 'red';
+        alert('אנא הזן מספר טלפון תקין בפורמט ישראלי.');
+        return;
+      }
+    }
+
     if (!isValid) {
       alert('אנא מלא את כל השדות הנדרשים.');
       return;
@@ -839,7 +849,7 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
       const buildingSizeValue = document.getElementById('buildingSizeExact')?.value || '';
       const buildingSize = parseFloat(buildingSizeValue.replace(/[^0-9.]/g, '')) || 0;
       if (buildingSize > 100) {
-        buildingAddition = (((buildingSize - 100) * 5000) / 40000) * 82;
+        buildingAddition = (((buildingSize - 100) * 7200) / 40000) * 82;
       }
 
       // ---- תכולת חצר – אין תוספת ----
@@ -1007,6 +1017,15 @@ form.addEventListener('submit', async (e) => {
   }
 });
 
+
+function isValidPhoneNumber(phone) {
+  // מסיר רווחים, מקפים וסוגריים
+  const cleaned = phone.replace(/[\s\-()]/g, "");
+  // בדיקה של 9-10 ספרות, מתחיל ב-0 (קו ישראלי רגיל)
+  return /^0\d{8,9}$/.test(cleaned);
+}
+
+
 function collectFormData() {
   console.log('--- collectFormData called ---');
   const payload = {};
@@ -1157,7 +1176,7 @@ function getBuildingAdditionCost() {
   const buildingSizeValue = document.getElementById('buildingSizeExact')?.value || '';
   const buildingSize = parseFloat(buildingSizeValue.replace(/[^0-9.]/g, '')) || 0;
   if (buildingSize > 100) {
-    return (((buildingSize - 100) * 5000) / 40000) * 82;
+    return (((buildingSize - 100) * 7200) / 40000) * 82;
   }
   return 0;
 }
