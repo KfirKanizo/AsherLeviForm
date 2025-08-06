@@ -921,13 +921,13 @@ function addEventListenersToOption(optionDiv) {
 
     if (optionName === 'teacherAccidents') {
       document.querySelectorAll('input[name="personalAccidentEmployeeName[]"], input[name="personalAccidentEmployeeId[]"], input[name="personalAccidentEmployeeBirthdate[]"]').forEach(input => {
-        input.required = true;
+        input.required = false;
       });
     }
 
     if (optionName === 'professionalLiability') {
       document.querySelectorAll('input[name="professionalLiabilityEmployeeName[]"], input[name="professionalLiabilityEmployeeId[]"], input[name="professionalLiabilityEmployeeBirthdate[]"]').forEach(input => {
-        input.required = true;
+        input.required = false;
       });
     }
 
@@ -1472,6 +1472,10 @@ function collectFormData() {
       } else if (optionName === 'employerLiability') {
         const employeesInput = optionDiv.querySelector('#employerLiabilityEmployeesCount');
         if (employeesInput) value = employeesInput.value;
+      } else if (optionName === 'birthdayActivities') {
+        // ספציפי להפעלות ימי הולדת – נשלח את סוג המפעיל
+        const birthdayTypeSelect = optionDiv.querySelector('.birthdayActivitiesType');
+        if (birthdayTypeSelect) value = birthdayTypeSelect.value;
       } else {
         // לאחרים – נשלח את select כללי אם יש
         const genericSelect = optionDiv.querySelector('.conditional-section select');
@@ -1480,6 +1484,9 @@ function collectFormData() {
 
       if (value !== '') {
         payload[`insuranceOptionsDetails[${optionName}]`] = value;
+      } else if (optionName === 'birthdayActivities') {
+        // תמיד שלח את השדה birthdayActivitiesType, גם אם הוא ריק
+        payload['birthdayActivitiesType'] = value;
       }
     }
 
@@ -1543,10 +1550,19 @@ function collectFormData() {
   payload['policyTrack'] = determinePolicyTrack();
 
   // ---------- מחיר תכולה ----------
-  payload['contentAdditionCost'] = getContentAdditionCost();
+  const contentCost = getContentAdditionCost();
+  payload['contentAdditionCost'] = contentCost;
+  console.log('contentAdditionCost:', contentCost);
 
   // ---------- מחיר מבנה ----------
-  payload['buildingAdditionCost'] = getBuildingAdditionCost();
+  const buildingCost = getBuildingAdditionCost();
+  payload['buildingAdditionCost'] = buildingCost;
+  console.log('buildingAdditionCost:', buildingCost);
+
+  // ---------- מחיר חצר ----------
+  const yardCost = getYardAdditionCost();
+  payload['yardAdditionCost'] = yardCost;
+  console.log('yardAdditionCost:', yardCost);
 
   // ---------- האם צריך עריכת ביטוח ----------
   const approvalCheckbox = document.querySelector('.form-section.active .needsApprovalCheckbox');
@@ -1556,6 +1572,14 @@ function collectFormData() {
   const afterSchoolInput = document.querySelector('.afterSchoolChildrenCount');
   if (afterSchoolInput && afterSchoolInput.value) {
     payload['afterSchoolChildrenCount'] = afterSchoolInput.value;
+  }
+
+  // ---------- סוג מפעיל הפעלות ימי הולדת (תמיד נשלח) ----------
+  const birthdayActivitiesTypeSelect = document.querySelector('.birthdayActivitiesType');
+  if (birthdayActivitiesTypeSelect) {
+    payload['birthdayActivitiesType'] = birthdayActivitiesTypeSelect.value || '';
+  } else {
+    payload['birthdayActivitiesType'] = '';
   }
 
 
@@ -1568,25 +1592,97 @@ function collectFormData() {
 }
 
 function getBuildingAdditionCost() {
-  const includeContentBuilding = document.getElementById('hasContentBuilding')?.checked;
+  const includeContentBuilding = document.getElementById('hasContentBuilding')?.value === "true";
+  console.log('getBuildingAdditionCost - includeContentBuilding:', includeContentBuilding);
   if (!includeContentBuilding) return 0;
   const buildingSizeValue = document.getElementById('buildingSizeExact')?.value || '';
   const buildingSize = parseFloat(buildingSizeValue.replace(/[^0-9.]/g, '')) || 0;
+  console.log('getBuildingAdditionCost - buildingSize:', buildingSize);
   if (buildingSize > 70) {
-    return (((buildingSize * 7200) - 500000) / 40000) * 82;
+    const cost = (((buildingSize * 7200) - 500000) / 40000) * 82;
+    console.log('getBuildingAdditionCost - calculated cost:', cost);
+    return cost;
   }
   return 0;
 }
 
 
 function getContentAdditionCost() {
-  const includeContentBuilding = document.getElementById('hasContentBuilding')?.checked;
+  const includeContentBuilding = document.getElementById('hasContentBuilding')?.value === "true";
+  console.log('getContentAdditionCost - includeContentBuilding:', includeContentBuilding);
   if (!includeContentBuilding) return 0;
-  const contentSum = parseFloat(document.querySelector('.contentSum')?.value.replace(/[^0-9.]/g, '')) || 0;
+  const contentSum = parseFloat(document.getElementById('contentSumExact')?.value.replace(/[^0-9.]/g, '')) || 0;
+  console.log('getContentAdditionCost - contentSum:', contentSum);
   if (contentSum > 200000) {
-    return ((contentSum - 200000) / 40000) * 82;
+    const cost = ((contentSum - 200000) / 40000) * 82;
+    console.log('getContentAdditionCost - calculated cost:', cost);
+    return cost;
   }
   return 0;
+}
+
+function getYardAdditionCost() {
+  const includeContentBuilding = document.getElementById('hasContentBuilding')?.value === "true";
+  console.log('getYardAdditionCost - includeContentBuilding:', includeContentBuilding);
+  if (!includeContentBuilding) return 0;
+  const yardSum = parseFloat(document.getElementById('yardContentSumExact')?.value.replace(/[^0-9.]/g, '')) || 0;
+  console.log('getYardAdditionCost - yardSum:', yardSum);
+  if (yardSum > 20000) {
+    const cost = ((yardSum - 20000) / 40000) * 82;
+    console.log('getYardAdditionCost - calculated cost:', cost);
+    return cost;
+  }
+  return 0;
+}
+
+function updateCoverageOptionPrices() {
+  ensureOptionCostSpans();
+  const gardenTypeValue = gardenType.value;
+  const childrenCountValue = parseInt(childrenCount.value) || 0;
+  const hasContentBuilding = document.getElementById('hasContentBuilding');
+  const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
+
+  document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
+    const optionName = optionDiv.dataset.option;
+    const priceSpan = optionDiv.querySelector('.option-cost');
+    let price = 0;
+    try {
+      price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
+    } catch (e) {
+      price = 0;
+    }
+    if (priceSpan) {
+      priceSpan.textContent = `מחיר: ₪${price}`;
+      console.log('עדכון מחיר עבור', optionName, '->', price);
+    } else {
+      console.warn('לא נמצא option-cost עבור', optionName);
+    }
+  });
+  updateAddonsTotal();
+}
+
+function updateAddonsTotal() {
+  let total = 0;
+  const gardenTypeValue = gardenType.value;
+  const childrenCountValue = parseInt(childrenCount.value) || 0;
+  const hasContentBuilding = document.getElementById('hasContentBuilding');
+  const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
+  document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
+    const optionName = optionDiv.dataset.option;
+    const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+    if (!optionName) return;
+    if (hiddenInput.value === 'true') {
+      let price = 0;
+      try {
+        price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
+      } catch (e) {
+        price = 0;
+      }
+      total += price;
+    }
+  });
+  const totalDisplay = document.getElementById('addonsTotalDisplay');
+  if (totalDisplay) totalDisplay.textContent = `סך הכל תוספות: ₪${total}`;
 }
 
 
@@ -1623,17 +1719,23 @@ function setupPersonalAccidentEmployees() {
 
 // יוצר שורה של גננת
 function addPersonalAccidentEmployeeRow(container, data = {}) {
+  // Add null check for container
+  if (!container) {
+    console.warn('Container is null for addPersonalAccidentEmployeeRow');
+    return;
+  }
+
   const row = document.createElement('div');
   row.className = 'form-group pa-employee-row';
   row.style.display = 'flex';
   row.style.gap = '8px';
   row.style.alignItems = 'center';
   row.innerHTML = `
-    <input type="text" name="personalAccidentEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2" required>
-    <input type="text" name="personalAccidentEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" required>
+    <input type="text" name="personalAccidentEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2" >
+    <input type="text" name="personalAccidentEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" >
     <div style="flex:1">
       <label style="display:block; font-size: 0.85em;">תאריך לידה:</label>
-      <input type="date" name="personalAccidentEmployeeBirthdate[]" value="${data.birthdate || ''}" required>
+      <input type="date" name="personalAccidentEmployeeBirthdate[]" value="${data.birthdate || ''}" >
     </div>
     <button type="button" class="removePersonalAccidentEmployee" aria-label="הסר גננת"
       style="background: #e74c3c; color: #fff; border:none; border-radius:6px; padding:6px 10px; margin-right:3px;">X</button>
@@ -1688,17 +1790,23 @@ function setupProfessionalLiabilityEmployees() {
 }
 
 function addProfessionalLiabilityEmployeeRow(container, data = {}) {
+  // Add null check for container
+  if (!container) {
+    console.warn('Container is null for addProfessionalLiabilityEmployeeRow');
+    return;
+  }
+
   const row = document.createElement('div');
   row.className = 'form-group professional-liability-row';
   row.style.display = 'flex';
   row.style.gap = '8px';
   row.style.alignItems = 'center';
   row.innerHTML = `
-    <input type="text" name="professionalLiabilityEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2" required>
-    <input type="text" name="professionalLiabilityEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" required>
+    <input type="text" name="professionalLiabilityEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2" >
+    <input type="text" name="professionalLiabilityEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" >
     <div style="flex:1">
       <label style="display:block; font-size: 0.85em;">תאריך לידה:</label>
-      <input type="date" name="professionalLiabilityEmployeeBirthdate[]" value="${data.birthdate || ''}" required>
+      <input type="date" name="professionalLiabilityEmployeeBirthdate[]" value="${data.birthdate || ''}" >
     </div>    <button type="button" class="removeProfessionalLiabilityEmployee" aria-label="הסר גננת"
       style="background: #e74c3c; color: #fff; border:none; border-radius:6px; padding:6px 10px; margin-right:3px;">X</button>
   `;
@@ -1722,32 +1830,55 @@ function addProfessionalLiabilityEmployeeRow(container, data = {}) {
 
 
 async function sendToWebhook(payload) {
-  const formData = new FormData();
+  try {
+    const formData = new FormData();
 
-  // מוסיפים כל שדה בדיוק בשם ובערך כפי שצריך
-  Object.entries(payload).forEach(([key, value]) => {
-    formData.append(key, value);
-  });
+    // מוסיפים כל שדה בדיוק בשם ובערך כפי שצריך
+    Object.entries(payload).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
 
-  // טיפול באסמכתא
-  if (selectedPaymentMethod === 'bank') {
-    const file = document.getElementById('bankTransferProof').files[0];
-    if (file) formData.append('proofFile', file);
-  } else if (selectedPaymentMethod === 'debit') {
-    const file = document.getElementById('debitAuthUpload').files[0];
-    if (file) formData.append('proofFile', file);
+    // טיפול באסמכתא
+    if (selectedPaymentMethod === 'bank') {
+      const file = document.getElementById('bankTransferProof').files[0];
+      if (file) formData.append('proofFile', file);
+    } else if (selectedPaymentMethod === 'debit') {
+      const file = document.getElementById('debitAuthUpload').files[0];
+      if (file) formData.append('proofFile', file);
+    }
+
+    // הוספת חתימה
+    await appendSignatureToFormData(formData, selectedPaymentMethod);
+
+    // שליחה ל-Webhook
+    console.log('Sending data to webhook:', payload);
+    console.log('FormData entries:');
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+    
+    const response = await fetch('https://hook.eu2.make.com/767snb13mqqn3q276wb6hhggne7oyjxy', {
+      method: 'POST',
+      body: formData,
+    });
+    
+    console.log('Response status:', response.status);
+    console.log('Response status text:', response.statusText);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Webhook error response:', errorText);
+      throw new Error(`HTTP ${response.status}: ${response.statusText}. Response: ${errorText}`);
+    }
+    
+    const responseText = await response.text();
+    console.log('Webhook success response:', responseText);
+    
+  } catch (error) {
+    console.error('Webhook error details:', error);
+    console.error('Error stack:', error.stack);
+    throw error;
   }
-
-  // הוספת חתימה
-  await appendSignatureToFormData(formData, selectedPaymentMethod);
-
-  // שליחה ל-Webhook
-  console.log('Sending data to webhook:', payload);
-  const response = await fetch('https://hook.eu2.make.com/767snb13mqqn3q276wb6hhggne7oyjxy', {
-    method: 'POST',
-    body: formData,
-  });
-  if (!response.ok) throw new Error('Network response was not ok');
 }
 
 // עוזר – מוסיף את החתימה כקובץ לתוך ה-FormData
@@ -1939,20 +2070,20 @@ function prefillCoverageAddonsFromUrl() {
   // תאונות אישיות לגננת
   if (urlPrefillData['personalAccidentEmployees']) {
     const paList = urlPrefillData['personalAccidentEmployees'].split(';').filter(Boolean);
-    const paContainer = document.querySelector('.personal-accident-employees-list');
+    const paContainer = document.getElementById('personalAccidentEmployeesRows');
     if (paContainer) paContainer.innerHTML = '';
     paList.forEach(entry => {
-      const [name, id] = entry.split('|');
+      const [name, id, birthdate] = entry.split('|');
       addPersonalAccidentEmployeeRow(paContainer, { name, id, birthdate });
     });
   }
   // אחריות מקצועית
   if (urlPrefillData['professionalLiabilityEmployees']) {
     const profList = urlPrefillData['professionalLiabilityEmployees'].split(';').filter(Boolean);
-    const profContainer = document.querySelector('.professional-liability-list');
+    const profContainer = document.getElementById('professionalLiabilityEmployeesRows');
     if (profContainer) profContainer.innerHTML = '';
     profList.forEach(entry => {
-      const [name, id] = entry.split('|');
+      const [name, id, birthdate] = entry.split('|');
       addProfessionalLiabilityEmployeeRow(profContainer, { name, id, birthdate });
     });
   }
@@ -2171,6 +2302,7 @@ function prefillFromUrl() {
       addProfessionalLiabilityEmployeeRow(profContainer, { name, id, birthdate });
     });
   }
+  
 }
 
 function isCanvasBlank(canvas) {
@@ -2623,64 +2755,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setInsuranceDetailsYesNoDefaults();
 
   // ... existing code ...
-  function updateCoverageOptionPrices() {
-    const gardenTypeValue = gardenType.value;
-    const childrenCountValue = parseInt(childrenCount.value) || 0;
-    const hasContentBuilding = document.getElementById('hasContentBuilding');
-    const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
-
-    document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
-      const optionName = optionDiv.dataset.option;
-      const priceSpan = optionDiv.querySelector('.option-cost');
-      let price = 0;
-      try {
-        price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
-      } catch (e) {
-        price = 0;
-      }
-      if (priceSpan) {
-        priceSpan.textContent = `מחיר: ₪${price}`;
-        console.log('עדכון מחיר עבור', optionName, '->', price);
-      } else {
-        console.warn('לא נמצא option-cost עבור', optionName);
-      }
-    });
-    updateAddonsTotal();
-  }
-  window.updateCoverageOptionPrices = updateCoverageOptionPrices;
-
-
-  function updateAddonsTotal() {
-    let total = 0;
-    const gardenTypeValue = gardenType.value;
-    const childrenCountValue = parseInt(childrenCount.value) || 0;
-    const hasContentBuilding = document.getElementById('hasContentBuilding');
-    const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
-    document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
-      const optionName = optionDiv.dataset.option;
-      const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
-      if (!optionName || !hiddenInput) return;
-      if (hiddenInput.value === 'true') {
-        let price = 0;
-        try {
-          price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
-        } catch (e) {
-          price = 0;
-        }
-        total += price;
-      }
-    });
-    const totalDisplay = document.getElementById('addonsTotalDisplay');
-    if (totalDisplay) totalDisplay.textContent = `סך הכל תוספות: ₪${total}`;
-  }
+  // updateCoverageOptionPrices function moved to global scope
 
   // קריאה לפונקציה בכל עדכון מחירי תוספות
-  const originalUpdateCoverageOptionPrices = updateCoverageOptionPrices;
-  updateCoverageOptionPrices = function () {
-    ensureOptionCostSpans();
-    originalUpdateCoverageOptionPrices.apply(this, arguments);
-    updateAddonsTotal();
-  };
+  // updateCoverageOptionPrices is now global, no need to override
 
   // עדכון מחיר מיידי כשמוסיפים/מסירים גננת
   function observePersonalAccidentRows() {
