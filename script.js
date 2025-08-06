@@ -291,6 +291,385 @@ document.querySelectorAll('.next-button').forEach(button => {
       }
     }
 
+
+    // וידוא בחירה בכפתורי גודל מבנה
+    if (sections[currentSectionIndex].id === 'contentBuildingSection') {
+      const buildingSizeButtons = document.querySelectorAll('.building-size-button');
+      const hasSelectedBuildingSize = Array.from(buildingSizeButtons).some(btn => btn.classList.contains('selected'));
+      if (!hasSelectedBuildingSize) {
+        isValid = false;
+        alert('אנא בחר גודל מבנה');
+        return;
+      }
+
+      // וידוא בחירה בכפתורי סוג מבנה
+      const buildingTypeButtons = document.querySelectorAll('.buildingType option');
+      const hasSelectedBuildingType = document.getElementById('buildingType').value;
+      if (!hasSelectedBuildingType) {
+        isValid = false;
+        alert('אנא בחר סוג מבנה');
+        return;
+      }
+
+      // אם נבחר "מעל 70 מ"ר" - וידוא שמולא השדה הנוסף
+      const over100Button = document.querySelector('.building-size-button[data-value="over100"]');
+      if (over100Button && over100Button.classList.contains('selected')) {
+        const buildingSizeExact = document.getElementById('buildingSizeExact');
+        if (!buildingSizeExact.value.trim()) {
+          isValid = false;
+          buildingSizeExact.style.borderColor = 'red';
+          alert('אנא מלא את גודל המבנה המדויק');
+          return;
+        }
+      }
+    }
+
+    // וידוא בחירה בכפתורי סכום ביטוח תכולה
+    if (sections[currentSectionIndex].id === 'contentBuildingSection') {
+      const contentValueButtons = document.querySelectorAll('.content-value-button');
+      const hasSelectedContentValue = Array.from(contentValueButtons).some(btn => btn.classList.contains('selected'));
+      if (!hasSelectedContentValue) {
+        isValid = false;
+        alert('אנא בחר סכום ביטוח תכולה');
+        return;
+      }
+
+      // אם נבחר "מעל 200,000 ₪" - וידוא שמולא השדה הנוסף
+      const over200kButton = document.querySelector('.content-value-button[data-value="over200k"]');
+      if (over200kButton && over200kButton.classList.contains('selected')) {
+        const contentSumExact = document.getElementById('contentSumExact');
+        if (!contentSumExact.value.trim()) {
+          isValid = false;
+          contentSumExact.style.borderColor = 'red';
+          alert('אנא מלא את שווי התכולה המדויק');
+          return;
+        }
+      }
+    }
+
+    // וידוא בחירה בכפתורי סכום תכולת חצר
+    if (sections[currentSectionIndex].id === 'contentBuildingSection') {
+      const yardValueButtons = document.querySelectorAll('.yard-value-button');
+      const hasSelectedYardValue = Array.from(yardValueButtons).some(btn => btn.classList.contains('selected'));
+      if (!hasSelectedYardValue) {
+        isValid = false;
+        alert('אנא בחר סכום תכולת חצר');
+        return;
+      }
+
+      // אם נבחר "מעל 20,000 ₪" - וידוא שמולא השדה הנוסף
+      const over20kButton = document.querySelector('.yard-value-button[data-value="over20k"]');
+      if (over20kButton && over20kButton.classList.contains('selected')) {
+        const yardContentSumExact = document.getElementById('yardContentSumExact');
+        if (!yardContentSumExact.value.trim()) {
+          isValid = false;
+          yardContentSumExact.style.borderColor = 'red';
+          alert('אנא מלא את שווי תכולת החצר המדויק');
+          return;
+        }
+      }
+    }
+
+    // וידוא בחירה בשאלה "האם קיים שעבוד?"
+    if (sections[currentSectionIndex].id === 'contentBuildingSection') {
+      const hasLienToggle = document.querySelector('[data-field="hasLien"]');
+      if (hasLienToggle) {
+        const hiddenInput = hasLienToggle.querySelector('input[type="hidden"]');
+        if (!hiddenInput.value) {
+          isValid = false;
+          alert('אנא בחר האם קיים שעבוד');
+          return;
+        }
+
+                 // אם נבחר "כן" - וידוא שמולאו פרטי השעבוד
+         if (hiddenInput.value === 'true') {
+           const lienTypeButtons = document.querySelectorAll('.lien-type-button');
+           const hasSelectedLienType = Array.from(lienTypeButtons).some(btn => btn.classList.contains('selected'));
+           if (!hasSelectedLienType) {
+             isValid = false;
+             alert('אנא בחר סוג המשעבד');
+             return;
+           }
+
+                       // וידוא שמולאו פרטי הבנק או החברה
+          const lienDetailsBank = document.getElementById('lienDetailsBank');
+          const lienDetailsCompany = document.getElementById('lienDetailsCompany');
+          
+          if (lienDetailsBank && lienDetailsBank.style.display !== 'none') {
+            const bankName = document.getElementById('lienBankName');
+            const bankBranch = document.getElementById('lienBankBranch');
+            const bankAddress = document.getElementById('lienBankAddress');
+            
+            if (!bankName.value.trim() || !bankBranch.value.trim() || !bankAddress.value.trim()) {
+              isValid = false;
+              alert('אנא מלא את כל פרטי הבנק');
+              return;
+            }
+          }
+          
+          if (lienDetailsCompany && lienDetailsCompany.style.display !== 'none') {
+            const companyName = document.getElementById('lienCompanyName');
+            const companyId = document.getElementById('lienCompanyId');
+            
+            if (!companyName.value.trim() || !companyId.value.trim()) {
+              isValid = false;
+              alert('אנא מלא את כל פרטי החברה');
+              return;
+            }
+          }
+        }
+      }
+    }
+
+    // וידוא בחירה בשאלה "ויתור זכות שיבוב"
+    if (sections[currentSectionIndex].id === 'contentBuildingSection') {
+      const waiverToggle = document.querySelector('[data-field="waiverCheckbox"]');
+      if (waiverToggle) {
+        const hiddenInput = waiverToggle.querySelector('input[type="hidden"]');
+        if (!hiddenInput.value) {
+          isValid = false;
+          alert('אנא בחר האם יש ויתור זכות שיבוב');
+          return;
+        }
+
+        // אם נבחר "כן" - וידוא שמולאו פרטי בעל הנכס
+        if (hiddenInput.value === 'true') {
+          const propertyOwnerName = document.getElementById('propertyOwnerName');
+          const propertyOwnerId = document.getElementById('propertyOwnerId');
+          
+          if (!propertyOwnerName.value.trim() || !propertyOwnerId.value.trim()) {
+            isValid = false;
+            alert('אנא מלא את פרטי בעל הנכס');
+            return;
+          }
+        }
+      }
+    }
+
+    // וידוא בחירה בכפתורי כן/לא בסקשן פרטי ביטוח
+    if (sections[currentSectionIndex].id === 'insuranceDetails') {
+      const yesNoFields = [
+        'hasOver3Children',
+        'isMember',
+        'claimsLastYear',
+        'supplementalInsurance',
+        'hasContentBuilding'
+      ];
+      
+      yesNoFields.forEach(field => {
+        const toggle = document.querySelector(`[data-field="${field}"]`);
+        if (toggle) {
+          const hiddenInput = toggle.querySelector('input[type="hidden"]');
+          if (!hiddenInput.value) {
+            isValid = false;
+            alert(`אנא בחר ${getFieldDisplayName(field)}`);
+            return;
+          }
+        }
+      });
+
+      // וידוא שדות תלויים
+      const hasOver3Children = document.querySelector('[data-field="hasOver3Children"] input[type="hidden"]');
+      if (hasOver3Children && hasOver3Children.value === 'true') {
+        const over3CountInput = document.getElementById('over3ChildrenCount');
+        if (!over3CountInput.value.trim()) {
+          isValid = false;
+          over3CountInput.style.borderColor = 'red';
+          alert('אנא מלא את מספר הילדים מעל גיל 3');
+          return;
+        }
+      }
+
+      const isMember = document.querySelector('[data-field="isMember"] input[type="hidden"]');
+      if (isMember && isMember.value === 'true') {
+        const membershipType = document.getElementById('membershipType');
+        if (!membershipType.value) {
+          isValid = false;
+          membershipType.style.borderColor = 'red';
+          alert('אנא בחר את סוג המועדון');
+          return;
+        }
+      }
+    }
+
+    // וידוא שדות חובה נוספים שמופיעים רק כשכפתור לחוץ
+    if (sections[currentSectionIndex].id === 'coverageAddons') {
+      // וידוא שכל כיסוי נבחר (מעוניין או לא מעוניין)
+      const coverageOptions = document.querySelectorAll('#coverageOptionsContainer .coverage-option');
+      coverageOptions.forEach(optionDiv => {
+        const optionName = optionDiv.dataset.option;
+        const interestedBtn = optionDiv.querySelector('.interested-button');
+        const notInterestedBtn = optionDiv.querySelector('.not-interested-button');
+        
+        if (interestedBtn && notInterestedBtn) {
+          const isInterestedSelected = interestedBtn.classList.contains('selected');
+          const isNotInterestedSelected = notInterestedBtn.classList.contains('selected');
+          
+          if (!isInterestedSelected && !isNotInterestedSelected) {
+            isValid = false;
+            alert(`אנא בחר מעוניין או לא מעוניין עבור ${getCoverageDisplayName(optionName)}`);
+            return;
+          }
+        }
+      });
+
+      // וידוא שדות חובה לכיסויים שנבחרו
+      document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
+        const optionName = optionDiv.dataset.option;
+        const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+        
+        if (hiddenInput && hiddenInput.value === 'true') {
+          // וידוא שדות חובה לפי סוג הכיסוי
+          if (optionName === 'thirdParty') {
+            const coverageSelect = optionDiv.querySelector('.thirdPartyCoverage');
+            if (!coverageSelect.value) {
+              isValid = false;
+              coverageSelect.style.borderColor = 'red';
+              alert('אנא בחר סכום גבול אחריות');
+              return;
+            }
+          }
+
+          if (optionName === 'afterSchoolProgram') {
+            const afterSchoolInput = optionDiv.querySelector('.afterSchoolChildrenCount');
+            if (afterSchoolInput && !afterSchoolInput.value.trim()) {
+              isValid = false;
+              afterSchoolInput.style.borderColor = 'red';
+              alert('אנא מלא את מספר הילדים בצהרון');
+              return;
+            }
+          }
+
+          if (optionName === 'teacherAccidents') {
+            const coverageSelect = optionDiv.querySelector('.teacherAccidentsCoverage');
+            if (!coverageSelect.value) {
+              isValid = false;
+              coverageSelect.style.borderColor = 'red';
+              alert('אנא בחר מסלול כיסוי');
+              return;
+            }
+
+            const employeeRows = optionDiv.querySelectorAll('.pa-employee-row');
+            if (employeeRows.length === 0) {
+              isValid = false;
+              alert('אנא הוסף לפחות גננת אחת לכיסוי תאונות אישיות');
+              return;
+            }
+            
+            employeeRows.forEach(row => {
+              const nameInput = row.querySelector('input[name="personalAccidentEmployeeName[]"]');
+              const idInput = row.querySelector('input[name="personalAccidentEmployeeId[]"]');
+              const birthdateInput = row.querySelector('input[name="personalAccidentEmployeeBirthdate[]"]');
+              
+              if (!nameInput.value.trim() || !idInput.value.trim() || !birthdateInput.value.trim()) {
+                isValid = false;
+                alert('אנא מלא את כל פרטי הגננת');
+                return;
+              }
+            });
+          }
+
+          if (optionName === 'professionalLiability') {
+            const employeeRows = optionDiv.querySelectorAll('.professional-liability-row');
+            if (employeeRows.length === 0) {
+              isValid = false;
+              alert('אנא הוסף לפחות גננת אחת לכיסוי אחריות מקצועית');
+              return;
+            }
+            
+            employeeRows.forEach(row => {
+              const nameInput = row.querySelector('input[name="professionalLiabilityEmployeeName[]"]');
+              const idInput = row.querySelector('input[name="professionalLiabilityEmployeeId[]"]');
+              const birthdateInput = row.querySelector('input[name="professionalLiabilityEmployeeBirthdate[]"]');
+              
+              if (!nameInput.value.trim() || !idInput.value.trim() || !birthdateInput.value.trim()) {
+                isValid = false;
+                alert('אנא מלא את כל פרטי הגננת');
+                return;
+              }
+            });
+          }
+
+          if (optionName === 'employerLiability') {
+            const employeesCountInput = optionDiv.querySelector('#employerLiabilityEmployeesCount');
+            if (!employeesCountInput.value.trim()) {
+              isValid = false;
+              employeesCountInput.style.borderColor = 'red';
+              alert('אנא מלא את מספר העובדים');
+              return;
+            }
+          }
+
+          if (optionName === 'birthdayActivities') {
+            const typeSelect = optionDiv.querySelector('.birthdayActivitiesType');
+            if (!typeSelect.value) {
+              isValid = false;
+              typeSelect.style.borderColor = 'red';
+              alert('אנא בחר סוג מפעיל');
+              return;
+            }
+          }
+
+          if (optionName === 'incomeLoss') {
+            const durationSelect = optionDiv.querySelector('.incomeLossDuration');
+            const amountSelect = optionDiv.querySelector('.incomeLossAmount');
+            if (!durationSelect.value || !amountSelect.value) {
+              isValid = false;
+              alert('אנא בחר משך הכיסוי וסכום הפיצוי החודשי');
+              return;
+            }
+          }
+        }
+      });
+    }
+
+    // וידוא בחירת אמצעי תשלום
+    if (sections[currentSectionIndex].id === 'paymentSelection') {
+      if (!selectedPaymentMethod) {
+        isValid = false;
+        alert('אנא בחר אמצעי תשלום');
+        return;
+      }
+    }
+
+    // וידוא חתימה וקבצים לפי אמצעי התשלום
+    if (['bankTransferSection', 'creditCardSection', 'debitAuthSection'].includes(sections[currentSectionIndex].id)) {
+      // וידוא חתימה
+      let canvasId = '';
+      if (sections[currentSectionIndex].id === 'bankTransferSection') canvasId = 'signatureCanvasBank';
+      if (sections[currentSectionIndex].id === 'creditCardSection') canvasId = 'signatureCanvasCredit';
+      if (sections[currentSectionIndex].id === 'debitAuthSection') canvasId = 'signatureCanvasDebit';
+      
+      const signatureCanvas = document.getElementById(canvasId);
+      if (signatureCanvas && isCanvasBlank(signatureCanvas)) {
+        isValid = false;
+        alert('אנא חתום על הטופס');
+        signatureCanvas.style.border = "2px solid red";
+        setTimeout(() => signatureCanvas.style.border = "", 2000);
+        signatureCanvas.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      // וידוא העלאת קובץ לפי אמצעי התשלום
+      if (sections[currentSectionIndex].id === 'bankTransferSection') {
+        const bankFile = document.getElementById('bankTransferProof');
+        if (!bankFile.files[0]) {
+          isValid = false;
+          alert('אנא העלה אישור העברה בנקאית');
+          return;
+        }
+      }
+
+      if (sections[currentSectionIndex].id === 'debitAuthSection') {
+        const debitFile = document.getElementById('debitAuthUpload');
+        if (!debitFile.files[0]) {
+          isValid = false;
+          alert('אנא העלה טופס חתום ואישור');
+          return;
+        }
+      }
+    }
+
     if (!isValid) {
       alert('אנא מלא את כל השדות הנדרשים.');
       return;
@@ -2369,4 +2748,30 @@ function ensureOptionCostSpans() {
       }
     }
   });
+}
+
+function getFieldDisplayName(fieldName) {
+  const fieldNames = {
+    'hasOver3Children': 'האם יש ילדים מעל גיל 3',
+    'isMember': 'האם חבר באחד מארגוני הגנים',
+    'claimsLastYear': 'האם היו תביעות בשנה האחרונה',
+    'supplementalInsurance': 'האם ברצונך לרכוש ביטוח משלים לדירה',
+    'hasContentBuilding': 'האם תרצה לבטח את המבנה ותכולת הגן'
+  };
+  return fieldNames[fieldName] || fieldName;
+}
+
+function getCoverageDisplayName(coverageName) {
+  const coverageNames = {
+    'thirdParty': 'הגדלת גבולות אחריות',
+    'deductibleCancellation': 'ביטול השתתפות עצמית',
+    'teacherAccidents': 'תאונות אישיות לגננת',
+    'professionalLiability': 'אחריות מקצועית',
+    'employerLiability': 'חבות מעבידים',
+    'cyberInsurance': 'תוספת ביטוח סייבר',
+    'incomeLoss': 'אובדן הכנסות',
+    'birthdayActivities': 'הפעלות ימי הולדת / חוגים בגן',
+    'afterSchoolProgram': 'תוספת צהרון לפוליסת הגן'
+  };
+  return coverageNames[coverageName] || coverageName;
 }
