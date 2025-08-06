@@ -280,6 +280,17 @@ document.querySelectorAll('.next-button').forEach(button => {
       }
     }
 
+    // וידוא בחירה בשדה סוג מבנה
+    const buildingTypeSelect = document.getElementById('buildingType');
+    if (buildingTypeSelect && buildingTypeSelect.closest('.form-section').classList.contains('active')) {
+      if (!buildingTypeSelect.value) {
+        isValid = false;
+        buildingTypeSelect.style.borderColor = 'red';
+      } else {
+        buildingTypeSelect.style.borderColor = 'rgba(255,255,255,0.3)';
+      }
+    }
+
     if (!isValid) {
       alert('אנא מלא את כל השדות הנדרשים.');
       return;
@@ -775,10 +786,10 @@ function calculatePremium() {
   const isMember = isMemberCheckbox && (isMemberCheckbox.checked || isMemberCheckbox.value === "true");
   let totalDiscount = 0;
   let minPremium = basePremium;
-  
+
   if (isMember) {
     const currentTrack = determinePolicyTrack();
-    
+
     // מסלול 4+7: 10 ש"ח לילד, מסלול 5+6: 5 ש"ח לילד
     if (currentTrack === 4 || currentTrack === 7) {
       totalDiscount = childrenCountValue * 10;
@@ -844,19 +855,24 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
         contentAddition = ((contentSum - 200000) / 40000) * 82;
       }
 
+      // ---- תוספת עבור תכולת חצר ----
+      // אם תכולת החצר מעל 20,000 ש"ח, מחשבים תוספת
+      let yardAddition = 0;
+      const yardSum = parseFloat(document.querySelector('.yardContentSum')?.value.replace(/[^0-9.]/g, '')) || 0;
+      if (yardSum > 20000) {
+        yardAddition = ((yardSum - 20000) / 40000) * 82;
+      }
+
       // ---- תוספת עבור שטח מבנה ----
       let buildingAddition = 0;
       const buildingSizeValue = document.getElementById('buildingSizeExact')?.value || '';
       const buildingSize = parseFloat(buildingSizeValue.replace(/[^0-9.]/g, '')) || 0;
-      if (buildingSize > 100) {
-        buildingAddition = (((buildingSize - 100) * 7200) / 40000) * 82;
+      if (buildingSize > 70) {
+        buildingAddition = (((buildingSize * 7200) - 500000) / 40000) * 82;
       }
 
-      // ---- תכולת חצר – אין תוספת ----
-      // (לא מוסיפים שום דבר)
-
       // סכום סופי, מעוגל לש"ח
-      cost = Math.round((contentAddition + buildingAddition));
+      cost = (contentAddition + buildingAddition + yardAddition);
       return cost;
     }
 
@@ -918,7 +934,7 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
       if (months === 6) multiplier = 45;
       if (months === 9) multiplier = 60;
       const result = ((monthlyAmount * 12) / 10000) * multiplier;
-      return Math.round(result);
+      return result;
 
     case 'birthdayActivities':
       const type = document.querySelector('.birthdayActivitiesType')?.value;
@@ -1130,7 +1146,9 @@ function collectFormData() {
   }
 
   // ---------- פרמיה, תשלום, חתימה, קבצים ----------
-  payload['premium'] = parseInt(document.getElementById('premiumAmount').textContent.replace(/[^0-9]/g, '')) || 0;
+  let premiumText = document.getElementById('premiumAmount').textContent.replace(/[^\d.]/g, '');
+  //payload['premium'] = parseFloat(premiumText) || 0;
+  payload['premium'] = premiumText;
   payload['paymentMethod'] = window.selectedPaymentMethod || '';
 
   // ---------- automation מתוך URL ----------
@@ -1146,10 +1164,10 @@ function collectFormData() {
   payload['policyTrack'] = determinePolicyTrack();
 
   // ---------- מחיר תכולה ----------
-  payload['contentAdditionCost'] = Math.round(getContentAdditionCost());
+  payload['contentAdditionCost'] = getContentAdditionCost();
 
   // ---------- מחיר מבנה ----------
-  payload['buildingAdditionCost'] = Math.round(getBuildingAdditionCost());
+  payload['buildingAdditionCost'] = getBuildingAdditionCost();
 
   // ---------- האם צריך עריכת ביטוח ----------
   const approvalCheckbox = document.querySelector('.form-section.active .needsApprovalCheckbox');
@@ -1175,8 +1193,8 @@ function getBuildingAdditionCost() {
   if (!includeContentBuilding) return 0;
   const buildingSizeValue = document.getElementById('buildingSizeExact')?.value || '';
   const buildingSize = parseFloat(buildingSizeValue.replace(/[^0-9.]/g, '')) || 0;
-  if (buildingSize > 100) {
-    return (((buildingSize - 100) * 7200) / 40000) * 82;
+  if (buildingSize > 70) {
+    return (((buildingSize * 7200) - 500000) / 40000) * 82;
   }
   return 0;
 }
@@ -1612,6 +1630,47 @@ function prefillFromUrl() {
     }
   });
 
+  // --- טיפול בכפתורי כן/לא (yesno-toggle) ---
+  const yesNoFields = [
+    'hasOver3Children',
+    'isMember', 
+    'claimsLastYear',
+    'supplementalInsurance',
+    'hasContentBuilding',
+    'hasLien',
+    'waiverCheckbox'
+  ];
+  
+  yesNoFields.forEach(field => {
+    const value = urlParams.get(field);
+    if (value !== null && value !== undefined) {
+      const toggle = document.querySelector(`[data-field="${field}"]`);
+      if (toggle) {
+        const yesBtn = toggle.querySelector('.yes-btn');
+        const noBtn = toggle.querySelector('.no-btn');
+        const hiddenInput = toggle.querySelector('input[type="hidden"]');
+        
+        if (yesBtn && noBtn && hiddenInput) {
+          // הסר בחירה קודמת
+          yesBtn.classList.remove('selected');
+          noBtn.classList.remove('selected');
+          
+          // בחר לפי הערך מה-URL
+          if (value === 'true') {
+            yesBtn.classList.add('selected');
+            hiddenInput.value = 'true';
+          } else if (value === 'false') {
+            noBtn.classList.add('selected');
+            hiddenInput.value = 'false';
+          }
+          
+          // הפעל אירוע change כדי לעדכן תלויות
+          hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+    }
+  });
+
   // --- כיסויים (מעוניין/לא מעוניין) ---
   const coverageOptions = [
     'deductibleCancellation', 'teacherAccidents', 'professionalLiability',
@@ -1767,7 +1826,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   gardenType.addEventListener('change', updateChildrenCountMax);
-  childrenCount.addEventListener('input', function() {
+  childrenCount.addEventListener('input', function () {
     const warning = document.getElementById('childrenCountTamahWarning');
     if (gardenType.value === 'tamah' && parseInt(childrenCount.value) > 6) {
       childrenCount.value = 6;
@@ -2057,6 +2116,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // updateContentBuildingLogic();
   }
   setupYesNoDependencies();
+  
+  // הפעל עדכוני תלויות אחרי prefill מה-URL
+  function triggerYesNoDependenciesAfterUrlPrefill() {
+    // עדכון ילדים מעל גיל 3
+    const hasOver3Children = document.getElementById('hasOver3Children');
+    if (hasOver3Children && hasOver3Children.value === 'true') {
+      document.getElementById('over3ChildrenCountGroup').style.display = 'block';
+    }
+    
+    // עדכון חברות במועדון
+    const isMember = document.getElementById('isMember');
+    if (isMember && isMember.value === 'true') {
+      document.getElementById('membershipSection').style.display = 'block';
+    }
+    
+    // עדכון שעבוד
+    const hasLien = document.getElementById('hasLien');
+    if (hasLien && hasLien.value === 'true') {
+      document.getElementById('lienTypeSection').style.display = 'block';
+    }
+    
+    // עדכון ויתור שיבוב
+    const waiverCheckbox = document.getElementById('waiverCheckbox');
+    if (waiverCheckbox && waiverCheckbox.value === 'true') {
+      document.getElementById('waiverDetails').style.display = 'block';
+    }
+    
+    // עדכון חישוב פרמיה
+    calculatePremium();
+  }
+  
+  // הפעל אחרי prefill מה-URL
+  setTimeout(triggerYesNoDependenciesAfterUrlPrefill, 100);
 
 
   function setupLienAndWaiverLogic() {
@@ -2123,10 +2215,29 @@ document.addEventListener('DOMContentLoaded', () => {
       const yesBtn = group.querySelector('.yes-btn');
       const noBtn = group.querySelector('.no-btn');
       const hidden = group.querySelector('input[type="hidden"]');
+      
+      // בדוק אם יש ערך מה-URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlValue = urlParams.get(field);
+      
       if (noBtn && yesBtn && hidden) {
-        yesBtn.classList.remove('selected');
-        noBtn.classList.add('selected');
-        hidden.value = 'false';
+        if (urlValue !== null && urlValue !== undefined) {
+          // יש ערך מה-URL - השתמש בו
+          if (urlValue === 'true') {
+            yesBtn.classList.add('selected');
+            noBtn.classList.remove('selected');
+            hidden.value = 'true';
+          } else {
+            yesBtn.classList.remove('selected');
+            noBtn.classList.add('selected');
+            hidden.value = 'false';
+          }
+        } else {
+          // אין ערך מה-URL - השתמש בברירת מחדל
+          yesBtn.classList.remove('selected');
+          noBtn.classList.add('selected');
+          hidden.value = 'false';
+        }
       }
     });
   }
@@ -2158,9 +2269,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updateAddonsTotal();
   }
   window.updateCoverageOptionPrices = updateCoverageOptionPrices;
-  // ... existing code ...
 
-  // ... existing code ...
+
   function updateAddonsTotal() {
     let total = 0;
     const gardenTypeValue = gardenType.value;
@@ -2187,14 +2297,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // קריאה לפונקציה בכל עדכון מחירי תוספות
   const originalUpdateCoverageOptionPrices = updateCoverageOptionPrices;
-  updateCoverageOptionPrices = function() {
+  updateCoverageOptionPrices = function () {
     ensureOptionCostSpans();
     originalUpdateCoverageOptionPrices.apply(this, arguments);
     updateAddonsTotal();
   };
-  // ... existing code ...
 
-  // ... existing code ...
   // עדכון מחיר מיידי כשמוסיפים/מסירים גננת
   function observePersonalAccidentRows() {
     const container = document.getElementById('personalAccidentEmployeesRows');
@@ -2214,14 +2322,35 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // הפעלה אחרי כל עדכון הרחבות
   const originalUpdateCoverageOptions2 = updateCoverageOptions;
-  updateCoverageOptions = function() {
+  updateCoverageOptions = function () {
     originalUpdateCoverageOptions2.apply(this, arguments);
     setTimeout(() => {
       observePersonalAccidentRows();
       observeProfessionalLiabilityRows();
     }, 0);
   };
-  // ... existing code ...
+
+  // האזנה לשדות מספריים לעדכון חישוב פרמיה
+  function setupNumericInputListeners() {
+    const numericFields = [
+      'buildingSizeExact',
+      'contentSumExact', 
+      'yardContentSumExact'
+    ];
+
+    numericFields.forEach(fieldId => {
+      const field = document.getElementById(fieldId);
+      if (!field) return;
+
+      field.addEventListener('input', function() {
+        // הפעל חישוב פרמיה כשהערך משתנה
+        calculatePremium();
+      });
+    });
+  }
+
+  // הפעל את האזנת השדות המספריים
+  setupNumericInputListeners();
 });
 
 // חיזוק: ודא שלכל כיסוי יש option-cost

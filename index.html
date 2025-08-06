@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>טופס חידוש ביטוח</title>
-  <link href="style.css?v=20250805" rel="stylesheet" />
+  <link href="style.css?v=202508064" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;display=swap" rel="stylesheet" />
 </head>
 
@@ -60,7 +60,7 @@
               </svg>
             </button>
           </label>
-          <input id="emailAddress" name="emailAddress" type="email" />
+          <input id="emailAddress" name="emailAddress" type="email" required/>
         </div>
         <div class="form-group">
           <label for="phoneNumber">מספר טלפון *
@@ -164,7 +164,7 @@
               </svg>
             </button>
           </label>
-          <input id="childrenCount" min="0" name="childrenCount" type="number" />
+          <input id="childrenCount" min="0" name="childrenCount" type="number" required/>
           <div id="childrenCountTamahWarning" style="display:none; color:#d03499; font-size:0.95em; margin-top:4px;">בגן
             תמ"ת לא ניתן לבחור יותר מ-6 ילדים.</div>
         </div>
@@ -215,7 +215,7 @@
             <label for="membershipType">בחר את המועדון</label>
             <select id="membershipType" name="membershipType">
               <option value="">בחר מועדון</option>
-              <option value="hiba">חיב"ה / ארון הגנים</option>
+              <option value="hiba">חיב"ה / ארגון הגנים</option>
               <option value="maonot">התאחדות המעונות</option>
               <option value="halamish">חלמיש</option>
             </select>
@@ -292,7 +292,7 @@
               מ"ר</button>
           </div>
           <div id="buildingSizeExtraInput" style="display: none;">
-            <input class="buildingSum" id="buildingSizeExact" placeholder="ציין את גודל המבנה" type="text" />
+            <input class="buildingSum" id="buildingSizeExact" placeholder="ציין את גודל המבנה" type="number" min="70" step="1" />
           </div>
         </div>
         <div class="form-group">
@@ -302,7 +302,7 @@
             <button class="content-value-button" data-value="over200k" type="button">מעל 200,000 ₪</button>
           </div>
           <div id="contentSumExtraInput" style="display: none;">
-            <input class="contentSum" id="contentSumExact" placeholder="ציין את שווי התכולה" type="text" />
+            <input class="contentSum" id="contentSumExact" placeholder="ציין את שווי התכולה" type="number" min="200000" step="1" />
           </div>
         </div>
         <div class="form-group">
@@ -320,7 +320,7 @@
             <button class="yard-value-button" data-value="over20k" type="button">מעל 20,000 ₪</button>
           </div>
           <div id="yardContentSumExtraInput" style="display: none;">
-            <input class="yardContentSum" id="yardContentSumExact" placeholder="ציין את שווי תכולת החצר" type="text" />
+            <input class="yardContentSum" id="yardContentSumExact" placeholder="ציין את שווי תכולת החצר" type="number" min="20000" step="1" />
           </div>
         </div>
         <div class="form-group" id="contentBuildingGroup">
@@ -745,7 +745,7 @@
       </div>
     </form>
   </div>
-  <script src="script.js?v=20250805"></script>
+  <script src="script.js?v=202508064"></script>
 </body>
 
 </html>
