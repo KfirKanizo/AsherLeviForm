@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>טופס חידוש ביטוח</title>
-  <link href="style.css?v=202508071" rel="stylesheet" />
+  <link href="style.css?v=202508081" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;display=swap" rel="stylesheet" />
 </head>
 
@@ -150,7 +150,7 @@
               </svg>
             </button>
           </label>
-          <input id="idNumber" name="idNumber" required="" type="text" />
+          <input id="idNumber" name="idNumber" required type="text" maxlength="10" />
         </div>
         <div class="form-group">
           <label for="childrenCount">מספר ילדים *
@@ -285,11 +285,9 @@
           מתת ביטוח</p>
         <div class="form-group">
           <label>גודל המבנה</label>
-          <div class="button-group" id="buildingSizeButtons">
-            <button class="interested-button building-size-button selected" data-value="under100" type="button">עד 70
-              מ"ר</button>
-            <button class="not-interested-button building-size-button" data-value="over100" type="button">מעל 70
-              מ"ר</button>
+          <div class="button-group" id="buildingSizeButtons" data-key="buildingSize">
+            <button class="interested-button building-size-button selected" data-value="under100" type="button">עד 70 מ"ר</button>
+            <button class="not-interested-button building-size-button" data-value="over100" type="button">מעל 70 מ"ר</button>
           </div>
           <div id="buildingSizeExtraInput" style="display: none;">
             <input class="buildingSum" id="buildingSizeExact" placeholder="ציין את גודל המבנה" type="number" min="70" step="1" />
@@ -297,7 +295,7 @@
         </div>
         <div class="form-group">
           <label>סכום ביטוח תכולה</label>
-          <div class="button-group">
+          <div class="button-group" data-key="contentValue">
             <button class="content-value-button" data-value="under200k" type="button">עד 200,000 ₪</button>
             <button class="content-value-button" data-value="over200k" type="button">מעל 200,000 ₪</button>
           </div>
@@ -315,7 +313,7 @@
               </svg>
             </button>
           </label>
-          <div class="button-group">
+          <div class="button-group" data-key="yardContentValue">
             <button class="yard-value-button" data-value="under20k" type="button">עד 20,000 ₪</button>
             <button class="yard-value-button" data-value="over20k" type="button">מעל 20,000 ₪</button>
           </div>
@@ -745,7 +743,7 @@
       </div>
     </form>
   </div>
-  <script src="script.js?v=202508071"></script>
+  <script src="script.js?v=202508081"></script>
 </body>
 
 </html>

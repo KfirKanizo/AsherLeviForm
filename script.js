@@ -35,7 +35,8 @@ const availableOptions = {
     'employerLiability',
     'cyberInsurance',
     'birthdayActivities',
-    'afterSchoolProgram'
+    'afterSchoolProgram',
+    'incomeLoss'
   ],
   'upTo3': [
     'thirdParty',
@@ -45,7 +46,8 @@ const availableOptions = {
     'employerLiability',
     'cyberInsurance',
     'incomeLoss',
-    'birthdayActivities'
+    'birthdayActivities',
+    'afterSchoolProgram',
   ],
   'over3': [
     'thirdParty',
@@ -55,13 +57,16 @@ const availableOptions = {
     'employerLiability',
     'cyberInsurance',
     'birthdayActivities',
-    'afterSchoolProgram'
+    'afterSchoolProgram',
+    'incomeLoss'
   ],
   'afterSchool': [
     'thirdParty',
     'deductibleCancellation',
     'teacherAccidents',
-    'birthdayActivities'
+    'birthdayActivities',
+    'cyberInsurance',
+    'professionalLiability'
   ]
 };
 
@@ -280,6 +285,18 @@ document.querySelectorAll('.next-button').forEach(button => {
       }
     }
 
+    const idNumberInput = document.getElementById('idNumber');
+    if (idNumberInput && idNumberInput.closest('.form-section').classList.contains('active')) {
+      if (!/^\d+$/.test(idNumberInput.value)) {
+        isValid = false;
+        idNumberInput.style.borderColor = 'red';
+        alert('יש להזין מספרים בלבד בשדה ת.ז / ח.פ / ע.ר');
+        return;
+      }
+    }
+
+
+
     // וידוא בחירה בשדה סוג מבנה
     const buildingTypeSelect = document.getElementById('buildingType');
     if (buildingTypeSelect && buildingTypeSelect.closest('.form-section').classList.contains('active')) {
@@ -381,36 +398,36 @@ document.querySelectorAll('.next-button').forEach(button => {
           return;
         }
 
-                 // אם נבחר "כן" - וידוא שמולאו פרטי השעבוד
-         if (hiddenInput.value === 'true') {
-           const lienTypeButtons = document.querySelectorAll('.lien-type-button');
-           const hasSelectedLienType = Array.from(lienTypeButtons).some(btn => btn.classList.contains('selected'));
-           if (!hasSelectedLienType) {
-             isValid = false;
-             alert('אנא בחר סוג המשעבד');
-             return;
-           }
+        // אם נבחר "כן" - וידוא שמולאו פרטי השעבוד
+        if (hiddenInput.value === 'true') {
+          const lienTypeButtons = document.querySelectorAll('.lien-type-button');
+          const hasSelectedLienType = Array.from(lienTypeButtons).some(btn => btn.classList.contains('selected'));
+          if (!hasSelectedLienType) {
+            isValid = false;
+            alert('אנא בחר סוג המשעבד');
+            return;
+          }
 
-                       // וידוא שמולאו פרטי הבנק או החברה
+          // וידוא שמולאו פרטי הבנק או החברה
           const lienDetailsBank = document.getElementById('lienDetailsBank');
           const lienDetailsCompany = document.getElementById('lienDetailsCompany');
-          
+
           if (lienDetailsBank && lienDetailsBank.style.display !== 'none') {
             const bankName = document.getElementById('lienBankName');
             const bankBranch = document.getElementById('lienBankBranch');
             const bankAddress = document.getElementById('lienBankAddress');
-            
+
             if (!bankName.value.trim() || !bankBranch.value.trim() || !bankAddress.value.trim()) {
               isValid = false;
               alert('אנא מלא את כל פרטי הבנק');
               return;
             }
           }
-          
+
           if (lienDetailsCompany && lienDetailsCompany.style.display !== 'none') {
             const companyName = document.getElementById('lienCompanyName');
             const companyId = document.getElementById('lienCompanyId');
-            
+
             if (!companyName.value.trim() || !companyId.value.trim()) {
               isValid = false;
               alert('אנא מלא את כל פרטי החברה');
@@ -436,7 +453,7 @@ document.querySelectorAll('.next-button').forEach(button => {
         if (hiddenInput.value === 'true') {
           const propertyOwnerName = document.getElementById('propertyOwnerName');
           const propertyOwnerId = document.getElementById('propertyOwnerId');
-          
+
           if (!propertyOwnerName.value.trim() || !propertyOwnerId.value.trim()) {
             isValid = false;
             alert('אנא מלא את פרטי בעל הנכס');
@@ -455,7 +472,7 @@ document.querySelectorAll('.next-button').forEach(button => {
         'supplementalInsurance',
         'hasContentBuilding'
       ];
-      
+
       yesNoFields.forEach(field => {
         const toggle = document.querySelector(`[data-field="${field}"]`);
         if (toggle) {
@@ -500,11 +517,11 @@ document.querySelectorAll('.next-button').forEach(button => {
         const optionName = optionDiv.dataset.option;
         const interestedBtn = optionDiv.querySelector('.interested-button');
         const notInterestedBtn = optionDiv.querySelector('.not-interested-button');
-        
+
         if (interestedBtn && notInterestedBtn) {
           const isInterestedSelected = interestedBtn.classList.contains('selected');
           const isNotInterestedSelected = notInterestedBtn.classList.contains('selected');
-          
+
           if (!isInterestedSelected && !isNotInterestedSelected) {
             isValid = false;
             alert(`אנא בחר מעוניין או לא מעוניין עבור ${getCoverageDisplayName(optionName)}`);
@@ -517,7 +534,7 @@ document.querySelectorAll('.next-button').forEach(button => {
       document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
         const optionName = optionDiv.dataset.option;
         const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
-        
+
         if (hiddenInput && hiddenInput.value === 'true') {
           // וידוא שדות חובה לפי סוג הכיסוי
           if (optionName === 'thirdParty') {
@@ -555,12 +572,12 @@ document.querySelectorAll('.next-button').forEach(button => {
               alert('אנא הוסף לפחות גננת אחת לכיסוי תאונות אישיות');
               return;
             }
-            
+
             employeeRows.forEach(row => {
               const nameInput = row.querySelector('input[name="personalAccidentEmployeeName[]"]');
               const idInput = row.querySelector('input[name="personalAccidentEmployeeId[]"]');
               const birthdateInput = row.querySelector('input[name="personalAccidentEmployeeBirthdate[]"]');
-              
+
               if (!nameInput.value.trim() || !idInput.value.trim() || !birthdateInput.value.trim()) {
                 isValid = false;
                 alert('אנא מלא את כל פרטי הגננת');
@@ -576,12 +593,12 @@ document.querySelectorAll('.next-button').forEach(button => {
               alert('אנא הוסף לפחות גננת אחת לכיסוי אחריות מקצועית');
               return;
             }
-            
+
             employeeRows.forEach(row => {
               const nameInput = row.querySelector('input[name="professionalLiabilityEmployeeName[]"]');
               const idInput = row.querySelector('input[name="professionalLiabilityEmployeeId[]"]');
               const birthdateInput = row.querySelector('input[name="professionalLiabilityEmployeeBirthdate[]"]');
-              
+
               if (!nameInput.value.trim() || !idInput.value.trim() || !birthdateInput.value.trim()) {
                 isValid = false;
                 alert('אנא מלא את כל פרטי הגננת');
@@ -639,7 +656,7 @@ document.querySelectorAll('.next-button').forEach(button => {
       if (sections[currentSectionIndex].id === 'bankTransferSection') canvasId = 'signatureCanvasBank';
       if (sections[currentSectionIndex].id === 'creditCardSection') canvasId = 'signatureCanvasCredit';
       if (sections[currentSectionIndex].id === 'debitAuthSection') canvasId = 'signatureCanvasDebit';
-      
+
       const signatureCanvas = document.getElementById(canvasId);
       if (signatureCanvas && isCanvasBlank(signatureCanvas)) {
         isValid = false;
@@ -867,6 +884,8 @@ function updateCoverageOptions() {
       if ([4, 5, 6, 7].includes(track)) return; // מסלולים שבהם זה כלול
     }
 
+    if (option === 'incomeLoss' && ![6, 7].includes(track)) return;
+
     const template = templates.querySelector(`#coverage-${option}`);
     if (template) {
       const clone = template.cloneNode(true);
@@ -1075,15 +1094,16 @@ function determinePolicyTrack() {
 
 
 function calculatePremium() {
+  // קבלת ערכי שדות מרכזיים מהטופס
   const gardenTypeValue = gardenType.value;
   const childrenCountValue = parseInt(childrenCount.value) || 0;
   let basePremium = 0;
 
-  // משתנה עזר - האם בחר ביטוח תכולה ומבנה
+  // בודק האם בחרו לבטח תכולה ומבנה
   const hasContentBuilding = document.getElementById('hasContentBuilding');
   const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
 
-  // אם אין גן או אין ילדים, תמיד 0
+  // אם אין סוג גן או אין ילדים בכלל - הפרמיה תמיד 0
   if (!gardenTypeValue || childrenCountValue < 1) {
     premiumAmount.textContent = '0 ₪';
     const discountDisplay = document.getElementById('discountDisplay');
@@ -1091,95 +1111,88 @@ function calculatePremium() {
     return;
   }
 
-  // חישוב לפי מסלול
+  // חישוב פרמיה בסיסית לפי מסלול (track)
   const track = determinePolicyTrack();
   if ([3, 4, 5, 6, 7].includes(track)) {
-    // טבלת מחירים חדשה
+    // מסלולים מתקדמים - לכל מסלול מינימום ופרמיה פר ילד
     let min = 0, perChild = 0;
     switch (track) {
-      case 3:
-        min = 900;
-        perChild = 112.5;
-        break;
-      case 4:
-        min = 1100;
-        perChild = 110;
-        break;
-      case 5:
-        min = 1100;
-        perChild = 55;
-        break;
-      case 6:
-        min = 1400;
-        perChild = 80;
-        break;
-      case 7:
-        min = 1400;
-        perChild = 120;
-        break;
+      case 3: min = 900; perChild = 112.5; break;
+      case 4: min = 1100; perChild = 110; break;
+      case 5: min = 1100; perChild = 55; break;
+      case 6: min = 1400; perChild = 80; break;
+      case 7: min = 1400; perChild = 120; break;
     }
     basePremium = Math.max(childrenCountValue * perChild, min);
   } else {
-    // חישוב basePremium לפי סוג גן ומבנה/תכולה (לשאר המסלולים, כולל מדרגות)
+    // מסלולים אחרים - מחשב לפי מדרגות
     switch (gardenTypeValue) {
-      case 'tamah': // מסלול 1 - תמ"ת
+      case 'tamah':
         if (childrenCountValue <= 6) basePremium = 500;
         else if (childrenCountValue <= 10) basePremium = 1000;
         else basePremium = 1000 + (childrenCountValue - 10) * 100;
         break;
-      case 'privateFamily': // מסלול 2/3/4
-        if (childrenCountValue <= 6) basePremium = 650; // מסלול 2 - עד 6 ילדים, ללא עובדים
-        else if (childrenCountValue <= 8) basePremium = 900; // מסלול 3 - עד 8 ילדים ללא מבנה/תכולה
-        else if (childrenCountValue === 9) basePremium = 900 + 105; // מסלול 3 - 9 ילדים (ילד אחד נוסף)
-        else if (childrenCountValue <= 10) basePremium = 1100; // מסלול 4 - עד 10 ילדים, ללא מבנה/תכולה
-        else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4 - מעל 10 ילדים, ללא מבנה/תכולה
+      case 'privateFamily':
+        if (childrenCountValue <= 6) basePremium = 650;
+        else if (childrenCountValue <= 8) basePremium = 900;
+        else if (childrenCountValue === 9) basePremium = 900 + 105;
+        else if (childrenCountValue <= 10) basePremium = 1100;
+        else basePremium = 1100 + (childrenCountValue - 10) * 110;
         break;
       case 'upTo3':
         if (includeContentBuilding) {
-          if (childrenCountValue <= 12) basePremium = 1400; // מסלול 7 - כולל תכולה ומבנה
+          if (childrenCountValue <= 12) basePremium = 1400;
           else basePremium = 1400 + (childrenCountValue - 12) * 120;
         } else {
-          if (childrenCountValue <= 6) basePremium = 650; // מסלול 2 - עד 6 ילדים, ללא עובדים
-          else if (childrenCountValue <= 8) basePremium = 900; // מסלול 3 - עד 8 ילדים ללא מבנה/תכולה
-          else if (childrenCountValue === 9) basePremium = 900 + 105; // מסלול 3 - 9 ילדים (ילד אחד נוסף)
-          else if (childrenCountValue <= 10) basePremium = 1100; // מסלול 4 - עד 10 ילדים
-          else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4 - מעל 10 ילדים
+          if (childrenCountValue <= 6) basePremium = 650;
+          else if (childrenCountValue <= 8) basePremium = 900;
+          else if (childrenCountValue === 9) basePremium = 900 + 105;
+          else if (childrenCountValue <= 10) basePremium = 1100;
+          else basePremium = 1100 + (childrenCountValue - 10) * 110;
         }
         break;
-      case 'over3': // מסלול 5/6
+      case 'over3':
       case 'afterSchool':
-        // מבדילים לפי checkbox של תכולה/מבנה (מסלול 6 אם יש, 5 אם לא)
         if (includeContentBuilding) {
-          if (childrenCountValue <= 17) basePremium = 1400; // מסלול 6 - עד 17 ילדים
-          else basePremium = 1400 + (childrenCountValue - 17) * 80; // מסלול 6 - מעל 17 ילדים
+          if (childrenCountValue <= 17) basePremium = 1400;
+          else basePremium = 1400 + (childrenCountValue - 17) * 80;
         } else {
-          if (childrenCountValue <= 20) basePremium = 1100; // מסלול 5 - עד 20 ילדים
-          else basePremium = 1100 + (childrenCountValue - 20) * 55; // מסלול 5 - מעל 20 ילדים
+          if (childrenCountValue <= 20) basePremium = 1100;
+          else basePremium = 1100 + (childrenCountValue - 20) * 55;
         }
         break;
     }
   }
 
-  // הנחות מועדון (לפי המסלול)
+  // === הנחת מועדון (אם קיים) ===
   const isMemberCheckbox = document.getElementById('isMember');
   const isMember = isMemberCheckbox && (isMemberCheckbox.checked || isMemberCheckbox.value === "true");
-  let totalDiscount = 0;
-  let minPremium = basePremium;
+  let clubDiscount = 0;
+  let minPremium = basePremium; // המינימום שצריך להישאר אחרי הנחות
 
   if (isMember) {
+    // מחשב את סכום ההנחה ומינימום לכל מסלול רלוונטי
     const currentTrack = determinePolicyTrack();
-
-    // מסלול 4+7: 10 ש"ח לילד, מסלול 5+6: 5 ש"ח לילד
     if (currentTrack === 4 || currentTrack === 7) {
-      totalDiscount = childrenCountValue * 10;
+      clubDiscount = childrenCountValue * 10;
       minPremium = currentTrack === 4 ? 1100 : 1400;
     } else if (currentTrack === 5 || currentTrack === 6) {
-      totalDiscount = childrenCountValue * 5;
+      clubDiscount = childrenCountValue * 5;
       minPremium = currentTrack === 5 ? 1100 : 1400;
     }
   }
 
-  // סכום תוספות שנבחרו
+  // === הנחה עבור ילדים מעל גיל 3 ===
+  let over3Discount = 0;
+  const hasOver3Children = document.getElementById('hasOver3Children')?.value === 'true';
+  let over3ChildrenCount = 0;
+  if (hasOver3Children) {
+    // מושך את כמות הילדים מהשדה הנסתר
+    over3ChildrenCount = parseInt(document.getElementById('over3ChildrenCount')?.value) || 0;
+    over3Discount = over3ChildrenCount * 40; // 40 ש"ח לכל ילד מעל גיל 3
+  }
+
+  // === סכום כל התוספות שנבחרו ===
   let addonsTotal = 0;
   document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
     const optionName = optionDiv.dataset.option;
@@ -1189,26 +1202,36 @@ function calculatePremium() {
       let price = 0;
       try {
         price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
-      } catch (e) {
-        price = 0;
-      }
+      } catch (e) { price = 0; }
       addonsTotal += price;
     }
   });
 
-  // הוספת תוספת תכולה ומבנה אם נבחרה (גם אם אין אופציה כזו ב-coverage options)
+  // תוספת על תכולה ומבנה אם נבחרה
   if (includeContentBuilding) {
     const contentBuildingCost = getOptionCost('contentBuilding', gardenTypeValue, childrenCountValue, includeContentBuilding);
     addonsTotal += contentBuildingCost;
   }
 
-  let totalPremium = Math.max(basePremium - totalDiscount, minPremium) + addonsTotal;
+  // === חיבור כל המרכיבים לסכום הסופי ===
+  let totalDiscounts = clubDiscount + over3Discount; // סך כל ההנחות (מועדון + ילדים מעל גיל 3)
+  let totalPremium = Math.max(basePremium - totalDiscounts, minPremium) + addonsTotal; // חישוב סופי
+
+  // ודא שהסכום לא יורד מהמינימום אחרי כל ההנחות
+  if (totalPremium < minPremium) totalPremium = minPremium;
+
+  // עדכון התצוגה ללקוח
   premiumAmount.textContent = totalPremium + ' ₪';
+
+  // הצגת פירוט ההנחות (אם יש)
   const discountDisplay = document.getElementById('discountDisplay');
   if (discountDisplay) {
-    discountDisplay.textContent = totalDiscount > 0 ? `הנחת מועדון: ${totalDiscount} ש"ח` : '';
+    let desc = '';
+    if (clubDiscount > 0) desc += `הנחת מועדון: ${clubDiscount} ש"ח`;
+    discountDisplay.textContent = desc;
   }
 }
+
 
 
 
@@ -1513,12 +1536,11 @@ function collectFormData() {
   document.querySelectorAll('.button-group').forEach(group => {
     let selected = group.querySelector('button.selected');
     if (selected && selected.dataset.value) {
-      let groupName = group.closest('[data-option]')?.dataset.option ||
-        group.closest('.form-group')?.querySelector('label')?.innerText?.replace(/[^\w]/g, '') ||
-        selected.innerText;
+      let groupName = group.getAttribute('data-key');
       if (groupName) payload[`buttonGroup_${groupName}`] = selected.dataset.value;
     }
   });
+
 
   // ---------- מבנה ותכולה ----------
   const hasContentBuilding = document.getElementById('hasContentBuilding');
@@ -1856,24 +1878,24 @@ async function sendToWebhook(payload) {
     for (let [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
-    
+
     const response = await fetch('https://hook.eu2.make.com/767snb13mqqn3q276wb6hhggne7oyjxy', {
       method: 'POST',
       body: formData,
     });
-    
+
     console.log('Response status:', response.status);
     console.log('Response status text:', response.statusText);
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Webhook error response:', errorText);
       throw new Error(`HTTP ${response.status}: ${response.statusText}. Response: ${errorText}`);
     }
-    
+
     const responseText = await response.text();
     console.log('Webhook success response:', responseText);
-    
+
   } catch (error) {
     console.error('Webhook error details:', error);
     console.error('Error stack:', error.stack);
@@ -2112,6 +2134,33 @@ function prefillCoverageAddonsFromUrl() {
     }
   }
 
+  // Prefill מספר עובדים לכיסוי חבות מעבידים, אם קיים employeesCount ב-URL
+  if (urlPrefillData['employeesCount']) {
+    const employerCountInput = document.querySelector('#employerLiabilityEmployeesCount');
+    if (employerCountInput) {
+      employerCountInput.value = urlPrefillData.employeesCount;
+      employerCountInput.dispatchEvent(new Event('input'));
+    }
+  }
+
+  // Prefill מספר ילדים בצהרון אם יש פרמטר כזה ב-URL
+  if (urlPrefillData['afterSchoolChildrenCount']) {
+    const afterSchoolInput = document.querySelector('.afterSchoolChildrenCount');
+    if (afterSchoolInput) {
+      afterSchoolInput.value = urlPrefillData.afterSchoolChildrenCount;
+      afterSchoolInput.dispatchEvent(new Event('input'));
+    }
+  }
+
+  // סוג מפעיל לימי הולדת
+  if (urlPrefillData['birthdayActivitiesType']) {
+    const birthdayTypeInput = document.querySelector('.birthdayActivitiesType');
+    if (birthdayTypeInput) {
+      birthdayTypeInput.value = urlPrefillData.birthdayActivitiesType;
+      birthdayTypeInput.dispatchEvent(new Event('change'));
+    }
+  }
+
 }
 
 
@@ -2143,14 +2192,14 @@ function prefillFromUrl() {
   // --- טיפול בכפתורי כן/לא (yesno-toggle) ---
   const yesNoFields = [
     'hasOver3Children',
-    'isMember', 
+    'isMember',
     'claimsLastYear',
     'supplementalInsurance',
     'hasContentBuilding',
     'hasLien',
     'waiverCheckbox'
   ];
-  
+
   yesNoFields.forEach(field => {
     const value = urlParams.get(field);
     if (value !== null && value !== undefined) {
@@ -2159,12 +2208,12 @@ function prefillFromUrl() {
         const yesBtn = toggle.querySelector('.yes-btn');
         const noBtn = toggle.querySelector('.no-btn');
         const hiddenInput = toggle.querySelector('input[type="hidden"]');
-        
+
         if (yesBtn && noBtn && hiddenInput) {
           // הסר בחירה קודמת
           yesBtn.classList.remove('selected');
           noBtn.classList.remove('selected');
-          
+
           // בחר לפי הערך מה-URL
           if (value === 'true') {
             yesBtn.classList.add('selected');
@@ -2173,7 +2222,7 @@ function prefillFromUrl() {
             noBtn.classList.add('selected');
             hiddenInput.value = 'false';
           }
-          
+
           // הפעל אירוע change כדי לעדכן תלויות
           hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
         }
@@ -2302,7 +2351,7 @@ function prefillFromUrl() {
       addProfessionalLiabilityEmployeeRow(profContainer, { name, id, birthdate });
     });
   }
-  
+
 }
 
 function isCanvasBlank(canvas) {
@@ -2627,7 +2676,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // updateContentBuildingLogic();
   }
   setupYesNoDependencies();
-  
+
   // הפעל עדכוני תלויות אחרי prefill מה-URL
   function triggerYesNoDependenciesAfterUrlPrefill() {
     // עדכון ילדים מעל גיל 3
@@ -2635,29 +2684,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hasOver3Children && hasOver3Children.value === 'true') {
       document.getElementById('over3ChildrenCountGroup').style.display = 'block';
     }
-    
+
     // עדכון חברות במועדון
     const isMember = document.getElementById('isMember');
     if (isMember && isMember.value === 'true') {
       document.getElementById('membershipSection').style.display = 'block';
     }
-    
+
     // עדכון שעבוד
     const hasLien = document.getElementById('hasLien');
     if (hasLien && hasLien.value === 'true') {
       document.getElementById('lienTypeSection').style.display = 'block';
     }
-    
+
     // עדכון ויתור שיבוב
     const waiverCheckbox = document.getElementById('waiverCheckbox');
     if (waiverCheckbox && waiverCheckbox.value === 'true') {
       document.getElementById('waiverDetails').style.display = 'block';
     }
-    
+
     // עדכון חישוב פרמיה
     calculatePremium();
   }
-  
+
   // הפעל אחרי prefill מה-URL
   setTimeout(triggerYesNoDependenciesAfterUrlPrefill, 100);
 
@@ -2726,11 +2775,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const yesBtn = group.querySelector('.yes-btn');
       const noBtn = group.querySelector('.no-btn');
       const hidden = group.querySelector('input[type="hidden"]');
-      
+
       // בדוק אם יש ערך מה-URL
       const urlParams = new URLSearchParams(window.location.search);
       const urlValue = urlParams.get(field);
-      
+
       if (noBtn && yesBtn && hidden) {
         if (urlValue !== null && urlValue !== undefined) {
           // יש ערך מה-URL - השתמש בו
@@ -2787,11 +2836,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 0);
   };
 
+  const idNumberInput = document.getElementById('idNumber');
+  if (idNumberInput) {
+    idNumberInput.addEventListener('input', function (e) {
+      this.value = this.value.replace(/[^0-9]/g, '');
+    });
+  }
+
+
   // האזנה לשדות מספריים לעדכון חישוב פרמיה
   function setupNumericInputListeners() {
     const numericFields = [
       'buildingSizeExact',
-      'contentSumExact', 
+      'contentSumExact',
       'yardContentSumExact'
     ];
 
@@ -2799,7 +2856,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const field = document.getElementById(fieldId);
       if (!field) return;
 
-      field.addEventListener('input', function() {
+      field.addEventListener('input', function () {
         // הפעל חישוב פרמיה כשהערך משתנה
         calculatePremium();
       });
@@ -2853,3 +2910,4 @@ function getCoverageDisplayName(coverageName) {
   };
   return coverageNames[coverageName] || coverageName;
 }
+
