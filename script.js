@@ -66,7 +66,8 @@ const availableOptions = {
     'teacherAccidents',
     'birthdayActivities',
     'cyberInsurance',
-    'professionalLiability'
+    'professionalLiability',
+    'incomeLoss'
   ]
 };
 
@@ -1168,7 +1169,16 @@ function calculatePremium() {
   const isMemberCheckbox = document.getElementById('isMember');
   const isMember = isMemberCheckbox && (isMemberCheckbox.checked || isMemberCheckbox.value === "true");
   let clubDiscount = 0;
-  let minPremium = basePremium; // המינימום שצריך להישאר אחרי הנחות
+
+  let min = 0;
+  switch (track) {
+    case 3: min = 900; perChild = 112.5; break;
+    case 4: min = 1100; perChild = 110; break;
+    case 5: min = 1100; perChild = 55; break;
+    case 6: min = 1400; perChild = 80; break;
+    case 7: min = 1400; perChild = 120; break;
+  }
+  let minPremium = min; // המינימום שצריך להישאר אחרי הנחות
 
   if (isMember) {
     // מחשב את סכום ההנחה ומינימום לכל מסלול רלוונטי
