@@ -2500,35 +2500,109 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-  // מצא את כפתור השליחה במסך אשראי
-  const creditCardSection = document.getElementById('creditCardSection');
-  if (creditCardSection) {
-    const submitBtn = creditCardSection.querySelector('.submit-button[type="submit"], #creditCardSubmit');
-    if (submitBtn) {
-      submitBtn.addEventListener('click', function (e) {
-        if (sections[currentSectionIndex].id === 'creditCardSection') {
-          const signatureCanvas = document.getElementById('signatureCanvasCredit');
-          if (isCanvasBlank(signatureCanvas)) {
-            e.preventDefault();
-            alert('יש לחתום על הטופס לפני השליחה.');
-            signatureCanvas.style.border = "2px solid red";
-            setTimeout(() => signatureCanvas.style.border = "", 2000);
-            signatureCanvas.scrollIntoView({ behavior: "smooth", block: "center" });
-            return;
+// מצא את כפתור השליחה במסך אשראי
+const creditCardSection = document.getElementById('creditCardSection');
+if (creditCardSection) {
+  const submitBtn = creditCardSection.querySelector('.submit-button[type="submit"], #creditCardSubmit');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async function (e) {
+      // פועלים רק אם הסקשן הנוכחי הוא של אשראי
+      if (sections[currentSectionIndex]?.id !== 'creditCardSection') return;
+      e.preventDefault();
+
+      // 1) בדיקת חתימה
+      const signatureCanvas = document.getElementById('signatureCanvasCredit');
+      if (!signatureCanvas || isCanvasBlank(signatureCanvas)) {
+        alert('יש לחתום על הטופס לפני השליחה.');
+        if (signatureCanvas) {
+          signatureCanvas.style.border = '2px solid red';
+          setTimeout(() => (signatureCanvas.style.border = ''), 2000);
+          signatureCanvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
+
+      // 2) ReturnValue: policyNumber מה-URL, ואם אין — idNumber מהטופס
+      const urlParams = new URLSearchParams(window.location.search);
+      const policyNumberFromUrl = urlParams.get('policyNumber');
+      const idNumberFromForm = document.getElementById('idNumber')?.value || '';
+      const returnValue = policyNumberFromUrl || idNumberFromForm || '';
+
+      // 3) גוף הבקשה כ-application/x-www-form-urlencoded (URL-Encode מלא)
+      const bodyParams = new URLSearchParams({
+        Operation: '3',
+        TerminalNumber: '173413',
+        UserName: 'asherlevi',
+        SumToBill: '1',
+        CoinId: '1',
+        Language: 'he',
+        ProductName: 'ביטוח גנים',
+        APILevel: '10',
+        Codepage: '65001',
+        SuccessRedirectUrl: 'https://secure.cardcom.solutions/SuccessAndFailDealPage/Success.aspx',
+        ErrorRedirectUrl: 'https://secure.cardcom.solutions/SuccessAndFailDealPage/Fail.aspx',
+        IndicatorUrl: 'https://hook.eu2.make.com/35cyd2c1gwlw6bfc7dpqxyz9udfunwlr',
+        ReturnValue: returnValue
+      });
+
+      // מניעת לחיצות כפולות
+      const originalText = submitBtn.innerText;
+      submitBtn.disabled = true;
+
+      try {
+        // 4) POST ל-Cardcom
+        const response = await fetch('https://secure.cardcom.solutions/Interface/LowProfile.aspx', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+          body: bodyParams.toString()
+        });
+
+        if (!response.ok) {
+          const errText = await response.text().catch(() => '');
+          console.error('Cardcom HTTP error:', response.status, errText);
+          alert('לא ניתן היה להתחבר למערכת הסליקה. נא לנסות שוב.');
+          return;
+        }
+
+        // 5) תשובה כ-query string: ResponseCode=...&url=...
+        const rawText = await response.text();
+        // יש שרשורים שמכילים HTML מינימלי — שולפים רק את הקו הראשון אם צריך
+        const line = rawText.split(/\r?\n/)[0] || rawText;
+
+        const qs = new URLSearchParams(line);
+        // חיפוש case-insensitive של 'url'
+        let urlParam = '';
+        for (const [k, v] of qs.entries()) {
+          if (k.toLowerCase() === 'url') {
+            urlParam = v;
+            break;
           }
-          // רק אם חתמו ממשיכים:
-          const paymentUrl = "https://icom.yaad.net/cgi-bin/yaadpay/yaadpay3ds.pl?Amount=1&Coin=1&FixTash=True&Info=%F4%E5%EC%E9%F1%FA%20%E1%E9%E8%E5%E7%20%EE%F9%F4%E7%FA%E5%EF%2F%E2%EF%20%E9%EC%E3%E9%ED%2F%F6%E4%F8%E5%EF&Masof=4501600320&MoreData=True&PageLang=HEB&Postpone=True&ShowEngTashText=True&Tash=1&UTF8out=True&action=pay&freq=1&sendemail=True&signature=f3de6f68f2cba7605e251da1152f9cbd02c9ef4935cf9a5398a5032a9c38e700";
-          window.open(paymentUrl, '_blank');
+        }
+
+        if (urlParam) {
+          const payUrl = decodeURIComponent(urlParam);
+          window.open(payUrl, '_blank');
+          // גיבוי למקרה חריג שבו הניווט נחסם
           setTimeout(() => {
             const thankYouSectionIndex = sections.findIndex(sec => sec.id === 'thankYouSection');
-            if (thankYouSectionIndex !== -1) {
-              showSection(thankYouSectionIndex);
-            }
-          }, 100);
+            if (thankYouSectionIndex !== -1) showSection(thankYouSectionIndex);
+          }, 150);
+        } else {
+          console.error('Missing url parameter in Cardcom response:', line);
+          alert('לא התקבלה כתובת תשלום מהסולק. נא לנסות שוב.');
         }
-      });
-    }
+      } catch (networkErr) {
+        console.error('Network error to Cardcom:', networkErr);
+        alert('שגיאת רשת בעת ניסיון התחברות למערכת הסליקה. נא לנסות שוב.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = originalText;
+      }
+    });
   }
+}
+
+
 
 
   const policyStartDate = document.getElementById('policyStartDate');
