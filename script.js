@@ -35,7 +35,8 @@ const availableOptions = {
     'employerLiability',
     'cyberInsurance',
     'birthdayActivities',
-    'afterSchoolProgram'
+    'afterSchoolProgram',
+    'incomeLoss'
   ],
   'upTo3': [
     'thirdParty',
@@ -45,7 +46,8 @@ const availableOptions = {
     'employerLiability',
     'cyberInsurance',
     'incomeLoss',
-    'birthdayActivities'
+    'birthdayActivities',
+    'afterSchoolProgram',
   ],
   'over3': [
     'thirdParty',
@@ -55,13 +57,17 @@ const availableOptions = {
     'employerLiability',
     'cyberInsurance',
     'birthdayActivities',
-    'afterSchoolProgram'
+    'afterSchoolProgram',
+    'incomeLoss'
   ],
   'afterSchool': [
     'thirdParty',
     'deductibleCancellation',
     'teacherAccidents',
-    'birthdayActivities'
+    'birthdayActivities',
+    'cyberInsurance',
+    'professionalLiability',
+    'incomeLoss'
   ]
 };
 
@@ -270,6 +276,418 @@ document.querySelectorAll('.next-button').forEach(button => {
       }
     });
 
+    const phoneInput = document.getElementById('phoneNumber');
+    if (phoneInput && phoneInput.closest('.form-section').classList.contains('active')) {
+      if (!isValidPhoneNumber(phoneInput.value)) {
+        isValid = false;
+        phoneInput.style.borderColor = 'red';
+        alert('אנא הזן מספר טלפון תקין בפורמט ישראלי.');
+        return;
+      }
+    }
+
+    const idNumberInput = document.getElementById('idNumber');
+    if (idNumberInput && idNumberInput.closest('.form-section').classList.contains('active')) {
+      if (!/^\d+$/.test(idNumberInput.value)) {
+        isValid = false;
+        idNumberInput.style.borderColor = 'red';
+        alert('יש להזין מספרים בלבד בשדה ת.ז / ח.פ / ע.ר');
+        return;
+      }
+    }
+
+
+
+    // וידוא בחירה בשדה סוג מבנה
+    const buildingTypeSelect = document.getElementById('buildingType');
+    if (buildingTypeSelect && buildingTypeSelect.closest('.form-section').classList.contains('active')) {
+      if (!buildingTypeSelect.value) {
+        isValid = false;
+        buildingTypeSelect.style.borderColor = 'red';
+      } else {
+        buildingTypeSelect.style.borderColor = 'rgba(255,255,255,0.3)';
+      }
+    }
+
+
+    // וידוא בחירה בכפתורי גודל מבנה
+    if (sections[currentSectionIndex].id === 'contentBuildingSection') {
+      const buildingSizeButtons = document.querySelectorAll('.building-size-button');
+      const hasSelectedBuildingSize = Array.from(buildingSizeButtons).some(btn => btn.classList.contains('selected'));
+      if (!hasSelectedBuildingSize) {
+        isValid = false;
+        alert('אנא בחר גודל מבנה');
+        return;
+      }
+
+      // וידוא בחירה בכפתורי סוג מבנה
+      const buildingTypeButtons = document.querySelectorAll('.buildingType option');
+      const hasSelectedBuildingType = document.getElementById('buildingType').value;
+      if (!hasSelectedBuildingType) {
+        isValid = false;
+        alert('אנא בחר סוג מבנה');
+        return;
+      }
+
+      // אם נבחר "מעל 70 מ"ר" - וידוא שמולא השדה הנוסף
+      const over100Button = document.querySelector('.building-size-button[data-value="over100"]');
+      if (over100Button && over100Button.classList.contains('selected')) {
+        const buildingSizeExact = document.getElementById('buildingSizeExact');
+        if (!buildingSizeExact.value.trim()) {
+          isValid = false;
+          buildingSizeExact.style.borderColor = 'red';
+          alert('אנא מלא את גודל המבנה המדויק');
+          return;
+        }
+      }
+    }
+
+    // וידוא בחירה בכפתורי סכום ביטוח תכולה
+    if (sections[currentSectionIndex].id === 'contentBuildingSection') {
+      const contentValueButtons = document.querySelectorAll('.content-value-button');
+      const hasSelectedContentValue = Array.from(contentValueButtons).some(btn => btn.classList.contains('selected'));
+      if (!hasSelectedContentValue) {
+        isValid = false;
+        alert('אנא בחר סכום ביטוח תכולה');
+        return;
+      }
+
+      // אם נבחר "מעל 200,000 ₪" - וידוא שמולא השדה הנוסף
+      const over200kButton = document.querySelector('.content-value-button[data-value="over200k"]');
+      if (over200kButton && over200kButton.classList.contains('selected')) {
+        const contentSumExact = document.getElementById('contentSumExact');
+        if (!contentSumExact.value.trim()) {
+          isValid = false;
+          contentSumExact.style.borderColor = 'red';
+          alert('אנא מלא את שווי התכולה המדויק');
+          return;
+        }
+      }
+    }
+
+    // וידוא בחירה בכפתורי סכום תכולת חצר
+    if (sections[currentSectionIndex].id === 'contentBuildingSection') {
+      const yardValueButtons = document.querySelectorAll('.yard-value-button');
+      const hasSelectedYardValue = Array.from(yardValueButtons).some(btn => btn.classList.contains('selected'));
+      if (!hasSelectedYardValue) {
+        isValid = false;
+        alert('אנא בחר סכום תכולת חצר');
+        return;
+      }
+
+      // אם נבחר "מעל 20,000 ₪" - וידוא שמולא השדה הנוסף
+      const over20kButton = document.querySelector('.yard-value-button[data-value="over20k"]');
+      if (over20kButton && over20kButton.classList.contains('selected')) {
+        const yardContentSumExact = document.getElementById('yardContentSumExact');
+        if (!yardContentSumExact.value.trim()) {
+          isValid = false;
+          yardContentSumExact.style.borderColor = 'red';
+          alert('אנא מלא את שווי תכולת החצר המדויק');
+          return;
+        }
+      }
+    }
+
+    // וידוא בחירה בשאלה "האם קיים שעבוד?"
+    if (sections[currentSectionIndex].id === 'contentBuildingSection') {
+      const hasLienToggle = document.querySelector('[data-field="hasLien"]');
+      if (hasLienToggle) {
+        const hiddenInput = hasLienToggle.querySelector('input[type="hidden"]');
+        if (!hiddenInput.value) {
+          isValid = false;
+          alert('אנא בחר האם קיים שעבוד');
+          return;
+        }
+
+        // אם נבחר "כן" - וידוא שמולאו פרטי השעבוד
+        if (hiddenInput.value === 'true') {
+          const lienTypeButtons = document.querySelectorAll('.lien-type-button');
+          const hasSelectedLienType = Array.from(lienTypeButtons).some(btn => btn.classList.contains('selected'));
+          if (!hasSelectedLienType) {
+            isValid = false;
+            alert('אנא בחר סוג המשעבד');
+            return;
+          }
+
+          // וידוא שמולאו פרטי הבנק או החברה
+          const lienDetailsBank = document.getElementById('lienDetailsBank');
+          const lienDetailsCompany = document.getElementById('lienDetailsCompany');
+
+          if (lienDetailsBank && lienDetailsBank.style.display !== 'none') {
+            const bankName = document.getElementById('lienBankName');
+            const bankBranch = document.getElementById('lienBankBranch');
+            const bankAddress = document.getElementById('lienBankAddress');
+
+            if (!bankName.value.trim() || !bankBranch.value.trim() || !bankAddress.value.trim()) {
+              isValid = false;
+              alert('אנא מלא את כל פרטי הבנק');
+              return;
+            }
+          }
+
+          if (lienDetailsCompany && lienDetailsCompany.style.display !== 'none') {
+            const companyName = document.getElementById('lienCompanyName');
+            const companyId = document.getElementById('lienCompanyId');
+
+            if (!companyName.value.trim() || !companyId.value.trim()) {
+              isValid = false;
+              alert('אנא מלא את כל פרטי החברה');
+              return;
+            }
+          }
+        }
+      }
+    }
+
+    // וידוא בחירה בשאלה "ויתור זכות שיבוב"
+    if (sections[currentSectionIndex].id === 'contentBuildingSection') {
+      const waiverToggle = document.querySelector('[data-field="waiverCheckbox"]');
+      if (waiverToggle) {
+        const hiddenInput = waiverToggle.querySelector('input[type="hidden"]');
+        if (!hiddenInput.value) {
+          isValid = false;
+          alert('אנא בחר האם יש ויתור זכות שיבוב');
+          return;
+        }
+
+        // אם נבחר "כן" - וידוא שמולאו פרטי בעל הנכס
+        if (hiddenInput.value === 'true') {
+          const propertyOwnerName = document.getElementById('propertyOwnerName');
+          const propertyOwnerId = document.getElementById('propertyOwnerId');
+
+          if (!propertyOwnerName.value.trim() || !propertyOwnerId.value.trim()) {
+            isValid = false;
+            alert('אנא מלא את פרטי בעל הנכס');
+            return;
+          }
+        }
+      }
+    }
+
+    // וידוא בחירה בכפתורי כן/לא בסקשן פרטי ביטוח
+    if (sections[currentSectionIndex].id === 'insuranceDetails') {
+      const yesNoFields = [
+        'hasOver3Children',
+        'isMember',
+        'claimsLastYear',
+        'supplementalInsurance',
+        'hasContentBuilding'
+      ];
+
+      yesNoFields.forEach(field => {
+        const toggle = document.querySelector(`[data-field="${field}"]`);
+        if (toggle) {
+          const hiddenInput = toggle.querySelector('input[type="hidden"]');
+          if (!hiddenInput.value) {
+            isValid = false;
+            alert(`אנא בחר ${getFieldDisplayName(field)}`);
+            return;
+          }
+        }
+      });
+
+      // וידוא שדות תלויים
+      const hasOver3Children = document.querySelector('[data-field="hasOver3Children"] input[type="hidden"]');
+      if (hasOver3Children && hasOver3Children.value === 'true') {
+        const over3CountInput = document.getElementById('over3ChildrenCount');
+        if (!over3CountInput.value.trim()) {
+          isValid = false;
+          over3CountInput.style.borderColor = 'red';
+          alert('אנא מלא את מספר הילדים מעל גיל 3');
+          return;
+        }
+      }
+
+      const isMember = document.querySelector('[data-field="isMember"] input[type="hidden"]');
+      if (isMember && isMember.value === 'true') {
+        const membershipType = document.getElementById('membershipType');
+        if (!membershipType.value) {
+          isValid = false;
+          membershipType.style.borderColor = 'red';
+          alert('אנא בחר את סוג המועדון');
+          return;
+        }
+      }
+    }
+
+    // וידוא שדות חובה נוספים שמופיעים רק כשכפתור לחוץ
+    if (sections[currentSectionIndex].id === 'coverageAddons') {
+      // וידוא שכל כיסוי נבחר (מעוניין או לא מעוניין)
+      const coverageOptions = document.querySelectorAll('#coverageOptionsContainer .coverage-option');
+      coverageOptions.forEach(optionDiv => {
+        const optionName = optionDiv.dataset.option;
+        const interestedBtn = optionDiv.querySelector('.interested-button');
+        const notInterestedBtn = optionDiv.querySelector('.not-interested-button');
+
+        if (interestedBtn && notInterestedBtn) {
+          const isInterestedSelected = interestedBtn.classList.contains('selected');
+          const isNotInterestedSelected = notInterestedBtn.classList.contains('selected');
+
+          if (!isInterestedSelected && !isNotInterestedSelected) {
+            isValid = false;
+            alert(`אנא בחר מעוניין או לא מעוניין עבור ${getCoverageDisplayName(optionName)}`);
+            return;
+          }
+        }
+      });
+
+      // וידוא שדות חובה לכיסויים שנבחרו
+      document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
+        const optionName = optionDiv.dataset.option;
+        const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+
+        if (hiddenInput && hiddenInput.value === 'true') {
+          // וידוא שדות חובה לפי סוג הכיסוי
+          if (optionName === 'thirdParty') {
+            const coverageSelect = optionDiv.querySelector('.thirdPartyCoverage');
+            if (!coverageSelect.value) {
+              isValid = false;
+              coverageSelect.style.borderColor = 'red';
+              alert('אנא בחר סכום גבול אחריות');
+              return;
+            }
+          }
+
+          if (optionName === 'afterSchoolProgram') {
+            const afterSchoolInput = optionDiv.querySelector('.afterSchoolChildrenCount');
+            if (afterSchoolInput && !afterSchoolInput.value.trim()) {
+              isValid = false;
+              afterSchoolInput.style.borderColor = 'red';
+              alert('אנא מלא את מספר הילדים בצהרון');
+              return;
+            }
+          }
+
+          if (optionName === 'teacherAccidents') {
+            const coverageSelect = optionDiv.querySelector('.teacherAccidentsCoverage');
+            if (!coverageSelect.value) {
+              isValid = false;
+              coverageSelect.style.borderColor = 'red';
+              alert('אנא בחר מסלול כיסוי');
+              return;
+            }
+
+            const employeeRows = optionDiv.querySelectorAll('.pa-employee-row');
+            if (employeeRows.length === 0) {
+              isValid = false;
+              alert('אנא הוסף לפחות גננת אחת לכיסוי תאונות אישיות');
+              return;
+            }
+
+            employeeRows.forEach(row => {
+              const nameInput = row.querySelector('input[name="personalAccidentEmployeeName[]"]');
+              const idInput = row.querySelector('input[name="personalAccidentEmployeeId[]"]');
+              const birthdateInput = row.querySelector('input[name="personalAccidentEmployeeBirthdate[]"]');
+
+              if (!nameInput.value.trim() || !idInput.value.trim() || !birthdateInput.value.trim()) {
+                isValid = false;
+                alert('אנא מלא את כל פרטי הגננת');
+                return;
+              }
+            });
+          }
+
+          if (optionName === 'professionalLiability') {
+            const employeeRows = optionDiv.querySelectorAll('.professional-liability-row');
+            if (employeeRows.length === 0) {
+              isValid = false;
+              alert('אנא הוסף לפחות גננת אחת לכיסוי אחריות מקצועית');
+              return;
+            }
+
+            employeeRows.forEach(row => {
+              const nameInput = row.querySelector('input[name="professionalLiabilityEmployeeName[]"]');
+              const idInput = row.querySelector('input[name="professionalLiabilityEmployeeId[]"]');
+              const birthdateInput = row.querySelector('input[name="professionalLiabilityEmployeeBirthdate[]"]');
+
+              if (!nameInput.value.trim() || !idInput.value.trim() || !birthdateInput.value.trim()) {
+                isValid = false;
+                alert('אנא מלא את כל פרטי הגננת');
+                return;
+              }
+            });
+          }
+
+          if (optionName === 'employerLiability') {
+            const employeesCountInput = optionDiv.querySelector('#employerLiabilityEmployeesCount');
+            if (!employeesCountInput.value.trim()) {
+              isValid = false;
+              employeesCountInput.style.borderColor = 'red';
+              alert('אנא מלא את מספר העובדים');
+              return;
+            }
+          }
+
+          if (optionName === 'birthdayActivities') {
+            const typeSelect = optionDiv.querySelector('.birthdayActivitiesType');
+            if (!typeSelect.value) {
+              isValid = false;
+              typeSelect.style.borderColor = 'red';
+              alert('אנא בחר סוג מפעיל');
+              return;
+            }
+          }
+
+          if (optionName === 'incomeLoss') {
+            const durationSelect = optionDiv.querySelector('.incomeLossDuration');
+            const amountSelect = optionDiv.querySelector('.incomeLossAmount');
+            if (!durationSelect.value || !amountSelect.value) {
+              isValid = false;
+              alert('אנא בחר משך הכיסוי וסכום הפיצוי החודשי');
+              return;
+            }
+          }
+        }
+      });
+    }
+
+    // וידוא בחירת אמצעי תשלום
+    if (sections[currentSectionIndex].id === 'paymentSelection') {
+      if (!selectedPaymentMethod) {
+        isValid = false;
+        alert('אנא בחר אמצעי תשלום');
+        return;
+      }
+    }
+
+    // וידוא חתימה וקבצים לפי אמצעי התשלום
+    if (['bankTransferSection', 'creditCardSection', 'debitAuthSection'].includes(sections[currentSectionIndex].id)) {
+      // וידוא חתימה
+      let canvasId = '';
+      if (sections[currentSectionIndex].id === 'bankTransferSection') canvasId = 'signatureCanvasBank';
+      if (sections[currentSectionIndex].id === 'creditCardSection') canvasId = 'signatureCanvasCredit';
+      if (sections[currentSectionIndex].id === 'debitAuthSection') canvasId = 'signatureCanvasDebit';
+
+      const signatureCanvas = document.getElementById(canvasId);
+      if (signatureCanvas && isCanvasBlank(signatureCanvas)) {
+        isValid = false;
+        alert('אנא חתום על הטופס');
+        signatureCanvas.style.border = "2px solid red";
+        setTimeout(() => signatureCanvas.style.border = "", 2000);
+        signatureCanvas.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      // וידוא העלאת קובץ לפי אמצעי התשלום
+      if (sections[currentSectionIndex].id === 'bankTransferSection') {
+        const bankFile = document.getElementById('bankTransferProof');
+        if (!bankFile.files[0]) {
+          isValid = false;
+          alert('אנא העלה אישור העברה בנקאית');
+          return;
+        }
+      }
+
+      if (sections[currentSectionIndex].id === 'debitAuthSection') {
+        const debitFile = document.getElementById('debitAuthUpload');
+        if (!debitFile.files[0]) {
+          isValid = false;
+          alert('אנא העלה טופס חתום ואישור');
+          return;
+        }
+      }
+    }
+
     if (!isValid) {
       alert('אנא מלא את כל השדות הנדרשים.');
       return;
@@ -467,6 +885,8 @@ function updateCoverageOptions() {
       if ([4, 5, 6, 7].includes(track)) return; // מסלולים שבהם זה כלול
     }
 
+    if (option === 'incomeLoss' && ![6, 7].includes(track)) return;
+
     const template = templates.querySelector(`#coverage-${option}`);
     if (template) {
       const clone = template.cloneNode(true);
@@ -521,13 +941,13 @@ function addEventListenersToOption(optionDiv) {
 
     if (optionName === 'teacherAccidents') {
       document.querySelectorAll('input[name="personalAccidentEmployeeName[]"], input[name="personalAccidentEmployeeId[]"], input[name="personalAccidentEmployeeBirthdate[]"]').forEach(input => {
-        input.required = true;
+        input.required = false;
       });
     }
 
     if (optionName === 'professionalLiability') {
       document.querySelectorAll('input[name="professionalLiabilityEmployeeName[]"], input[name="professionalLiabilityEmployeeId[]"], input[name="professionalLiabilityEmployeeBirthdate[]"]').forEach(input => {
-        input.required = true;
+        input.required = false;
       });
     }
 
@@ -675,15 +1095,16 @@ function determinePolicyTrack() {
 
 
 function calculatePremium() {
+  // קבלת ערכי שדות מרכזיים מהטופס
   const gardenTypeValue = gardenType.value;
   const childrenCountValue = parseInt(childrenCount.value) || 0;
   let basePremium = 0;
 
-  // משתנה עזר - האם בחר ביטוח תכולה ומבנה
+  // בודק האם בחרו לבטח תכולה ומבנה
   const hasContentBuilding = document.getElementById('hasContentBuilding');
   const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
 
-  // אם אין גן או אין ילדים, תמיד 0
+  // אם אין סוג גן או אין ילדים בכלל - הפרמיה תמיד 0
   if (!gardenTypeValue || childrenCountValue < 1) {
     premiumAmount.textContent = '0 ₪';
     const discountDisplay = document.getElementById('discountDisplay');
@@ -691,95 +1112,97 @@ function calculatePremium() {
     return;
   }
 
-  // חישוב לפי מסלול
+  // חישוב פרמיה בסיסית לפי מסלול (track)
   const track = determinePolicyTrack();
   if ([3, 4, 5, 6, 7].includes(track)) {
-    // טבלת מחירים חדשה
+    // מסלולים מתקדמים - לכל מסלול מינימום ופרמיה פר ילד
     let min = 0, perChild = 0;
     switch (track) {
-      case 3:
-        min = 900;
-        perChild = 112.5;
-        break;
-      case 4:
-        min = 1100;
-        perChild = 110;
-        break;
-      case 5:
-        min = 1100;
-        perChild = 55;
-        break;
-      case 6:
-        min = 1400;
-        perChild = 80;
-        break;
-      case 7:
-        min = 1400;
-        perChild = 120;
-        break;
+      case 3: min = 900; perChild = 112.5; break;
+      case 4: min = 1100; perChild = 110; break;
+      case 5: min = 1100; perChild = 55; break;
+      case 6: min = 1400; perChild = 80; break;
+      case 7: min = 1400; perChild = 120; break;
     }
     basePremium = Math.max(childrenCountValue * perChild, min);
   } else {
-    // חישוב basePremium לפי סוג גן ומבנה/תכולה (לשאר המסלולים, כולל מדרגות)
+    // מסלולים אחרים - מחשב לפי מדרגות
     switch (gardenTypeValue) {
-      case 'tamah': // מסלול 1 - תמ"ת
+      case 'tamah':
         if (childrenCountValue <= 6) basePremium = 500;
         else if (childrenCountValue <= 10) basePremium = 1000;
         else basePremium = 1000 + (childrenCountValue - 10) * 100;
         break;
-      case 'privateFamily': // מסלול 2/3/4
-        if (childrenCountValue <= 6) basePremium = 650; // מסלול 2 - עד 6 ילדים, ללא עובדים
-        else if (childrenCountValue <= 8) basePremium = 900; // מסלול 3 - עד 8 ילדים ללא מבנה/תכולה
-        else if (childrenCountValue === 9) basePremium = 900 + 105; // מסלול 3 - 9 ילדים (ילד אחד נוסף)
-        else if (childrenCountValue <= 10) basePremium = 1100; // מסלול 4 - עד 10 ילדים, ללא מבנה/תכולה
-        else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4 - מעל 10 ילדים, ללא מבנה/תכולה
+      case 'privateFamily':
+        if (childrenCountValue <= 6) basePremium = 650;
+        else if (childrenCountValue <= 8) basePremium = 900;
+        else if (childrenCountValue === 9) basePremium = 900 + 105;
+        else if (childrenCountValue <= 10) basePremium = 1100;
+        else basePremium = 1100 + (childrenCountValue - 10) * 110;
         break;
       case 'upTo3':
         if (includeContentBuilding) {
-          if (childrenCountValue <= 12) basePremium = 1400; // מסלול 7 - כולל תכולה ומבנה
+          if (childrenCountValue <= 12) basePremium = 1400;
           else basePremium = 1400 + (childrenCountValue - 12) * 120;
         } else {
-          if (childrenCountValue <= 6) basePremium = 650; // מסלול 2 - עד 6 ילדים, ללא עובדים
-          else if (childrenCountValue <= 8) basePremium = 900; // מסלול 3 - עד 8 ילדים ללא מבנה/תכולה
-          else if (childrenCountValue === 9) basePremium = 900 + 105; // מסלול 3 - 9 ילדים (ילד אחד נוסף)
-          else if (childrenCountValue <= 10) basePremium = 1100; // מסלול 4 - עד 10 ילדים
-          else basePremium = 1100 + (childrenCountValue - 10) * 110; // מסלול 4 - מעל 10 ילדים
+          if (childrenCountValue <= 6) basePremium = 650;
+          else if (childrenCountValue <= 8) basePremium = 900;
+          else if (childrenCountValue === 9) basePremium = 900 + 105;
+          else if (childrenCountValue <= 10) basePremium = 1100;
+          else basePremium = 1100 + (childrenCountValue - 10) * 110;
         }
         break;
-      case 'over3': // מסלול 5/6
+      case 'over3':
       case 'afterSchool':
-        // מבדילים לפי checkbox של תכולה/מבנה (מסלול 6 אם יש, 5 אם לא)
         if (includeContentBuilding) {
-          if (childrenCountValue <= 17) basePremium = 1400; // מסלול 6 - עד 17 ילדים
-          else basePremium = 1400 + (childrenCountValue - 17) * 80; // מסלול 6 - מעל 17 ילדים
+          if (childrenCountValue <= 17) basePremium = 1400;
+          else basePremium = 1400 + (childrenCountValue - 17) * 80;
         } else {
-          if (childrenCountValue <= 20) basePremium = 1100; // מסלול 5 - עד 20 ילדים
-          else basePremium = 1100 + (childrenCountValue - 20) * 55; // מסלול 5 - מעל 20 ילדים
+          if (childrenCountValue <= 20) basePremium = 1100;
+          else basePremium = 1100 + (childrenCountValue - 20) * 55;
         }
         break;
     }
   }
 
-  // הנחות מועדון (לפי המסלול)
+  // === הנחת מועדון (אם קיים) ===
   const isMemberCheckbox = document.getElementById('isMember');
   const isMember = isMemberCheckbox && (isMemberCheckbox.checked || isMemberCheckbox.value === "true");
-  let totalDiscount = 0;
-  let minPremium = basePremium;
-  
+  let clubDiscount = 0;
+
+  let min = 0;
+  switch (track) {
+    case 3: min = 900; perChild = 112.5; break;
+    case 4: min = 1100; perChild = 110; break;
+    case 5: min = 1100; perChild = 55; break;
+    case 6: min = 1400; perChild = 80; break;
+    case 7: min = 1400; perChild = 120; break;
+  }
+  let minPremium = min; // המינימום שצריך להישאר אחרי הנחות
+
   if (isMember) {
+    // מחשב את סכום ההנחה ומינימום לכל מסלול רלוונטי
     const currentTrack = determinePolicyTrack();
-    
-    // מסלול 4+7: 10 ש"ח לילד, מסלול 5+6: 5 ש"ח לילד
     if (currentTrack === 4 || currentTrack === 7) {
-      totalDiscount = childrenCountValue * 10;
+      clubDiscount = childrenCountValue * 10;
       minPremium = currentTrack === 4 ? 1100 : 1400;
     } else if (currentTrack === 5 || currentTrack === 6) {
-      totalDiscount = childrenCountValue * 5;
+      clubDiscount = childrenCountValue * 5;
       minPremium = currentTrack === 5 ? 1100 : 1400;
     }
   }
 
-  // סכום תוספות שנבחרו
+  // === הנחה עבור ילדים מעל גיל 3 ===
+  let over3Discount = 0;
+  const hasOver3Children = document.getElementById('hasOver3Children')?.value === 'true';
+  let over3ChildrenCount = 0;
+  if (hasOver3Children) {
+    // מושך את כמות הילדים מהשדה הנסתר
+    over3ChildrenCount = parseInt(document.getElementById('over3ChildrenCount')?.value) || 0;
+    over3Discount = over3ChildrenCount * 40; // 40 ש"ח לכל ילד מעל גיל 3
+  }
+
+  // === סכום כל התוספות שנבחרו ===
   let addonsTotal = 0;
   document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
     const optionName = optionDiv.dataset.option;
@@ -789,26 +1212,36 @@ function calculatePremium() {
       let price = 0;
       try {
         price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
-      } catch (e) {
-        price = 0;
-      }
+      } catch (e) { price = 0; }
       addonsTotal += price;
     }
   });
 
-  // הוספת תוספת תכולה ומבנה אם נבחרה (גם אם אין אופציה כזו ב-coverage options)
+  // תוספת על תכולה ומבנה אם נבחרה
   if (includeContentBuilding) {
     const contentBuildingCost = getOptionCost('contentBuilding', gardenTypeValue, childrenCountValue, includeContentBuilding);
     addonsTotal += contentBuildingCost;
   }
 
-  let totalPremium = Math.max(basePremium - totalDiscount, minPremium) + addonsTotal;
+  // === חיבור כל המרכיבים לסכום הסופי ===
+  let totalDiscounts = clubDiscount + over3Discount; // סך כל ההנחות (מועדון + ילדים מעל גיל 3)
+  let totalPremium = Math.max(basePremium - totalDiscounts, minPremium) + addonsTotal; // חישוב סופי
+
+  // ודא שהסכום לא יורד מהמינימום אחרי כל ההנחות
+  if (totalPremium < minPremium) totalPremium = minPremium;
+
+  // עדכון התצוגה ללקוח
   premiumAmount.textContent = totalPremium + ' ₪';
+
+  // הצגת פירוט ההנחות (אם יש)
   const discountDisplay = document.getElementById('discountDisplay');
   if (discountDisplay) {
-    discountDisplay.textContent = totalDiscount > 0 ? `הנחת מועדון: ${totalDiscount} ש"ח` : '';
+    let desc = '';
+    if (clubDiscount > 0) desc += `הנחת מועדון: ${clubDiscount} ש"ח`;
+    discountDisplay.textContent = desc;
   }
 }
+
 
 
 
@@ -834,19 +1267,24 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
         contentAddition = ((contentSum - 200000) / 40000) * 82;
       }
 
+      // ---- תוספת עבור תכולת חצר ----
+      // אם תכולת החצר מעל 20,000 ש"ח, מחשבים תוספת
+      let yardAddition = 0;
+      const yardSum = parseFloat(document.querySelector('.yardContentSum')?.value.replace(/[^0-9.]/g, '')) || 0;
+      if (yardSum > 20000) {
+        yardAddition = ((yardSum - 20000) / 40000) * 82;
+      }
+
       // ---- תוספת עבור שטח מבנה ----
       let buildingAddition = 0;
       const buildingSizeValue = document.getElementById('buildingSizeExact')?.value || '';
       const buildingSize = parseFloat(buildingSizeValue.replace(/[^0-9.]/g, '')) || 0;
-      if (buildingSize > 100) {
-        buildingAddition = (((buildingSize - 100) * 5000) / 40000) * 82;
+      if (buildingSize > 70) {
+        buildingAddition = (((buildingSize * 7200) - 500000) / 40000) * 82;
       }
 
-      // ---- תכולת חצר – אין תוספת ----
-      // (לא מוסיפים שום דבר)
-
       // סכום סופי, מעוגל לש"ח
-      cost = Math.round((contentAddition + buildingAddition));
+      cost = (contentAddition + buildingAddition + yardAddition);
       return cost;
     }
 
@@ -908,7 +1346,7 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
       if (months === 6) multiplier = 45;
       if (months === 9) multiplier = 60;
       const result = ((monthlyAmount * 12) / 10000) * multiplier;
-      return Math.round(result);
+      return result;
 
     case 'birthdayActivities':
       const type = document.querySelector('.birthdayActivitiesType')?.value;
@@ -1007,6 +1445,15 @@ form.addEventListener('submit', async (e) => {
   }
 });
 
+
+function isValidPhoneNumber(phone) {
+  // מסיר רווחים, מקפים וסוגריים
+  const cleaned = phone.replace(/[\s\-()]/g, "");
+  // בדיקה של 9-10 ספרות, מתחיל ב-0 (קו ישראלי רגיל)
+  return /^0\d{8,9}$/.test(cleaned);
+}
+
+
 function collectFormData() {
   console.log('--- collectFormData called ---');
   const payload = {};
@@ -1058,6 +1505,10 @@ function collectFormData() {
       } else if (optionName === 'employerLiability') {
         const employeesInput = optionDiv.querySelector('#employerLiabilityEmployeesCount');
         if (employeesInput) value = employeesInput.value;
+      } else if (optionName === 'birthdayActivities') {
+        // ספציפי להפעלות ימי הולדת – נשלח את סוג המפעיל
+        const birthdayTypeSelect = optionDiv.querySelector('.birthdayActivitiesType');
+        if (birthdayTypeSelect) value = birthdayTypeSelect.value;
       } else {
         // לאחרים – נשלח את select כללי אם יש
         const genericSelect = optionDiv.querySelector('.conditional-section select');
@@ -1066,6 +1517,9 @@ function collectFormData() {
 
       if (value !== '') {
         payload[`insuranceOptionsDetails[${optionName}]`] = value;
+      } else if (optionName === 'birthdayActivities') {
+        // תמיד שלח את השדה birthdayActivitiesType, גם אם הוא ריק
+        payload['birthdayActivitiesType'] = value;
       }
     }
 
@@ -1092,12 +1546,11 @@ function collectFormData() {
   document.querySelectorAll('.button-group').forEach(group => {
     let selected = group.querySelector('button.selected');
     if (selected && selected.dataset.value) {
-      let groupName = group.closest('[data-option]')?.dataset.option ||
-        group.closest('.form-group')?.querySelector('label')?.innerText?.replace(/[^\w]/g, '') ||
-        selected.innerText;
+      let groupName = group.getAttribute('data-key');
       if (groupName) payload[`buttonGroup_${groupName}`] = selected.dataset.value;
     }
   });
+
 
   // ---------- מבנה ותכולה ----------
   const hasContentBuilding = document.getElementById('hasContentBuilding');
@@ -1111,7 +1564,9 @@ function collectFormData() {
   }
 
   // ---------- פרמיה, תשלום, חתימה, קבצים ----------
-  payload['premium'] = parseInt(document.getElementById('premiumAmount').textContent.replace(/[^0-9]/g, '')) || 0;
+  let premiumText = document.getElementById('premiumAmount').textContent.replace(/[^\d.]/g, '');
+  //payload['premium'] = parseFloat(premiumText) || 0;
+  payload['premium'] = premiumText;
   payload['paymentMethod'] = window.selectedPaymentMethod || '';
 
   // ---------- automation מתוך URL ----------
@@ -1127,10 +1582,19 @@ function collectFormData() {
   payload['policyTrack'] = determinePolicyTrack();
 
   // ---------- מחיר תכולה ----------
-  payload['contentAdditionCost'] = Math.round(getContentAdditionCost());
+  const contentCost = getContentAdditionCost();
+  payload['contentAdditionCost'] = contentCost;
+  console.log('contentAdditionCost:', contentCost);
 
   // ---------- מחיר מבנה ----------
-  payload['buildingAdditionCost'] = Math.round(getBuildingAdditionCost());
+  const buildingCost = getBuildingAdditionCost();
+  payload['buildingAdditionCost'] = buildingCost;
+  console.log('buildingAdditionCost:', buildingCost);
+
+  // ---------- מחיר חצר ----------
+  const yardCost = getYardAdditionCost();
+  payload['yardAdditionCost'] = yardCost;
+  console.log('yardAdditionCost:', yardCost);
 
   // ---------- האם צריך עריכת ביטוח ----------
   const approvalCheckbox = document.querySelector('.form-section.active .needsApprovalCheckbox');
@@ -1140,6 +1604,14 @@ function collectFormData() {
   const afterSchoolInput = document.querySelector('.afterSchoolChildrenCount');
   if (afterSchoolInput && afterSchoolInput.value) {
     payload['afterSchoolChildrenCount'] = afterSchoolInput.value;
+  }
+
+  // ---------- סוג מפעיל הפעלות ימי הולדת (תמיד נשלח) ----------
+  const birthdayActivitiesTypeSelect = document.querySelector('.birthdayActivitiesType');
+  if (birthdayActivitiesTypeSelect) {
+    payload['birthdayActivitiesType'] = birthdayActivitiesTypeSelect.value || '';
+  } else {
+    payload['birthdayActivitiesType'] = '';
   }
 
 
@@ -1152,25 +1624,97 @@ function collectFormData() {
 }
 
 function getBuildingAdditionCost() {
-  const includeContentBuilding = document.getElementById('hasContentBuilding')?.checked;
+  const includeContentBuilding = document.getElementById('hasContentBuilding')?.value === "true";
+  console.log('getBuildingAdditionCost - includeContentBuilding:', includeContentBuilding);
   if (!includeContentBuilding) return 0;
   const buildingSizeValue = document.getElementById('buildingSizeExact')?.value || '';
   const buildingSize = parseFloat(buildingSizeValue.replace(/[^0-9.]/g, '')) || 0;
-  if (buildingSize > 100) {
-    return (((buildingSize - 100) * 5000) / 40000) * 82;
+  console.log('getBuildingAdditionCost - buildingSize:', buildingSize);
+  if (buildingSize > 70) {
+    const cost = (((buildingSize * 7200) - 500000) / 40000) * 82;
+    console.log('getBuildingAdditionCost - calculated cost:', cost);
+    return cost;
   }
   return 0;
 }
 
 
 function getContentAdditionCost() {
-  const includeContentBuilding = document.getElementById('hasContentBuilding')?.checked;
+  const includeContentBuilding = document.getElementById('hasContentBuilding')?.value === "true";
+  console.log('getContentAdditionCost - includeContentBuilding:', includeContentBuilding);
   if (!includeContentBuilding) return 0;
-  const contentSum = parseFloat(document.querySelector('.contentSum')?.value.replace(/[^0-9.]/g, '')) || 0;
+  const contentSum = parseFloat(document.getElementById('contentSumExact')?.value.replace(/[^0-9.]/g, '')) || 0;
+  console.log('getContentAdditionCost - contentSum:', contentSum);
   if (contentSum > 200000) {
-    return ((contentSum - 200000) / 40000) * 82;
+    const cost = ((contentSum - 200000) / 40000) * 82;
+    console.log('getContentAdditionCost - calculated cost:', cost);
+    return cost;
   }
   return 0;
+}
+
+function getYardAdditionCost() {
+  const includeContentBuilding = document.getElementById('hasContentBuilding')?.value === "true";
+  console.log('getYardAdditionCost - includeContentBuilding:', includeContentBuilding);
+  if (!includeContentBuilding) return 0;
+  const yardSum = parseFloat(document.getElementById('yardContentSumExact')?.value.replace(/[^0-9.]/g, '')) || 0;
+  console.log('getYardAdditionCost - yardSum:', yardSum);
+  if (yardSum > 20000) {
+    const cost = ((yardSum - 20000) / 40000) * 82;
+    console.log('getYardAdditionCost - calculated cost:', cost);
+    return cost;
+  }
+  return 0;
+}
+
+function updateCoverageOptionPrices() {
+  ensureOptionCostSpans();
+  const gardenTypeValue = gardenType.value;
+  const childrenCountValue = parseInt(childrenCount.value) || 0;
+  const hasContentBuilding = document.getElementById('hasContentBuilding');
+  const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
+
+  document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
+    const optionName = optionDiv.dataset.option;
+    const priceSpan = optionDiv.querySelector('.option-cost');
+    let price = 0;
+    try {
+      price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
+    } catch (e) {
+      price = 0;
+    }
+    if (priceSpan) {
+      priceSpan.textContent = `מחיר: ₪${price}`;
+      console.log('עדכון מחיר עבור', optionName, '->', price);
+    } else {
+      console.warn('לא נמצא option-cost עבור', optionName);
+    }
+  });
+  updateAddonsTotal();
+}
+
+function updateAddonsTotal() {
+  let total = 0;
+  const gardenTypeValue = gardenType.value;
+  const childrenCountValue = parseInt(childrenCount.value) || 0;
+  const hasContentBuilding = document.getElementById('hasContentBuilding');
+  const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
+  document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
+    const optionName = optionDiv.dataset.option;
+    const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+    if (!optionName) return;
+    if (hiddenInput.value === 'true') {
+      let price = 0;
+      try {
+        price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
+      } catch (e) {
+        price = 0;
+      }
+      total += price;
+    }
+  });
+  const totalDisplay = document.getElementById('addonsTotalDisplay');
+  if (totalDisplay) totalDisplay.textContent = `סך הכל תוספות: ₪${total}`;
 }
 
 
@@ -1207,17 +1751,23 @@ function setupPersonalAccidentEmployees() {
 
 // יוצר שורה של גננת
 function addPersonalAccidentEmployeeRow(container, data = {}) {
+  // Add null check for container
+  if (!container) {
+    console.warn('Container is null for addPersonalAccidentEmployeeRow');
+    return;
+  }
+
   const row = document.createElement('div');
   row.className = 'form-group pa-employee-row';
   row.style.display = 'flex';
   row.style.gap = '8px';
   row.style.alignItems = 'center';
   row.innerHTML = `
-    <input type="text" name="personalAccidentEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2" required>
-    <input type="text" name="personalAccidentEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" required>
+    <input type="text" name="personalAccidentEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2" >
+    <input type="text" name="personalAccidentEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" >
     <div style="flex:1">
       <label style="display:block; font-size: 0.85em;">תאריך לידה:</label>
-      <input type="date" name="personalAccidentEmployeeBirthdate[]" value="${data.birthdate || ''}" required>
+      <input type="date" name="personalAccidentEmployeeBirthdate[]" value="${data.birthdate || ''}" >
     </div>
     <button type="button" class="removePersonalAccidentEmployee" aria-label="הסר גננת"
       style="background: #e74c3c; color: #fff; border:none; border-radius:6px; padding:6px 10px; margin-right:3px;">X</button>
@@ -1272,17 +1822,23 @@ function setupProfessionalLiabilityEmployees() {
 }
 
 function addProfessionalLiabilityEmployeeRow(container, data = {}) {
+  // Add null check for container
+  if (!container) {
+    console.warn('Container is null for addProfessionalLiabilityEmployeeRow');
+    return;
+  }
+
   const row = document.createElement('div');
   row.className = 'form-group professional-liability-row';
   row.style.display = 'flex';
   row.style.gap = '8px';
   row.style.alignItems = 'center';
   row.innerHTML = `
-    <input type="text" name="professionalLiabilityEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2" required>
-    <input type="text" name="professionalLiabilityEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" required>
+    <input type="text" name="professionalLiabilityEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2" >
+    <input type="text" name="professionalLiabilityEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" >
     <div style="flex:1">
       <label style="display:block; font-size: 0.85em;">תאריך לידה:</label>
-      <input type="date" name="professionalLiabilityEmployeeBirthdate[]" value="${data.birthdate || ''}" required>
+      <input type="date" name="professionalLiabilityEmployeeBirthdate[]" value="${data.birthdate || ''}" >
     </div>    <button type="button" class="removeProfessionalLiabilityEmployee" aria-label="הסר גננת"
       style="background: #e74c3c; color: #fff; border:none; border-radius:6px; padding:6px 10px; margin-right:3px;">X</button>
   `;
@@ -1306,32 +1862,55 @@ function addProfessionalLiabilityEmployeeRow(container, data = {}) {
 
 
 async function sendToWebhook(payload) {
-  const formData = new FormData();
+  try {
+    const formData = new FormData();
 
-  // מוסיפים כל שדה בדיוק בשם ובערך כפי שצריך
-  Object.entries(payload).forEach(([key, value]) => {
-    formData.append(key, value);
-  });
+    // מוסיפים כל שדה בדיוק בשם ובערך כפי שצריך
+    Object.entries(payload).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
 
-  // טיפול באסמכתא
-  if (selectedPaymentMethod === 'bank') {
-    const file = document.getElementById('bankTransferProof').files[0];
-    if (file) formData.append('proofFile', file);
-  } else if (selectedPaymentMethod === 'debit') {
-    const file = document.getElementById('debitAuthUpload').files[0];
-    if (file) formData.append('proofFile', file);
+    // טיפול באסמכתא
+    if (selectedPaymentMethod === 'bank') {
+      const file = document.getElementById('bankTransferProof').files[0];
+      if (file) formData.append('proofFile', file);
+    } else if (selectedPaymentMethod === 'debit') {
+      const file = document.getElementById('debitAuthUpload').files[0];
+      if (file) formData.append('proofFile', file);
+    }
+
+    // הוספת חתימה
+    await appendSignatureToFormData(formData, selectedPaymentMethod);
+
+    // שליחה ל-Webhook
+    console.log('Sending data to webhook:', payload);
+    console.log('FormData entries:');
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+
+    const response = await fetch('https://hook.eu2.make.com/767snb13mqqn3q276wb6hhggne7oyjxy', {
+      method: 'POST',
+      body: formData,
+    });
+
+    console.log('Response status:', response.status);
+    console.log('Response status text:', response.statusText);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Webhook error response:', errorText);
+      throw new Error(`HTTP ${response.status}: ${response.statusText}. Response: ${errorText}`);
+    }
+
+    const responseText = await response.text();
+    console.log('Webhook success response:', responseText);
+
+  } catch (error) {
+    console.error('Webhook error details:', error);
+    console.error('Error stack:', error.stack);
+    throw error;
   }
-
-  // הוספת חתימה
-  await appendSignatureToFormData(formData, selectedPaymentMethod);
-
-  // שליחה ל-Webhook
-  console.log('Sending data to webhook:', payload);
-  const response = await fetch('https://hook.eu2.make.com/767snb13mqqn3q276wb6hhggne7oyjxy', {
-    method: 'POST',
-    body: formData,
-  });
-  if (!response.ok) throw new Error('Network response was not ok');
 }
 
 // עוזר – מוסיף את החתימה כקובץ לתוך ה-FormData
@@ -1523,20 +2102,20 @@ function prefillCoverageAddonsFromUrl() {
   // תאונות אישיות לגננת
   if (urlPrefillData['personalAccidentEmployees']) {
     const paList = urlPrefillData['personalAccidentEmployees'].split(';').filter(Boolean);
-    const paContainer = document.querySelector('.personal-accident-employees-list');
+    const paContainer = document.getElementById('personalAccidentEmployeesRows');
     if (paContainer) paContainer.innerHTML = '';
     paList.forEach(entry => {
-      const [name, id] = entry.split('|');
+      const [name, id, birthdate] = entry.split('|');
       addPersonalAccidentEmployeeRow(paContainer, { name, id, birthdate });
     });
   }
   // אחריות מקצועית
   if (urlPrefillData['professionalLiabilityEmployees']) {
     const profList = urlPrefillData['professionalLiabilityEmployees'].split(';').filter(Boolean);
-    const profContainer = document.querySelector('.professional-liability-list');
+    const profContainer = document.getElementById('professionalLiabilityEmployeesRows');
     if (profContainer) profContainer.innerHTML = '';
     profList.forEach(entry => {
-      const [name, id] = entry.split('|');
+      const [name, id, birthdate] = entry.split('|');
       addProfessionalLiabilityEmployeeRow(profContainer, { name, id, birthdate });
     });
   }
@@ -1565,6 +2144,33 @@ function prefillCoverageAddonsFromUrl() {
     }
   }
 
+  // Prefill מספר עובדים לכיסוי חבות מעבידים, אם קיים employeesCount ב-URL
+  if (urlPrefillData['employeesCount']) {
+    const employerCountInput = document.querySelector('#employerLiabilityEmployeesCount');
+    if (employerCountInput) {
+      employerCountInput.value = urlPrefillData.employeesCount;
+      employerCountInput.dispatchEvent(new Event('input'));
+    }
+  }
+
+  // Prefill מספר ילדים בצהרון אם יש פרמטר כזה ב-URL
+  if (urlPrefillData['afterSchoolChildrenCount']) {
+    const afterSchoolInput = document.querySelector('.afterSchoolChildrenCount');
+    if (afterSchoolInput) {
+      afterSchoolInput.value = urlPrefillData.afterSchoolChildrenCount;
+      afterSchoolInput.dispatchEvent(new Event('input'));
+    }
+  }
+
+  // סוג מפעיל לימי הולדת
+  if (urlPrefillData['birthdayActivitiesType']) {
+    const birthdayTypeInput = document.querySelector('.birthdayActivitiesType');
+    if (birthdayTypeInput) {
+      birthdayTypeInput.value = urlPrefillData.birthdayActivitiesType;
+      birthdayTypeInput.dispatchEvent(new Event('change'));
+    }
+  }
+
 }
 
 
@@ -1589,6 +2195,47 @@ function prefillFromUrl() {
       } else {
         el.value = value;
         el.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }
+  });
+
+  // --- טיפול בכפתורי כן/לא (yesno-toggle) ---
+  const yesNoFields = [
+    'hasOver3Children',
+    'isMember',
+    'claimsLastYear',
+    'supplementalInsurance',
+    'hasContentBuilding',
+    'hasLien',
+    'waiverCheckbox'
+  ];
+
+  yesNoFields.forEach(field => {
+    const value = urlParams.get(field);
+    if (value !== null && value !== undefined) {
+      const toggle = document.querySelector(`[data-field="${field}"]`);
+      if (toggle) {
+        const yesBtn = toggle.querySelector('.yes-btn');
+        const noBtn = toggle.querySelector('.no-btn');
+        const hiddenInput = toggle.querySelector('input[type="hidden"]');
+
+        if (yesBtn && noBtn && hiddenInput) {
+          // הסר בחירה קודמת
+          yesBtn.classList.remove('selected');
+          noBtn.classList.remove('selected');
+
+          // בחר לפי הערך מה-URL
+          if (value === 'true') {
+            yesBtn.classList.add('selected');
+            hiddenInput.value = 'true';
+          } else if (value === 'false') {
+            noBtn.classList.add('selected');
+            hiddenInput.value = 'false';
+          }
+
+          // הפעל אירוע change כדי לעדכן תלויות
+          hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
       }
     }
   });
@@ -1714,6 +2361,7 @@ function prefillFromUrl() {
       addProfessionalLiabilityEmployeeRow(profContainer, { name, id, birthdate });
     });
   }
+
 }
 
 function isCanvasBlank(canvas) {
@@ -1748,7 +2396,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   gardenType.addEventListener('change', updateChildrenCountMax);
-  childrenCount.addEventListener('input', function() {
+  childrenCount.addEventListener('input', function () {
     const warning = document.getElementById('childrenCountTamahWarning');
     if (gardenType.value === 'tamah' && parseInt(childrenCount.value) > 6) {
       childrenCount.value = 6;
@@ -1852,35 +2500,109 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-  // מצא את כפתור השליחה במסך אשראי
-  const creditCardSection = document.getElementById('creditCardSection');
-  if (creditCardSection) {
-    const submitBtn = creditCardSection.querySelector('.submit-button[type="submit"], #creditCardSubmit');
-    if (submitBtn) {
-      submitBtn.addEventListener('click', function (e) {
-        if (sections[currentSectionIndex].id === 'creditCardSection') {
-          const signatureCanvas = document.getElementById('signatureCanvasCredit');
-          if (isCanvasBlank(signatureCanvas)) {
-            e.preventDefault();
-            alert('יש לחתום על הטופס לפני השליחה.');
-            signatureCanvas.style.border = "2px solid red";
-            setTimeout(() => signatureCanvas.style.border = "", 2000);
-            signatureCanvas.scrollIntoView({ behavior: "smooth", block: "center" });
-            return;
+// מצא את כפתור השליחה במסך אשראי
+const creditCardSection = document.getElementById('creditCardSection');
+if (creditCardSection) {
+  const submitBtn = creditCardSection.querySelector('.submit-button[type="submit"], #creditCardSubmit');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async function (e) {
+      // פועלים רק אם הסקשן הנוכחי הוא של אשראי
+      if (sections[currentSectionIndex]?.id !== 'creditCardSection') return;
+      e.preventDefault();
+
+      // 1) בדיקת חתימה
+      const signatureCanvas = document.getElementById('signatureCanvasCredit');
+      if (!signatureCanvas || isCanvasBlank(signatureCanvas)) {
+        alert('יש לחתום על הטופס לפני השליחה.');
+        if (signatureCanvas) {
+          signatureCanvas.style.border = '2px solid red';
+          setTimeout(() => (signatureCanvas.style.border = ''), 2000);
+          signatureCanvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
+
+      // 2) ReturnValue: policyNumber מה-URL, ואם אין — idNumber מהטופס
+      const urlParams = new URLSearchParams(window.location.search);
+      const policyNumberFromUrl = urlParams.get('policyNumber');
+      const idNumberFromForm = document.getElementById('idNumber')?.value || '';
+      const returnValue = policyNumberFromUrl || idNumberFromForm || '';
+
+      // 3) גוף הבקשה כ-application/x-www-form-urlencoded (URL-Encode מלא)
+      const bodyParams = new URLSearchParams({
+        Operation: '3',
+        TerminalNumber: '173413',
+        UserName: 'asherlevi',
+        SumToBill: '1',
+        CoinId: '1',
+        Language: 'he',
+        ProductName: 'ביטוח גנים',
+        APILevel: '10',
+        Codepage: '65001',
+        SuccessRedirectUrl: 'https://secure.cardcom.solutions/SuccessAndFailDealPage/Success.aspx',
+        ErrorRedirectUrl: 'https://secure.cardcom.solutions/SuccessAndFailDealPage/Fail.aspx',
+        IndicatorUrl: 'https://hook.eu2.make.com/35cyd2c1gwlw6bfc7dpqxyz9udfunwlr',
+        ReturnValue: returnValue
+      });
+
+      // מניעת לחיצות כפולות
+      const originalText = submitBtn.innerText;
+      submitBtn.disabled = true;
+
+      try {
+        // 4) POST ל-Cardcom
+        const response = await fetch('https://secure.cardcom.solutions/Interface/LowProfile.aspx', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+          body: bodyParams.toString()
+        });
+
+        if (!response.ok) {
+          const errText = await response.text().catch(() => '');
+          console.error('Cardcom HTTP error:', response.status, errText);
+          alert('לא ניתן היה להתחבר למערכת הסליקה. נא לנסות שוב.');
+          return;
+        }
+
+        // 5) תשובה כ-query string: ResponseCode=...&url=...
+        const rawText = await response.text();
+        // יש שרשורים שמכילים HTML מינימלי — שולפים רק את הקו הראשון אם צריך
+        const line = rawText.split(/\r?\n/)[0] || rawText;
+
+        const qs = new URLSearchParams(line);
+        // חיפוש case-insensitive של 'url'
+        let urlParam = '';
+        for (const [k, v] of qs.entries()) {
+          if (k.toLowerCase() === 'url') {
+            urlParam = v;
+            break;
           }
-          // רק אם חתמו ממשיכים:
-          const paymentUrl = "https://icom.yaad.net/cgi-bin/yaadpay/yaadpay3ds.pl?Amount=1&Coin=1&FixTash=True&Info=%F4%E5%EC%E9%F1%FA%20%E1%E9%E8%E5%E7%20%EE%F9%F4%E7%FA%E5%EF%2F%E2%EF%20%E9%EC%E3%E9%ED%2F%F6%E4%F8%E5%EF&Masof=4501600320&MoreData=True&PageLang=HEB&Postpone=True&ShowEngTashText=True&Tash=1&UTF8out=True&action=pay&freq=1&sendemail=True&signature=f3de6f68f2cba7605e251da1152f9cbd02c9ef4935cf9a5398a5032a9c38e700";
-          window.open(paymentUrl, '_blank');
+        }
+
+        if (urlParam) {
+          const payUrl = decodeURIComponent(urlParam);
+          window.open(payUrl, '_blank');
+          // גיבוי למקרה חריג שבו הניווט נחסם
           setTimeout(() => {
             const thankYouSectionIndex = sections.findIndex(sec => sec.id === 'thankYouSection');
-            if (thankYouSectionIndex !== -1) {
-              showSection(thankYouSectionIndex);
-            }
-          }, 100);
+            if (thankYouSectionIndex !== -1) showSection(thankYouSectionIndex);
+          }, 150);
+        } else {
+          console.error('Missing url parameter in Cardcom response:', line);
+          alert('לא התקבלה כתובת תשלום מהסולק. נא לנסות שוב.');
         }
-      });
-    }
+      } catch (networkErr) {
+        console.error('Network error to Cardcom:', networkErr);
+        alert('שגיאת רשת בעת ניסיון התחברות למערכת הסליקה. נא לנסות שוב.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = originalText;
+      }
+    });
   }
+}
+
+
 
 
   const policyStartDate = document.getElementById('policyStartDate');
@@ -2039,6 +2761,39 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   setupYesNoDependencies();
 
+  // הפעל עדכוני תלויות אחרי prefill מה-URL
+  function triggerYesNoDependenciesAfterUrlPrefill() {
+    // עדכון ילדים מעל גיל 3
+    const hasOver3Children = document.getElementById('hasOver3Children');
+    if (hasOver3Children && hasOver3Children.value === 'true') {
+      document.getElementById('over3ChildrenCountGroup').style.display = 'block';
+    }
+
+    // עדכון חברות במועדון
+    const isMember = document.getElementById('isMember');
+    if (isMember && isMember.value === 'true') {
+      document.getElementById('membershipSection').style.display = 'block';
+    }
+
+    // עדכון שעבוד
+    const hasLien = document.getElementById('hasLien');
+    if (hasLien && hasLien.value === 'true') {
+      document.getElementById('lienTypeSection').style.display = 'block';
+    }
+
+    // עדכון ויתור שיבוב
+    const waiverCheckbox = document.getElementById('waiverCheckbox');
+    if (waiverCheckbox && waiverCheckbox.value === 'true') {
+      document.getElementById('waiverDetails').style.display = 'block';
+    }
+
+    // עדכון חישוב פרמיה
+    calculatePremium();
+  }
+
+  // הפעל אחרי prefill מה-URL
+  setTimeout(triggerYesNoDependenciesAfterUrlPrefill, 100);
+
 
   function setupLienAndWaiverLogic() {
     // האם קיים שעבוד?
@@ -2104,78 +2859,40 @@ document.addEventListener('DOMContentLoaded', () => {
       const yesBtn = group.querySelector('.yes-btn');
       const noBtn = group.querySelector('.no-btn');
       const hidden = group.querySelector('input[type="hidden"]');
+
+      // בדוק אם יש ערך מה-URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlValue = urlParams.get(field);
+
       if (noBtn && yesBtn && hidden) {
-        yesBtn.classList.remove('selected');
-        noBtn.classList.add('selected');
-        hidden.value = 'false';
+        if (urlValue !== null && urlValue !== undefined) {
+          // יש ערך מה-URL - השתמש בו
+          if (urlValue === 'true') {
+            yesBtn.classList.add('selected');
+            noBtn.classList.remove('selected');
+            hidden.value = 'true';
+          } else {
+            yesBtn.classList.remove('selected');
+            noBtn.classList.add('selected');
+            hidden.value = 'false';
+          }
+        } else {
+          // אין ערך מה-URL - השתמש בברירת מחדל
+          yesBtn.classList.remove('selected');
+          noBtn.classList.add('selected');
+          hidden.value = 'false';
+        }
       }
     });
   }
   setInsuranceDetailsYesNoDefaults();
 
   // ... existing code ...
-  function updateCoverageOptionPrices() {
-    const gardenTypeValue = gardenType.value;
-    const childrenCountValue = parseInt(childrenCount.value) || 0;
-    const hasContentBuilding = document.getElementById('hasContentBuilding');
-    const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
-
-    document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
-      const optionName = optionDiv.dataset.option;
-      const priceSpan = optionDiv.querySelector('.option-cost');
-      let price = 0;
-      try {
-        price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
-      } catch (e) {
-        price = 0;
-      }
-      if (priceSpan) {
-        priceSpan.textContent = `מחיר: ₪${price}`;
-        console.log('עדכון מחיר עבור', optionName, '->', price);
-      } else {
-        console.warn('לא נמצא option-cost עבור', optionName);
-      }
-    });
-    updateAddonsTotal();
-  }
-  window.updateCoverageOptionPrices = updateCoverageOptionPrices;
-  // ... existing code ...
-
-  // ... existing code ...
-  function updateAddonsTotal() {
-    let total = 0;
-    const gardenTypeValue = gardenType.value;
-    const childrenCountValue = parseInt(childrenCount.value) || 0;
-    const hasContentBuilding = document.getElementById('hasContentBuilding');
-    const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
-    document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
-      const optionName = optionDiv.dataset.option;
-      const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
-      if (!optionName || !hiddenInput) return;
-      if (hiddenInput.value === 'true') {
-        let price = 0;
-        try {
-          price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
-        } catch (e) {
-          price = 0;
-        }
-        total += price;
-      }
-    });
-    const totalDisplay = document.getElementById('addonsTotalDisplay');
-    if (totalDisplay) totalDisplay.textContent = `סך הכל תוספות: ₪${total}`;
-  }
+  // updateCoverageOptionPrices function moved to global scope
 
   // קריאה לפונקציה בכל עדכון מחירי תוספות
-  const originalUpdateCoverageOptionPrices = updateCoverageOptionPrices;
-  updateCoverageOptionPrices = function() {
-    ensureOptionCostSpans();
-    originalUpdateCoverageOptionPrices.apply(this, arguments);
-    updateAddonsTotal();
-  };
-  // ... existing code ...
+  // updateCoverageOptionPrices is now global, no need to override
 
-  // ... existing code ...
   // עדכון מחיר מיידי כשמוסיפים/מסירים גננת
   function observePersonalAccidentRows() {
     const container = document.getElementById('personalAccidentEmployeesRows');
@@ -2195,14 +2912,43 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // הפעלה אחרי כל עדכון הרחבות
   const originalUpdateCoverageOptions2 = updateCoverageOptions;
-  updateCoverageOptions = function() {
+  updateCoverageOptions = function () {
     originalUpdateCoverageOptions2.apply(this, arguments);
     setTimeout(() => {
       observePersonalAccidentRows();
       observeProfessionalLiabilityRows();
     }, 0);
   };
-  // ... existing code ...
+
+  const idNumberInput = document.getElementById('idNumber');
+  if (idNumberInput) {
+    idNumberInput.addEventListener('input', function (e) {
+      this.value = this.value.replace(/[^0-9]/g, '');
+    });
+  }
+
+
+  // האזנה לשדות מספריים לעדכון חישוב פרמיה
+  function setupNumericInputListeners() {
+    const numericFields = [
+      'buildingSizeExact',
+      'contentSumExact',
+      'yardContentSumExact'
+    ];
+
+    numericFields.forEach(fieldId => {
+      const field = document.getElementById(fieldId);
+      if (!field) return;
+
+      field.addEventListener('input', function () {
+        // הפעל חישוב פרמיה כשהערך משתנה
+        calculatePremium();
+      });
+    });
+  }
+
+  // הפעל את האזנת השדות המספריים
+  setupNumericInputListeners();
 });
 
 // חיזוק: ודא שלכל כיסוי יש option-cost
@@ -2222,3 +2968,30 @@ function ensureOptionCostSpans() {
     }
   });
 }
+
+function getFieldDisplayName(fieldName) {
+  const fieldNames = {
+    'hasOver3Children': 'האם יש ילדים מעל גיל 3',
+    'isMember': 'האם חבר באחד מארגוני הגנים',
+    'claimsLastYear': 'האם היו תביעות בשנה האחרונה',
+    'supplementalInsurance': 'האם ברצונך לרכוש ביטוח משלים לדירה',
+    'hasContentBuilding': 'האם תרצה לבטח את המבנה ותכולת הגן'
+  };
+  return fieldNames[fieldName] || fieldName;
+}
+
+function getCoverageDisplayName(coverageName) {
+  const coverageNames = {
+    'thirdParty': 'הגדלת גבולות אחריות',
+    'deductibleCancellation': 'ביטול השתתפות עצמית',
+    'teacherAccidents': 'תאונות אישיות לגננת',
+    'professionalLiability': 'אחריות מקצועית',
+    'employerLiability': 'חבות מעבידים',
+    'cyberInsurance': 'תוספת ביטוח סייבר',
+    'incomeLoss': 'אובדן הכנסות',
+    'birthdayActivities': 'הפעלות ימי הולדת / חוגים בגן',
+    'afterSchoolProgram': 'תוספת צהרון לפוליסת הגן'
+  };
+  return coverageNames[coverageName] || coverageName;
+}
+
