@@ -182,6 +182,27 @@ function parseUrlParams() {
   }
 }
 
+const childrenCountInput = document.getElementById('childrenCount');
+const over3ChildrenInput = document.getElementById('over3ChildrenCount');
+
+if (childrenCountInput && over3ChildrenInput) {
+  // עדכון מגבלה כשמשנים את מספר הילדים הכללי
+  childrenCountInput.addEventListener('input', () => {
+    const total = parseInt(childrenCountInput.value) || 0;
+    over3ChildrenInput.max = total;
+    if (parseInt(over3ChildrenInput.value) > total) {
+      over3ChildrenInput.value = total;
+    }
+  });
+
+  // גם בשינוי בשדה מעל גיל 3 – למנוע חריגה
+  over3ChildrenInput.addEventListener('input', () => {
+    const total = parseInt(childrenCountInput.value) || 0;
+    if (parseInt(over3ChildrenInput.value) > total) {
+      over3ChildrenInput.value = total;
+    }
+  });
+}
 
 
 function showSection(index) {
