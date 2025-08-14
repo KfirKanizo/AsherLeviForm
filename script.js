@@ -1794,7 +1794,7 @@ function addPersonalAccidentEmployeeRow(container, data = {}) {
   row.style.alignItems = 'center';
   row.innerHTML = `
     <input type="text" name="personalAccidentEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2" >
-    <input type="text" name="personalAccidentEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" >
+    <input type="number" name="personalAccidentEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" >
     <div style="flex:1">
       <label style="display:block; font-size: 0.85em;">תאריך לידה:</label>
       <input type="date" name="personalAccidentEmployeeBirthdate[]" value="${data.birthdate || ''}" >
@@ -1865,7 +1865,7 @@ function addProfessionalLiabilityEmployeeRow(container, data = {}) {
   row.style.alignItems = 'center';
   row.innerHTML = `
     <input type="text" name="professionalLiabilityEmployeeName[]" placeholder="שם הגננת" value="${data.name || ''}" style="flex:2" >
-    <input type="text" name="professionalLiabilityEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" >
+    <input type="number" name="professionalLiabilityEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" >
     <div style="flex:1">
       <label style="display:block; font-size: 0.85em;">תאריך לידה:</label>
       <input type="date" name="professionalLiabilityEmployeeBirthdate[]" value="${data.birthdate || ''}" >
