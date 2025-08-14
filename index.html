@@ -150,7 +150,7 @@
               </svg>
             </button>
           </label>
-          <input id="idNumber" name="idNumber" required type="text" maxlength="10" />
+          <input id="idNumber" name="idNumber" required type="number" maxlength="10" />
         </div>
         <div class="form-group">
           <label for="childrenCount">מספר ילדים *
@@ -246,7 +246,7 @@
           <label>
             האם ברצונך לרכוש ביטוח משלים לדירה?
             <button class="info-button"
-              data-tooltip="לתשומת לבך, במקרים בהם בגן מתנהל בבית מומלץ לבטח באותו חברה את הבית ואת הפעילות של הגן"
+              data-tooltip="לתשומת לבך, במקרים בהם הגן מתנהל בבית מומלץ לבטח באותה החברה את הבית ואת הפעילות של הגן"
               type="button">
               <svg class="info-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="10" fill="none" />
@@ -357,7 +357,7 @@
         <div class="conditional-section" id="lienDetailsCompany" style="display: none;">
           <div class="form-group"><label>שם החברה</label><input type="text" id="lienCompanyName"
               name="lienCompanyName" /></div>
-          <div class="form-group"><label>ח.פ</label><input type="text" id="lienCompanyId" name="lienCompanyId" /></div>
+          <div class="form-group"><label>ח.פ</label><input type="number" id="lienCompanyId" name="lienCompanyId" /></div>
         </div>
 
         <div class="form-group">
@@ -375,7 +375,7 @@
           </div>
           <div class="form-group">
             <label for="propertyOwnerId">ת.ז בעל הנכס</label>
-            <input type="text" id="propertyOwnerId" name="propertyOwnerId" />
+            <input type="number" id="propertyOwnerId" name="propertyOwnerId" />
           </div>
         </div>
 
