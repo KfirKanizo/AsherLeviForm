@@ -297,6 +297,16 @@ document.querySelectorAll('.next-button').forEach(button => {
       }
     });
 
+    const emailInput = document.getElementById('emailAddress');
+    if (emailInput && emailInput.closest('.form-section').classList.contains('active')) {
+      if (!isValidEmail(emailInput.value)) {
+        isValid = false;
+        emailInput.style.borderColor = 'red';
+        alert('אנא הזן כתובת מייל תקינה.');
+        return;
+      }
+    }    
+    
     const phoneInput = document.getElementById('phoneNumber');
     if (phoneInput && phoneInput.closest('.form-section').classList.contains('active')) {
       if (!isValidPhoneNumber(phoneInput.value)) {
@@ -595,7 +605,7 @@ document.querySelectorAll('.next-button').forEach(button => {
               return;
             }
 
-            employeeRows.forEach(row => {
+            for (const row of employeeRows) {
               const nameInput = row.querySelector('input[name="personalAccidentEmployeeName[]"]');
               const idInput = row.querySelector('input[name="personalAccidentEmployeeId[]"]');
               const birthdateInput = row.querySelector('input[name="personalAccidentEmployeeBirthdate[]"]');
@@ -605,7 +615,7 @@ document.querySelectorAll('.next-button').forEach(button => {
                 alert('אנא מלא את כל פרטי הגננת');
                 return;
               }
-            });
+            }
           }
 
           if (optionName === 'professionalLiability') {
@@ -616,7 +626,7 @@ document.querySelectorAll('.next-button').forEach(button => {
               return;
             }
 
-            employeeRows.forEach(row => {
+            for (const row of employeeRows) {
               const nameInput = row.querySelector('input[name="professionalLiabilityEmployeeName[]"]');
               const idInput = row.querySelector('input[name="professionalLiabilityEmployeeId[]"]');
               const birthdateInput = row.querySelector('input[name="professionalLiabilityEmployeeBirthdate[]"]');
@@ -626,7 +636,7 @@ document.querySelectorAll('.next-button').forEach(button => {
                 alert('אנא מלא את כל פרטי הגננת');
                 return;
               }
-            });
+            }
           }
 
           if (optionName === 'employerLiability') {
@@ -710,7 +720,7 @@ document.querySelectorAll('.next-button').forEach(button => {
     }
 
     if (!isValid) {
-      alert('אנא מלא את כל השדות הנדרשים.');
+      //alert('אנא מלא את כל השדות הנדרשים.');
       return;
     }
 
@@ -1504,6 +1514,14 @@ function isValidPhoneNumber(phone) {
   const cleaned = phone.replace(/[\s\-()]/g, "");
   // בדיקה של 9-10 ספרות, מתחיל ב-0 (קו ישראלי רגיל)
   return /^0\d{8,9}$/.test(cleaned);
+}
+
+function isValidEmail(email) {
+  // מסיר רווחים מיותרים
+  const cleaned = email.trim();
+  // בדיקה לפי פורמט בסיסי של כתובת מייל
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(cleaned);
 }
 
 
