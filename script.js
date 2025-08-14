@@ -1303,17 +1303,49 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
       // ביטול השתתפות עצמית: לפי כמות ילדים
       return childrenCountValue <= 20 ? 200 : 300;
 
-    case 'teacherAccidents':
-      // תאונות אישיות, מוות ונכות לגננת: לפי תכנית
-      const plan = document.querySelector('.teacherAccidentsCoverage')?.value || 'A';
-      let basePrice = plan === 'A' ? 200 : plan === 'B' ? 600 : 800;
-      // מספר גננות
-      const paCount = document.querySelectorAll('input[name="personalAccidentEmployeeName[]"]').length || 1;
-      return basePrice * paCount;
+    // חדש:
+    case 'teacherAccidents': {
+      // חשב רק אם הכיסוי מסומן כ"מעוניין"
+      const optionDiv = document.querySelector('#coverageOptionsContainer .coverage-option[data-option="teacherAccidents"]');
+      if (!optionDiv) return 0;
+      const hiddenInput = optionDiv.querySelector('input[name="insuranceOptions[teacherAccidents]"]');
+      if (!hiddenInput || hiddenInput.value !== 'true') return 0;
 
-    case 'professionalLiability':
-      const count = document.querySelectorAll('.professional-liability-row').length || 0;
+      const plan = optionDiv.querySelector('.teacherAccidentsCoverage')?.value || 'A';
+      const basePrice = plan === 'A' ? 200 : plan === 'B' ? 600 : 800;
+
+      // סופרים רק שורות עם נתונים (לפחות שדה אחד מולא)
+      const rows = Array.from(optionDiv.querySelectorAll('.pa-employee-row'));
+      const paCount = rows.filter(row => {
+        const name = row.querySelector('input[name="personalAccidentEmployeeName[]"]')?.value?.trim();
+        const id = row.querySelector('input[name="personalAccidentEmployeeId[]"]')?.value?.trim();
+        const bd = row.querySelector('input[name="personalAccidentEmployeeBirthdate[]"]')?.value?.trim();
+        return !!(name || id || bd);
+      }).length;
+
+      return basePrice * paCount;
+    }
+
+
+    // חדש:
+    case 'professionalLiability': {
+      const optionDiv = document.querySelector('#coverageOptionsContainer .coverage-option[data-option="professionalLiability"]');
+      if (!optionDiv) return 0;
+      const hiddenInput = optionDiv.querySelector('input[name="insuranceOptions[professionalLiability]"]');
+      if (!hiddenInput || hiddenInput.value !== 'true') return 0;
+
+      // סופרים רק שורות עם נתונים
+      const rows = Array.from(optionDiv.querySelectorAll('.professional-liability-row'));
+      const count = rows.filter(row => {
+        const name = row.querySelector('input[name="professionalLiabilityEmployeeName[]"]')?.value?.trim();
+        const id = row.querySelector('input[name="professionalLiabilityEmployeeId[]"]')?.value?.trim();
+        const bd = row.querySelector('input[name="professionalLiabilityEmployeeBirthdate[]"]')?.value?.trim();
+        return !!(name || id || bd);
+      }).length;
+
       return count * 500;
+    }
+
 
     case 'employerLiability': {
       const optionDiv = document.querySelector('.coverage-option[data-option="employerLiability"]');
@@ -2096,27 +2128,34 @@ function prefillCoverageAddonsFromUrl() {
     }
   }
 
-
-  // תאונות אישיות לגננת
+  // --- תאונות אישיות לגננת ---
   if (urlPrefillData['personalAccidentEmployees']) {
-    const paList = urlPrefillData['personalAccidentEmployees'].split(';').filter(Boolean);
-    const paContainer = document.getElementById('personalAccidentEmployeesRows');
-    if (paContainer) paContainer.innerHTML = '';
-    paList.forEach(entry => {
-      const [name, id, birthdate] = entry.split('|');
-      addPersonalAccidentEmployeeRow(paContainer, { name, id, birthdate });
-    });
+    const teacherDiv = document.querySelector('#coverageOptionsContainer .coverage-option[data-option="teacherAccidents"]');
+    const paContainer = teacherDiv?.querySelector('#personalAccidentEmployeesRows');
+    if (paContainer) {
+      paContainer.innerHTML = '';
+      const paList = urlPrefillData['personalAccidentEmployees'].split(';').filter(Boolean);
+      paList.forEach(entry => {
+        const [name, id, birthdate] = entry.split('|');
+        addPersonalAccidentEmployeeRow(paContainer, { name, id, birthdate });
+      });
+    }
   }
-  // אחריות מקצועית
+
+  // --- אחריות מקצועית ---
   if (urlPrefillData['professionalLiabilityEmployees']) {
-    const profList = urlPrefillData['professionalLiabilityEmployees'].split(';').filter(Boolean);
-    const profContainer = document.getElementById('professionalLiabilityEmployeesRows');
-    if (profContainer) profContainer.innerHTML = '';
-    profList.forEach(entry => {
-      const [name, id, birthdate] = entry.split('|');
-      addProfessionalLiabilityEmployeeRow(profContainer, { name, id, birthdate });
-    });
+    const plDiv = document.querySelector('#coverageOptionsContainer .coverage-option[data-option="professionalLiability"]');
+    const profContainer = plDiv?.querySelector('#professionalLiabilityEmployeesRows');
+    if (profContainer) {
+      profContainer.innerHTML = '';
+      const profList = urlPrefillData['professionalLiabilityEmployees'].split(';').filter(Boolean);
+      profList.forEach(entry => {
+        const [name, id, birthdate] = entry.split('|');
+        addProfessionalLiabilityEmployeeRow(profContainer, { name, id, birthdate });
+      });
+    }
   }
+
 
   // birthdayActivities - מהURL
   if (urlPrefillData['birthdayActivities']) {
