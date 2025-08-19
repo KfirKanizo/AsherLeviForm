@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>טופס חידוש ביטוח</title>
-  <link href="style.css?v=202508141" rel="stylesheet" />
+  <link href="style.css?v=202508191" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;display=swap" rel="stylesheet" />
 </head>
 
@@ -164,7 +164,7 @@
               </svg>
             </button>
           </label>
-          <input id="childrenCount" min="0" name="childrenCount" type="number" required/>
+          <input id="childrenCount" min="1" name="childrenCount" type="number" required/>
           <div id="childrenCountTamahWarning" style="display:none; color:#d03499; font-size:0.95em; margin-top:4px;">בגן
             תמ"ת לא ניתן לבחור יותר מ-6 ילדים.</div>
         </div>
@@ -189,7 +189,7 @@
         </div>
         <div class="form-group" id="over3ChildrenCountGroup" style="display: none;">
           <label for="over3ChildrenCount">כמה ילדים?</label>
-          <input type="number" id="over3ChildrenCount" name="over3ChildrenCount" min="0">
+          <input type="number" id="over3ChildrenCount" name="over3ChildrenCount" min="1">
         </div>
 
         <div class="form-group">
@@ -743,7 +743,7 @@
       </div>
     </form>
   </div>
-  <script src="script.js?v=202508141"></script>
+  <script src="script.js?v=202508191"></script>
 </body>
 
 </html>
