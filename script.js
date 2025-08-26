@@ -199,12 +199,17 @@ const hasOver3ChildrenGroup = document.getElementById('hasOver3ChildrenGroup');
 
 if (gardenType && hasOver3ChildrenGroup) {
   const toggleOver3ChildrenField = () => {
-    if (gardenType.value === 'over3') {
+    if (gardenType.value === 'over3' || gardenType.value === 'afterSchool') {
       hasOver3ChildrenGroup.style.display = 'none';
       // איפוס הערכים כשמסתירים
-      document.getElementById('hasOver3Children').value = '';
-      document.getElementById('over3ChildrenCount').value = '';
-      document.getElementById('over3ChildrenCountGroup').style.display = 'none';
+      const hasOver3Input = document.getElementById('hasOver3Children');
+      if (hasOver3Input) hasOver3Input.value = '';
+
+      const over3Count = document.getElementById('over3ChildrenCount');
+      if (over3Count) over3Count.value = '';
+
+      const over3Group = document.getElementById('over3ChildrenCountGroup');
+      if (over3Group) over3Group.style.display = 'none';
     } else {
       hasOver3ChildrenGroup.style.display = 'block';
     }
@@ -216,6 +221,7 @@ if (gardenType && hasOver3ChildrenGroup) {
   // האזנה לשינויים
   gardenType.addEventListener('change', toggleOver3ChildrenField);
 }
+
 
 
 if (childrenCountInput && over3ChildrenInput) {
@@ -534,8 +540,8 @@ document.querySelectorAll('.next-button').forEach(button => {
 
     // וידוא בחירה בכפתורי כן/לא בסקשן פרטי ביטוח
     if (sections[currentSectionIndex].id === 'insuranceDetails') {
-      // כשנבחר "גן מעל גיל 3" — לא נדרוש את hasOver3Children
-      const requireHasOver3 = (gardenType.value !== 'over3');
+      // אין לדרוש "hasOver3Children" אם נבחר גן מעל גיל 3 או צהרון בלבד
+      const requireHasOver3 = !(gardenType.value === 'over3' || gardenType.value === 'afterSchool');
 
       const yesNoFields = [
         ...(requireHasOver3 ? ['hasOver3Children'] : []),
@@ -557,7 +563,7 @@ document.querySelectorAll('.next-button').forEach(button => {
         }
       }
 
-      // שדות תלויים — רק אם השאלה רלוונטית (לא במצב over3)
+      // שדות תלויים — רק אם השאלה רלוונטית (לא במצבים over3/afterSchool)
       if (requireHasOver3) {
         const hasOver3Hidden = document.querySelector('[data-field="hasOver3Children"] input[type="hidden"]');
         if (hasOver3Hidden && hasOver3Hidden.value === 'true') {
@@ -581,6 +587,7 @@ document.querySelectorAll('.next-button').forEach(button => {
         }
       }
     }
+
 
 
     // וידוא שדות חובה נוספים שמופיעים רק כשכפתור לחוץ
@@ -1810,7 +1817,7 @@ function collectFormData() {
     payload['contentBuildingDetails[hasLien]'] = document.querySelector('.hasLien')?.checked ? 'true' : 'false';
     payload['contentBuildingDetails[lienHolder]'] = document.querySelector('.hasLien')?.checked ? (document.querySelector('.lienHolder')?.value || '') : '';
   }
-  
+
   // מבנה: חישוב סכום ביטוח מבנה
   const buildingSizeSelected = document.querySelector('.building-size-button.selected')?.dataset?.value;
   let insuredBuildingAmount = 0;
