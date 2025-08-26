@@ -1208,7 +1208,7 @@ function calculatePremium() {
     // מסלולים מתקדמים - לכל מסלול מינימום ופרמיה פר ילד
     let min = 0, perChild = 0;
     switch (track) {
-      case 3: min = 900; perChild = 112.5; break;
+      case 3: min = 900; perChild = 105; break;
       case 4: min = 1100; perChild = 110; break;
       case 5: min = 1100; perChild = 55; break;
       case 6: min = 1400; perChild = 80; break;
@@ -1262,7 +1262,7 @@ function calculatePremium() {
 
   let min = 0;
   switch (track) {
-    case 3: min = 900; perChild = 112.5; break;
+    case 3: min = 900; perChild = 105; break;
     case 4: min = 1100; perChild = 110; break;
     case 5: min = 1100; perChild = 55; break;
     case 6: min = 1400; perChild = 80; break;
