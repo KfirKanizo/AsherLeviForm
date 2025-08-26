@@ -1810,6 +1810,22 @@ function collectFormData() {
     payload['contentBuildingDetails[hasLien]'] = document.querySelector('.hasLien')?.checked ? 'true' : 'false';
     payload['contentBuildingDetails[lienHolder]'] = document.querySelector('.hasLien')?.checked ? (document.querySelector('.lienHolder')?.value || '') : '';
   }
+  
+  // מבנה: חישוב סכום ביטוח מבנה
+  const buildingSizeSelected = document.querySelector('.building-size-button.selected')?.dataset?.value;
+  let insuredBuildingAmount = 0;
+
+  if (buildingSizeSelected === 'under100') {
+    insuredBuildingAmount = 500000;
+  } else if (buildingSizeSelected === 'over100') {
+    const exactSizeInput = document.getElementById('buildingSizeExact');
+    const exactSize = parseFloat(exactSizeInput?.value || '0');
+    insuredBuildingAmount = exactSize > 0 ? Math.round(exactSize * 7200) : 0;
+  }
+
+  // הוספת השדה לוובהוק
+  payload.insuredBuildingAmount = insuredBuildingAmount;
+
 
   // ---------- פרמיה, תשלום, חתימה, קבצים ----------
   let premiumText = document.getElementById('premiumAmount').textContent.replace(/[^\d.]/g, '');
