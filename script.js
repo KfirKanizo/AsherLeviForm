@@ -534,49 +534,54 @@ document.querySelectorAll('.next-button').forEach(button => {
 
     // וידוא בחירה בכפתורי כן/לא בסקשן פרטי ביטוח
     if (sections[currentSectionIndex].id === 'insuranceDetails') {
+      // כשנבחר "גן מעל גיל 3" — לא נדרוש את hasOver3Children
+      const requireHasOver3 = (gardenType.value !== 'over3');
+
       const yesNoFields = [
-        'hasOver3Children',
+        ...(requireHasOver3 ? ['hasOver3Children'] : []),
         'isMember',
         'claimsLastYear',
         'supplementalInsurance',
         'hasContentBuilding'
       ];
 
-      yesNoFields.forEach(field => {
+      // בדיקת בחירה בכל שדות ה־כן/לא הנדרשים
+      for (const field of yesNoFields) {
         const toggle = document.querySelector(`[data-field="${field}"]`);
-        if (toggle) {
-          const hiddenInput = toggle.querySelector('input[type="hidden"]');
-          if (!hiddenInput.value) {
-            isValid = false;
-            alert(`אנא בחר ${getFieldDisplayName(field)}`);
-            return;
-          }
-        }
-      });
-
-      // וידוא שדות תלויים
-      const hasOver3Children = document.querySelector('[data-field="hasOver3Children"] input[type="hidden"]');
-      if (hasOver3Children && hasOver3Children.value === 'true') {
-        const over3CountInput = document.getElementById('over3ChildrenCount');
-        if (!over3CountInput.value.trim()) {
+        if (!toggle) continue;
+        const hiddenInput = toggle.querySelector('input[type="hidden"]');
+        if (!hiddenInput || hiddenInput.value === '') {
           isValid = false;
-          over3CountInput.style.borderColor = 'red';
-          alert('אנא מלא את מספר הילדים מעל גיל 3');
-          return;
+          alert(`אנא בחר ${getFieldDisplayName(field)}`);
+          break;
         }
       }
 
-      const isMember = document.querySelector('[data-field="isMember"] input[type="hidden"]');
-      if (isMember && isMember.value === 'true') {
+      // שדות תלויים — רק אם השאלה רלוונטית (לא במצב over3)
+      if (requireHasOver3) {
+        const hasOver3Hidden = document.querySelector('[data-field="hasOver3Children"] input[type="hidden"]');
+        if (hasOver3Hidden && hasOver3Hidden.value === 'true') {
+          const over3CountInput = document.getElementById('over3ChildrenCount');
+          if (!over3CountInput.value.trim()) {
+            isValid = false;
+            over3CountInput.style.borderColor = 'red';
+            alert('אנא מלא את מספר הילדים מעל גיל 3');
+          }
+        }
+      }
+
+      // דרישת סוג מועדון — רק אם נבחר "כן" בחברות מועדון
+      const isMemberHidden = document.querySelector('[data-field="isMember"] input[type="hidden"]');
+      if (isMemberHidden && isMemberHidden.value === 'true') {
         const membershipType = document.getElementById('membershipType');
         if (!membershipType.value) {
           isValid = false;
           membershipType.style.borderColor = 'red';
           alert('אנא בחר את סוג המועדון');
-          return;
         }
       }
     }
+
 
     // וידוא שדות חובה נוספים שמופיעים רק כשכפתור לחוץ
     if (sections[currentSectionIndex].id === 'coverageAddons') {
