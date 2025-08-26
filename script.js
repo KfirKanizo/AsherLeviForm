@@ -1821,6 +1821,9 @@ function collectFormData() {
   // ---------- renewal מתוך URL ----------
   payload['renewal'] = window.formRenewalFlag || 'true';
 
+  // ---------- agent מתוך URL ----------
+  payload['agent'] = window.formAgentFlag || '';
+
   // ---------- policyNumber מתוך URL ----------
   payload['policyNumber'] = window.policyNumber || '';
 
@@ -2458,10 +2461,12 @@ function prefillCoverageAddonsFromUrl() {
 function prefillFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
 
-  // --- דגלים כלליים (automation, renewal, policyNumber) ---
+  // --- דגלים כלליים (automation, renewal, agent, policyNumber) ---
   window.formAutomationFlag = urlParams.get('automation') || 'true';
   window.formRenewalFlag = (urlParams.get('renewal') === null || urlParams.get('renewal') === 'true') ? 'true' : 'false';
+  window.formAgentFlag = urlParams.get('agent');
   window.policyNumber = urlParams.get('policyNumber');
+
 
   // --- קודם כל: מילוי שדות בסיסיים (inputs, selects, checkboxes, radios) ---
   urlParams.forEach((value, key) => {
