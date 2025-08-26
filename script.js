@@ -195,6 +195,28 @@ function parseUrlParams() {
 
 const childrenCountInput = document.getElementById('childrenCount');
 const over3ChildrenInput = document.getElementById('over3ChildrenCount');
+const hasOver3ChildrenGroup = document.getElementById('hasOver3ChildrenGroup');
+
+if (gardenType && hasOver3ChildrenGroup) {
+  const toggleOver3ChildrenField = () => {
+    if (gardenType.value === 'over3') {
+      hasOver3ChildrenGroup.style.display = 'none';
+      // איפוס הערכים כשמסתירים
+      document.getElementById('hasOver3Children').value = '';
+      document.getElementById('over3ChildrenCount').value = '';
+      document.getElementById('over3ChildrenCountGroup').style.display = 'none';
+    } else {
+      hasOver3ChildrenGroup.style.display = 'block';
+    }
+  };
+
+  // הפעלה ראשונית
+  toggleOver3ChildrenField();
+
+  // האזנה לשינויים
+  gardenType.addEventListener('change', toggleOver3ChildrenField);
+}
+
 
 if (childrenCountInput && over3ChildrenInput) {
   // עדכון מגבלה כשמשנים את מספר הילדים הכללי
