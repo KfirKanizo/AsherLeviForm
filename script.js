@@ -2866,6 +2866,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // --- Offer (quote) button ---
+  const offerBtn = document.querySelector('#paymentSelection .offer-button');
+  if (offerBtn) {
+    offerBtn.addEventListener('click', async () => {
+      try {
+        // אם המשתנה הזה לא קיים אצלך גלובלית, הוסף למעלה: let selectedPaymentMethod = null;
+        selectedPaymentMethod = 'offer';
+
+        // אוסף את כל נתוני הטופס כפי שנעשה בתשלומים
+        const payload = collectFormData();
+
+        // שמירה על תאימות לאחור: שני השדות עם אותה המשמעות
+        payload.paymentMethod = 'offer';
+        payload.selectedPaymentMethod = 'offer';
+
+        // שליחה לוובהוק בדיוק כמו בתשלום רגיל
+        await sendToWebhook(payload);
+
+        // מעבר לעמוד התודה (כמו בזרימות התשלום)
+        const thankYouSectionIndex = sections.findIndex(sec => sec.id === 'thankYouSection');
+        if (thankYouSectionIndex !== -1) {
+          showSection(thankYouSectionIndex);
+        }
+      } catch (err) {
+        console.error('Failed sending offer webhook:', err);
+        alert('אירעה שגיאה בשליחת הבקשה להצעת מחיר. נסו שוב.');
+      }
+    });
+  }
+
+
 
 
 
