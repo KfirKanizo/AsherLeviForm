@@ -1708,6 +1708,11 @@ function sanitizeConditionalFields(payload) {
   }
 }
 
+function formatCurrency(value) {
+  const num = parseFloat(value) || 0;
+  return num.toFixed(2);
+}
+
 
 function collectFormData() {
   console.log('--- collectFormData called ---');
@@ -1831,12 +1836,12 @@ function collectFormData() {
   }
 
   // הוספת השדה לוובהוק
-  payload.insuredBuildingAmount = insuredBuildingAmount;
+  payload.insuredBuildingAmount = formatCurrency(insuredBuildingAmount);
 
 
   // ---------- פרמיה, תשלום, חתימה, קבצים ----------
   let premiumText = document.getElementById('premiumAmount').textContent.replace(/[^\d.]/g, '');
-  payload['premium'] = premiumText;
+  payload['premium'] = formatCurrency(premiumText);
 
   // ---------- automation מתוך URL ----------
   payload['automation'] = window.formAutomationFlag || 'true';
@@ -1854,17 +1859,17 @@ function collectFormData() {
   payload['policyTrack'] = determinePolicyTrack();
 
   // ---------- מחיר תכולה ----------
-  const contentCost = getContentAdditionCost();
+  const contentCost = formatCurrency(getContentAdditionCost());
   payload['contentAdditionCost'] = contentCost;
   console.log('contentAdditionCost:', contentCost);
 
   // ---------- מחיר מבנה ----------
-  const buildingCost = getBuildingAdditionCost();
+  const buildingCost = formatCurrency(getBuildingAdditionCost());
   payload['buildingAdditionCost'] = buildingCost;
   console.log('buildingAdditionCost:', buildingCost);
 
   // ---------- מחיר חצר ----------
-  const yardCost = getYardAdditionCost();
+  const yardCost = formatCurrency(getYardAdditionCost());
   payload['yardAdditionCost'] = yardCost;
   console.log('yardAdditionCost:', yardCost);
 
