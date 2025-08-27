@@ -60,7 +60,7 @@
               </svg>
             </button>
           </label>
-          <input id="emailAddress" name="emailAddress" type="email" required/>
+          <input id="emailAddress" name="emailAddress" type="email" required />
         </div>
         <div class="form-group">
           <label for="phoneNumber">מספר טלפון *
@@ -164,7 +164,7 @@
               </svg>
             </button>
           </label>
-          <input id="childrenCount" min="1" name="childrenCount" type="number" required/>
+          <input id="childrenCount" min="1" name="childrenCount" type="number" required />
           <div id="childrenCountTamahWarning" style="display:none; color:#d03499; font-size:0.95em; margin-top:4px;">בגן
             תמ"ת לא ניתן לבחור יותר מ-6 ילדים.</div>
         </div>
@@ -286,11 +286,14 @@
         <div class="form-group">
           <label>גודל המבנה</label>
           <div class="button-group" id="buildingSizeButtons" data-key="buildingSize">
-            <button class="interested-button building-size-button selected" data-value="under100" type="button">עד 70 מ"ר</button>
-            <button class="not-interested-button building-size-button" data-value="over100" type="button">מעל 70 מ"ר</button>
+            <button class="interested-button building-size-button selected" data-value="under100" type="button">עד 70
+              מ"ר</button>
+            <button class="not-interested-button building-size-button" data-value="over100" type="button">מעל 70
+              מ"ר</button>
           </div>
           <div id="buildingSizeExtraInput" style="display: none;">
-            <input class="buildingSum" id="buildingSizeExact" placeholder="ציין את גודל המבנה" type="number" min="70" step="1" />
+            <input class="buildingSum" id="buildingSizeExact" placeholder="ציין את גודל המבנה" type="number" min="70"
+              step="1" />
           </div>
         </div>
         <div class="form-group">
@@ -300,7 +303,8 @@
             <button class="content-value-button" data-value="over200k" type="button">מעל 200,000 ₪</button>
           </div>
           <div id="contentSumExtraInput" style="display: none;">
-            <input class="contentSum" id="contentSumExact" placeholder="ציין את שווי התכולה" type="number" min="200000" step="1" />
+            <input class="contentSum" id="contentSumExact" placeholder="ציין את שווי התכולה" type="number" min="200000"
+              step="1" />
           </div>
         </div>
         <div class="form-group">
@@ -318,7 +322,8 @@
             <button class="yard-value-button" data-value="over20k" type="button">מעל 20,000 ₪</button>
           </div>
           <div id="yardContentSumExtraInput" style="display: none;">
-            <input class="yardContentSum" id="yardContentSumExact" placeholder="ציין את שווי תכולת החצר" type="number" min="20000" step="1" />
+            <input class="yardContentSum" id="yardContentSumExact" placeholder="ציין את שווי תכולת החצר" type="number"
+              min="20000" step="1" />
           </div>
         </div>
         <div class="form-group" id="contentBuildingGroup">
@@ -357,7 +362,8 @@
         <div class="conditional-section" id="lienDetailsCompany" style="display: none;">
           <div class="form-group"><label>שם החברה</label><input type="text" id="lienCompanyName"
               name="lienCompanyName" /></div>
-          <div class="form-group"><label>ח.פ</label><input type="number" id="lienCompanyId" name="lienCompanyId" /></div>
+          <div class="form-group"><label>ח.פ</label><input type="number" id="lienCompanyId" name="lienCompanyId" />
+          </div>
         </div>
 
         <div class="form-group">
@@ -399,7 +405,9 @@
         <h2>תוספות כיסוי</h2>
         <p>להלן אפשרויות להרחבת הפוליסה. נא לסמן מעוניין / לא מעוניין</p>
         <div id="coverageOptionsContainer"></div>
-        <div id="addonsTotalDisplay" style="font-size:1.2em; font-weight:bold; color:#1a237e; margin: 18px 0 0 0; text-align:right;">סך הכל תוספות: ₪0</div>
+        <div id="addonsTotalDisplay"
+          style="font-size:1.2em; font-weight:bold; color:#1a237e; margin: 18px 0 0 0; text-align:right;">סך הכל תוספות:
+          ₪0</div>
         <div id="premiumDisplay">
           <p id="premiumAmount">0 ₪</p>
           <p id="discountDisplay" style="color:#d03499; font-size:1.1em; margin-top: 12px;"></p>
@@ -478,6 +486,27 @@
           </div>
         </div>
         <p class="talah-info">הכיסוי הביטוחי יכנס לתוקף רק לאחר ביצוע התשלום והעברת התשלום</p>
+        <!-- Installments (Credit Card) -->
+        <div class="form-group" id="creditInstallmentsGroup">
+          <label for="creditInstallments">מספר תשלומים (עד 12)</label>
+          <select id="creditInstallments" name="creditInstallments" class="installments-select" required>
+            <option value="1" selected>1 תשלום</option>
+            <option value="2">2 תשלומים</option>
+            <option value="3">3 תשלומים</option>
+            <option value="4">4 תשלומים</option>
+            <option value="5">5 תשלומים</option>
+            <option value="6">6 תשלומים</option>
+            <option value="7">7 תשלומים</option>
+            <option value="8">8 תשלומים</option>
+            <option value="9">9 תשלומים</option>
+            <option value="10">10 תשלומים</option>
+            <option value="11">11 תשלומים</option>
+            <option value="12">12 תשלומים</option>
+          </select>
+          <p class="talah-info">פרטי האשראי נשמרים במערכת מאובטחת עד למועד ההפקה. שים לב כדי לבצע את השמירה הסכום הכתוב
+            הינו 1 שח שלא ייגבה בפועל </p>
+        </div>
+
         <div class="signature-wrapper">
           <label class="signature-label">חתימה:</label>
           <canvas height="150" id="signatureCanvasCredit" width="300"></canvas>
