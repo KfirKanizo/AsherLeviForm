@@ -1928,6 +1928,34 @@ function collectFormData() {
   return payload;
 }
 
+
+// מחשב את סכום הכיסוי הגולמי למבנה לפי הלוגיקה שנשלחת לוובהוק
+function computeInsuredBuildingAmountRaw() {
+  const selected = document.querySelector('.building-size-button.selected')?.dataset?.value;
+
+  let amount = 0;
+  if (selected === 'under100') {
+    amount = 500000;
+  } else if (selected === 'over100') {
+    const exact = parseFloat(document.getElementById('buildingSizeExact')?.value || '0');
+    amount = exact > 0 ? Math.round(exact * 7200) : 0;
+  }
+
+  // תמיד לפחות 500,000
+  return Math.max(amount, 500000);
+}
+
+
+// מעדכן את הטקסט מתחת ל"גודל המבנה"
+function updateInsuredBuildingAmountDisplay() {
+  const span = document.getElementById('insuredBuildingAmountText');
+  if (!span) return;
+  const amount = computeInsuredBuildingAmountRaw();
+  // תצוגה ידידותית עם אלפי מפרידים וש"ח בסוף
+  span.textContent = `${(amount || 0).toLocaleString('he-IL')} ₪`;
+}
+
+
 function getBuildingAdditionCost() {
   const includeContentBuilding = document.getElementById('hasContentBuilding')?.value === "true";
   console.log('getBuildingAdditionCost - includeContentBuilding:', includeContentBuilding);
@@ -2260,6 +2288,8 @@ function setupBuildingSizeButtons() {
       }
 
       calculatePremium();
+      updateInsuredBuildingAmountDisplay();
+
     });
   });
 }
@@ -2746,6 +2776,9 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('📥 prefill מה-URL');
   prefillFromUrl();
 
+  updateInsuredBuildingAmountDisplay();
+
+
   // ויתור שיבוב
   const waiverCheckbox = document.getElementById('waiverCheckbox');
   const waiverDetails = document.getElementById('waiverDetails');
@@ -2927,34 +2960,24 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Offer (quote) button ---
-  const offerBtn = document.querySelector('#paymentSelection .offer-button');
-  if (offerBtn) {
+  // תופס את הכפתור בכל הסקשנים (לא תלוי ב-#paymentSelection)
+  document.querySelectorAll('.offer-button').forEach((offerBtn) => {
     offerBtn.addEventListener('click', async () => {
       try {
-        // אם המשתנה הזה לא קיים אצלך גלובלית, הוסף למעלה: let selectedPaymentMethod = null;
         selectedPaymentMethod = 'offer';
-
-        // אוסף את כל נתוני הטופס כפי שנעשה בתשלומים
         const payload = collectFormData();
-
-        // שמירה על תאימות לאחור: שני השדות עם אותה המשמעות
         payload.paymentMethod = 'offer';
         payload.selectedPaymentMethod = 'offer';
-
-        // שליחה לוובהוק בדיוק כמו בתשלום רגיל
         await sendToWebhook(payload);
-
-        // מעבר לעמוד התודה (כמו בזרימות התשלום)
         const thankYouSectionIndex = sections.findIndex(sec => sec.id === 'thankYouSection');
-        if (thankYouSectionIndex !== -1) {
-          showSection(thankYouSectionIndex);
-        }
+        if (thankYouSectionIndex !== -1) showSection(thankYouSectionIndex);
       } catch (err) {
         console.error('Failed sending offer webhook:', err);
         alert('אירעה שגיאה בשליחת הבקשה להצעת מחיר. נסו שוב.');
       }
     });
-  }
+  });
+
 
 
 
@@ -3324,6 +3347,7 @@ document.addEventListener('DOMContentLoaded', () => {
       field.addEventListener('input', function () {
         // הפעל חישוב פרמיה כשהערך משתנה
         calculatePremium();
+        updateInsuredBuildingAmountDisplay();
       });
     });
   }
