@@ -199,12 +199,17 @@ const hasOver3ChildrenGroup = document.getElementById('hasOver3ChildrenGroup');
 
 if (gardenType && hasOver3ChildrenGroup) {
   const toggleOver3ChildrenField = () => {
-    if (gardenType.value === 'over3') {
+    if (gardenType.value === 'over3' || gardenType.value === 'afterSchool') {
       hasOver3ChildrenGroup.style.display = 'none';
       // איפוס הערכים כשמסתירים
-      document.getElementById('hasOver3Children').value = '';
-      document.getElementById('over3ChildrenCount').value = '';
-      document.getElementById('over3ChildrenCountGroup').style.display = 'none';
+      const hasOver3Input = document.getElementById('hasOver3Children');
+      if (hasOver3Input) hasOver3Input.value = '';
+
+      const over3Count = document.getElementById('over3ChildrenCount');
+      if (over3Count) over3Count.value = '';
+
+      const over3Group = document.getElementById('over3ChildrenCountGroup');
+      if (over3Group) over3Group.style.display = 'none';
     } else {
       hasOver3ChildrenGroup.style.display = 'block';
     }
@@ -216,6 +221,7 @@ if (gardenType && hasOver3ChildrenGroup) {
   // האזנה לשינויים
   gardenType.addEventListener('change', toggleOver3ChildrenField);
 }
+
 
 
 if (childrenCountInput && over3ChildrenInput) {
@@ -534,8 +540,8 @@ document.querySelectorAll('.next-button').forEach(button => {
 
     // וידוא בחירה בכפתורי כן/לא בסקשן פרטי ביטוח
     if (sections[currentSectionIndex].id === 'insuranceDetails') {
-      // כשנבחר "גן מעל גיל 3" — לא נדרוש את hasOver3Children
-      const requireHasOver3 = (gardenType.value !== 'over3');
+      // אין לדרוש "hasOver3Children" אם נבחר גן מעל גיל 3 או צהרון בלבד
+      const requireHasOver3 = !(gardenType.value === 'over3' || gardenType.value === 'afterSchool');
 
       const yesNoFields = [
         ...(requireHasOver3 ? ['hasOver3Children'] : []),
@@ -557,7 +563,7 @@ document.querySelectorAll('.next-button').forEach(button => {
         }
       }
 
-      // שדות תלויים — רק אם השאלה רלוונטית (לא במצב over3)
+      // שדות תלויים — רק אם השאלה רלוונטית (לא במצבים over3/afterSchool)
       if (requireHasOver3) {
         const hasOver3Hidden = document.querySelector('[data-field="hasOver3Children"] input[type="hidden"]');
         if (hasOver3Hidden && hasOver3Hidden.value === 'true') {
@@ -581,6 +587,7 @@ document.querySelectorAll('.next-button').forEach(button => {
         }
       }
     }
+
 
 
     // וידוא שדות חובה נוספים שמופיעים רק כשכפתור לחוץ
@@ -1701,6 +1708,11 @@ function sanitizeConditionalFields(payload) {
   }
 }
 
+function formatCurrency(value) {
+  const num = parseFloat(value) || 0;
+  return num.toFixed(2);
+}
+
 
 function collectFormData() {
   console.log('--- collectFormData called ---');
@@ -1810,7 +1822,7 @@ function collectFormData() {
     payload['contentBuildingDetails[hasLien]'] = document.querySelector('.hasLien')?.checked ? 'true' : 'false';
     payload['contentBuildingDetails[lienHolder]'] = document.querySelector('.hasLien')?.checked ? (document.querySelector('.lienHolder')?.value || '') : '';
   }
-  
+
   // מבנה: חישוב סכום ביטוח מבנה
   const buildingSizeSelected = document.querySelector('.building-size-button.selected')?.dataset?.value;
   let insuredBuildingAmount = 0;
@@ -1824,12 +1836,12 @@ function collectFormData() {
   }
 
   // הוספת השדה לוובהוק
-  payload.insuredBuildingAmount = insuredBuildingAmount;
+  payload.insuredBuildingAmount = formatCurrency(insuredBuildingAmount);
 
 
   // ---------- פרמיה, תשלום, חתימה, קבצים ----------
   let premiumText = document.getElementById('premiumAmount').textContent.replace(/[^\d.]/g, '');
-  payload['premium'] = premiumText;
+  payload['premium'] = formatCurrency(premiumText);
 
   // ---------- automation מתוך URL ----------
   payload['automation'] = window.formAutomationFlag || 'true';
@@ -1847,17 +1859,17 @@ function collectFormData() {
   payload['policyTrack'] = determinePolicyTrack();
 
   // ---------- מחיר תכולה ----------
-  const contentCost = getContentAdditionCost();
+  const contentCost = formatCurrency(getContentAdditionCost());
   payload['contentAdditionCost'] = contentCost;
   console.log('contentAdditionCost:', contentCost);
 
   // ---------- מחיר מבנה ----------
-  const buildingCost = getBuildingAdditionCost();
+  const buildingCost = formatCurrency(getBuildingAdditionCost());
   payload['buildingAdditionCost'] = buildingCost;
   console.log('buildingAdditionCost:', buildingCost);
 
   // ---------- מחיר חצר ----------
-  const yardCost = getYardAdditionCost();
+  const yardCost = formatCurrency(getYardAdditionCost());
   payload['yardAdditionCost'] = yardCost;
   console.log('yardAdditionCost:', yardCost);
 
@@ -2952,22 +2964,54 @@ document.addEventListener('DOMContentLoaded', () => {
   const policyEndDate = document.getElementById('policyEndDate');
 
   if (policyStartDate && policyEndDate) {
-    // שים תמיד disabled
-    policyStartDate.disabled = true;
-    policyEndDate.disabled = true;
-
-    // בדוק אם הגיע ערך מה-URL
+    // קריאת פרמטרים מה-URL
     const urlParams = new URLSearchParams(window.location.search);
+    const renewalRaw = urlParams.get('renewal');
+
+    // שמירה על התאימות: ברירת מחדל renewal=true אם לא נשלח
+    const isRenewal = (renewalRaw === 'true');
+
+    // Prefill אם הגיעו תאריכים מה-URL
     const startValue = urlParams.get('policyStartDate');
     const endValue = urlParams.get('policyEndDate');
+    if (startValue) policyStartDate.value = startValue;
+    if (endValue) policyEndDate.value = endValue;
 
-    if (startValue) {
-      policyStartDate.value = startValue;
-    }
-    if (endValue) {
-      policyEndDate.value = endValue;
+    // פונקציה שמייצרת תאריך סיום: שנה קדימה פחות יום
+    const calcEndDate = (startStr) => {
+      if (!startStr) return '';
+      const start = new Date(startStr);
+      if (isNaN(start)) return '';
+      const end = new Date(start);
+      end.setFullYear(end.getFullYear() + 1);
+      end.setDate(end.getDate() - 1);
+      const y = end.getFullYear();
+      const m = String(end.getMonth() + 1).padStart(2, '0');
+      const d = String(end.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    };
+
+    if (isRenewal) {
+      // מצב חידוש: שניהם נעולים (כמו שהיה)
+      policyStartDate.disabled = true;
+      policyEndDate.disabled = true;
+    } else {
+      // לא חידוש: פותחים תאריך התחלה, תאריך סיום מחושב ונעול
+      policyStartDate.disabled = false;
+      policyEndDate.disabled = true;
+
+      // אם כבר קיים start (מ-URL/דיפולט) – חשב מיד את הסיום
+      if (policyStartDate.value && !policyEndDate.value) {
+        policyEndDate.value = calcEndDate(policyStartDate.value);
+      }
+
+      // חישוב אוטומטי בעת שינוי
+      policyStartDate.addEventListener('change', () => {
+        policyEndDate.value = calcEndDate(policyStartDate.value);
+      });
     }
   }
+
 
   // הגדרה לפי עמודי התשלום
   const payments = [
