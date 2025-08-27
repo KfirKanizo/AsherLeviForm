@@ -2964,22 +2964,54 @@ document.addEventListener('DOMContentLoaded', () => {
   const policyEndDate = document.getElementById('policyEndDate');
 
   if (policyStartDate && policyEndDate) {
-    // שים תמיד disabled
-    policyStartDate.disabled = true;
-    policyEndDate.disabled = true;
-
-    // בדוק אם הגיע ערך מה-URL
+    // קריאת פרמטרים מה-URL
     const urlParams = new URLSearchParams(window.location.search);
+    const renewalRaw = urlParams.get('renewal');
+
+    // שמירה על התאימות: ברירת מחדל renewal=true אם לא נשלח
+    const isRenewal = (renewalRaw === 'true');
+
+    // Prefill אם הגיעו תאריכים מה-URL
     const startValue = urlParams.get('policyStartDate');
     const endValue = urlParams.get('policyEndDate');
+    if (startValue) policyStartDate.value = startValue;
+    if (endValue) policyEndDate.value = endValue;
 
-    if (startValue) {
-      policyStartDate.value = startValue;
-    }
-    if (endValue) {
-      policyEndDate.value = endValue;
+    // פונקציה שמייצרת תאריך סיום: שנה קדימה פחות יום
+    const calcEndDate = (startStr) => {
+      if (!startStr) return '';
+      const start = new Date(startStr);
+      if (isNaN(start)) return '';
+      const end = new Date(start);
+      end.setFullYear(end.getFullYear() + 1);
+      end.setDate(end.getDate() - 1);
+      const y = end.getFullYear();
+      const m = String(end.getMonth() + 1).padStart(2, '0');
+      const d = String(end.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    };
+
+    if (isRenewal) {
+      // מצב חידוש: שניהם נעולים (כמו שהיה)
+      policyStartDate.disabled = true;
+      policyEndDate.disabled = true;
+    } else {
+      // לא חידוש: פותחים תאריך התחלה, תאריך סיום מחושב ונעול
+      policyStartDate.disabled = false;
+      policyEndDate.disabled = true;
+
+      // אם כבר קיים start (מ-URL/דיפולט) – חשב מיד את הסיום
+      if (policyStartDate.value && !policyEndDate.value) {
+        policyEndDate.value = calcEndDate(policyStartDate.value);
+      }
+
+      // חישוב אוטומטי בעת שינוי
+      policyStartDate.addEventListener('change', () => {
+        policyEndDate.value = calcEndDate(policyStartDate.value);
+      });
     }
   }
+
 
   // הגדרה לפי עמודי התשלום
   const payments = [
