@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>טופס חידוש ביטוח</title>
-  <link href="style.css?v=202508271" rel="stylesheet" />
+  <link href="style.css?v=202508291" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;display=swap" rel="stylesheet" />
 </head>
 
@@ -291,7 +291,12 @@
             <button class="not-interested-button building-size-button" data-value="over100" type="button">מעל 70
               מ"ר</button>
           </div>
+          <div id="insuredBuildingAmountDisplay" class="insured-building-amount"
+            style="margin-top:8px; color:#2c3e50; font-size:0.95em;">
+            סכום כיסוי למבנה: <span id="insuredBuildingAmountText">₪0</span>
+          </div>
           <div id="buildingSizeExtraInput" style="display: none;">
+
             <input class="buildingSum" id="buildingSizeExact" placeholder="ציין את גודל המבנה" type="number" min="70"
               step="1" />
           </div>
@@ -412,21 +417,30 @@
           <p id="premiumAmount">0 ₪</p>
           <p id="discountDisplay" style="color:#d03499; font-size:1.1em; margin-top: 12px;"></p>
         </div>
-        <div class="form-group">
-          <label for="notes1">הערות 1</label>
-          <input type="text" id="notes1" name="notes1" placeholder="הקלד הערה ראשונה כאן" />
+
+        <div class="agent-notes-box">
+          <h3>שדות לשימוש נציג החברה בלבד</h3>
+          <p class="notes-hint">אנא אל תמלא שדות אלו – מיועדים לנציג מטעמנו.</p>
+
+          <div class="form-group">
+            <label for="notes1">הערות 1</label>
+            <input type="text" id="notes1" name="notes1" placeholder="נכתב ע״י נציג החברה" />
+          </div>
+
+          <div class="form-group">
+            <label for="notes2">הערות 2</label>
+            <input type="text" id="notes2" name="notes2" placeholder="נכתב ע״י נציג החברה" />
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="notes2">הערות 2</label>
-          <input type="text" id="notes2" name="notes2" placeholder="הקלד הערה שנייה כאן" />
-        </div>
 
         <p class="talah-info">האמור במסמך זה הינו לנוחיות בלבד ואינו מחייב. ייתכנו טעויות או השמטות בתום לב. המסמך אינו
           מהווה תחליף לפוליסה המלאה, תנאיה, סייגיה והחרגותיה. ט.ל.ח.</p>
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לפרטי הפוליסה</button>
-          <button class="next-button" type="button">למעבר לבחירת אמצעי תשלום</button>
+          <button class="next-button" type="button" style="background: #43a047;">מאשר את ההצעה נא להפיק את
+            הפוליסה</button>
+          <button class="offer-button" type="button" style="background: #e53935 ;">אבדוק את ההצעה ואאשר בהמשך</button>
         </div>
       </div>
       <!-- Payment Selection Section -->
@@ -440,7 +454,6 @@
         </div>
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לתוספות כיסויים</button>
-          <button class="offer-button" type="button">שלחו לי הצעה חדשה</button>
         </div>
       </div>
       <!-- Bank Transfer Section -->
@@ -498,7 +511,7 @@
         <p class="talah-info">הכיסוי הביטוחי יכנס לתוקף רק לאחר ביצוע התשלום והעברת התשלום</p>
         <!-- Installments (Credit Card) -->
         <div class="form-group" id="creditInstallmentsGroup">
-          <label for="creditInstallments">מספר תשלומים (עד 12)</label>
+          <label for="creditInstallments">מספר תשלומים</label>
           <select id="creditInstallments" name="creditInstallments" class="installments-select" required>
             <option value="1" selected>1 תשלום</option>
             <option value="2">2 תשלומים</option>
@@ -508,11 +521,11 @@
             <option value="6">6 תשלומים</option>
             <option value="7">7 תשלומים</option>
             <option value="8">8 תשלומים</option>
-            <option value="9">9 תשלומים</option>
-            <option value="10">10 תשלומים</option>
-            <option value="11">11 תשלומים</option>
-            <option value="12">12 תשלומים</option>
           </select>
+          <ul>
+            <li>עד 5 תשלומים – ללא ריבית</li>
+            <li>עד 8 תשלומים – בריבית של 4%</li>
+          </ul>
           <p class="talah-info">פרטי האשראי נשמרים במערכת מאובטחת עד למועד ההפקה. שים לב כדי לבצע את השמירה הסכום הכתוב
             הינו 1 שח שלא ייגבה בפועל </p>
         </div>
@@ -540,6 +553,21 @@
         <h2>הרשאה לחיוב חשבון</h2>
         <p class="premium-info">הקמת הרשאה לחיוב חשבון עבור מגדל חברה לביטוח (קוד מוסד: 502)</p>
         <p class="premium-info">ההרשאה צריכה להיות ללא הגבלת סכום או מועד, ולציין את מספר התשלומים:</p>
+        <!-- Installments (Debit Authorization) -->
+        <div class="form-group" id="creditInstallmentsGroup">
+          <label for="creditInstallments">מספר תשלומים</label>
+          <select id="creditInstallments" name="creditInstallments" class="installments-select" required>
+            <option value="1" selected>1 תשלום</option>
+            <option value="2">2 תשלומים</option>
+            <option value="3">3 תשלומים</option>
+            <option value="4">4 תשלומים</option>
+            <option value="5">5 תשלומים</option>
+            <option value="6">6 תשלומים</option>
+            <option value="7">7 תשלומים</option>
+            <option value="8">8 תשלומים</option>
+          </select>
+          <ul>
+        </div>
         <ul>
           <li>עד 5 תשלומים – ללא ריבית</li>
           <li>עד 8 תשלומים – בריבית של 4%</li>
@@ -783,7 +811,12 @@
       </div>
     </form>
   </div>
-  <script src="script.js?v=202508271"></script>
+  <script src="script.js?v=202508291"></script>
 </body>
+
+<div id="form-controls" style="text-align: center; margin: 2em 0;">
+  <button id="resetButton" onclick="resetForm()">איפוס טופס</button>
+</div>
+
 
 </html>
