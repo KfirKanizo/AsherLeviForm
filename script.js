@@ -191,7 +191,105 @@ function parseUrlParams() {
   for (const [key, value] of urlParams.entries()) {
     urlPrefillData[key] = value;
   }
+
+  // טען שמירה קודמת רק אם אין שום ערך ב־URL
+  if (Object.keys(urlPrefillData).length === 0) {
+    loadFormProgress();
+  }
+
+  // קריאת פרמטר discount מה-URL (נשמר אצלך כבר)
+  const discountParam = urlParams.get('discount');
+  if (discountParam) {
+    const discountValue = parseInt(discountParam);
+    if (!isNaN(discountValue) && discountValue >= 0 && discountValue <= 100) {
+      dynamicDiscountPercent = discountValue;
+      console.log(`🎉 הנחה דינמית נטענה: ${dynamicDiscountPercent}%`);
+    } else {
+      console.warn(`⚠️ ערך הנחה לא תקין: ${discountParam}. ערך תקין הוא מספר בין 0 ל-100`);
+    }
+  }
 }
+
+
+function resetForm() {
+  if (confirm("האם אתה בטוח שברצונך לאפס את הטופס?")) {
+    // הסרת שמירה
+    localStorage.removeItem("formProgress");
+
+    // ניקוי פרמטרים מה-URL
+    const cleanUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+
+    // רענון הדף
+    location.reload();
+  }
+}
+
+
+function saveFormProgress() {
+  const inputs = document.querySelectorAll('input, select, textarea');
+  const data = {};
+  inputs.forEach(input => {
+    const name = input.name || input.id;
+    if (!name) return;
+
+    if (input.type === 'radio' || input.type === 'checkbox') {
+      data[name] = input.checked;
+    } else {
+      data[name] = input.value;
+    }
+  });
+
+  const selectedOptions = {};
+  document.querySelectorAll('.coverage-option').forEach(option => {
+    const optName = option.dataset.option;
+    const input = option.querySelector(`input[name="insuranceOptions[${optName}]"]`);
+    if (input) selectedOptions[optName] = input.value;
+  });
+
+  data.coverageSelections = selectedOptions;
+  localStorage.setItem('formProgress', JSON.stringify(data));
+}
+
+function loadFormProgress() {
+  const saved = localStorage.getItem('formProgress');
+  if (!saved) return;
+
+  try {
+    const data = JSON.parse(saved);
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+      const name = input.name || input.id;
+      if (!name || !(name in data)) return;
+
+      if (input.type === 'radio' || input.type === 'checkbox') {
+        input.checked = data[name];
+      } else {
+        input.value = data[name];
+      }
+    });
+
+    // Restore coverage selections
+    const selections = data.coverageSelections || {};
+    Object.entries(selections).forEach(([key, val]) => {
+      const option = document.querySelector(`.coverage-option[data-option="${key}"]`);
+      if (!option) return;
+
+      const input = option.querySelector(`input[name="insuranceOptions[${key}]"]`);
+      const interestedBtn = option.querySelector('.interested-button');
+      const notInterestedBtn = option.querySelector('.not-interested-button');
+
+      if (val === 'true') {
+        interestedBtn?.click();
+      } else if (val === 'false') {
+        notInterestedBtn?.click();
+      }
+    });
+  } catch (err) {
+    console.warn('⚠️ טופס שמור לא תקין בלוקאל סטורג׳:', err);
+  }
+}
+
 
 const childrenCountInput = document.getElementById('childrenCount');
 const over3ChildrenInput = document.getElementById('over3ChildrenCount');
@@ -320,6 +418,7 @@ function showSection(index) {
 
     // עדכון אינדקס
     currentSectionIndex = index;
+    saveFormProgress();
   }, 400);
 }
 
