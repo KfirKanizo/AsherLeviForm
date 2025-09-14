@@ -1945,11 +1945,17 @@ function collectFormData() {
   // ---------- automation מתוך URL ----------
   payload['automation'] = window.formAutomationFlag || 'true';
 
+    // ---------- representative מתוך URL ----------
+    payload['representative'] = window.formRepresentativeFlag || 'false';
+
   // ---------- renewal מתוך URL ----------
   payload['renewal'] = window.formRenewalFlag || 'true';
 
   // ---------- agent מתוך URL ----------
   payload['agent'] = window.formAgentFlag || '';
+
+  // ---------- recIdFlag מתוך URL ----------
+  payload['airtableRecId'] = window.formRecIdFlag || '';
 
   // ---------- policyNumber מתוך URL ----------
   payload['policyNumber'] = window.policyNumber || '';
@@ -2618,10 +2624,12 @@ function prefillCoverageAddonsFromUrl() {
 function prefillFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
 
-  // --- דגלים כלליים (automation, renewal, agent, policyNumber) ---
+  // --- דגלים כלליים (automation, renewal, agent, policyNumber, representative) ---
   window.formAutomationFlag = urlParams.get('automation') || 'true';
+  window.formRepresentativeFlag = urlParams.get('representative') || 'false';
   window.formRenewalFlag = (urlParams.get('renewal') === null || urlParams.get('renewal') === 'true') ? 'true' : 'false';
   window.formAgentFlag = urlParams.get('agent');
+  window.formRecIdFlag = urlParams.get('airtableRecId');
   window.policyNumber = urlParams.get('policyNumber');
 
 
