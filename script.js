@@ -208,7 +208,35 @@ function parseUrlParams() {
       console.warn(`⚠️ ערך הנחה לא תקין: ${discountParam}. ערך תקין הוא מספר בין 0 ל-100`);
     }
   }
+
+  // טעינת הערות נציג (notes1, notes2) מה-URL אם קיימות
+  const notes1Param = urlParams.get('notes1');
+  const notes2Param = urlParams.get('notes2');
+
+  if (notes1Param !== null || notes2Param !== null) {
+    const agentNotesBox = document.querySelector('.agent-notes-box');
+    if (agentNotesBox) agentNotesBox.style.display = 'block';
+  }
+
+  if (notes1Param !== null) {
+    const notes1Field = document.getElementById('notes1');
+    if (notes1Field) {
+      notes1Field.value = decodeURIComponent(notes1Param);
+      notes1Field.style.display = 'block';
+      notes1Field.closest('.form-group').style.display = 'block';
+    }
+  }
+
+  if (notes2Param !== null) {
+    const notes2Field = document.getElementById('notes2');
+    if (notes2Field) {
+      notes2Field.value = decodeURIComponent(notes2Param);
+      notes2Field.style.display = 'block';
+      notes2Field.closest('.form-group').style.display = 'block';
+    }
+  }
 }
+
 
 
 function resetForm() {
@@ -1945,8 +1973,8 @@ function collectFormData() {
   // ---------- automation מתוך URL ----------
   payload['automation'] = window.formAutomationFlag || 'true';
 
-    // ---------- representative מתוך URL ----------
-    payload['representative'] = window.formRepresentativeFlag || 'false';
+  // ---------- representative מתוך URL ----------
+  payload['representative'] = window.formRepresentativeFlag || 'false';
 
   // ---------- renewal מתוך URL ----------
   payload['renewal'] = window.formRenewalFlag || 'true';
