@@ -879,3 +879,17 @@ input[type="date"]:focus {
 #resetButton:hover {
   background-color: #c62828;
 }
+
+
+.coverage-premium-display {
+  font-size: 1em;
+  font-weight: 500;
+  color: #1a237e;
+  background-color: #f5f7fa;
+  border-radius: 10px;
+  border: 1px solid #e0e4ec;
+  padding: 8px 12px;
+  margin-top: 10px;
+  text-align: right;
+  display: inline-block;
+}
