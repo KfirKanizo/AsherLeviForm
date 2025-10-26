@@ -197,6 +197,28 @@ function parseUrlParams() {
     loadFormProgress();
   }
 
+  // בדיקה אם הקישור הוא של נציג
+  const isRepresentative = urlParams.get('representative') === 'true';
+  const agentBox = document.querySelector('.agent-notes-box');
+  const repNameField = document.getElementById('representativeName');
+
+  if (agentBox && repNameField) {
+    if (isRepresentative) {
+      // נציג → הצג שדות, הפוך את שם הנציג לחובה
+      agentBox.style.display = 'block';
+      repNameField.setAttribute('data-required', 'true');
+    } else {
+      // משתמש רגיל → הסתר שדות
+      agentBox.style.display = 'none';
+      repNameField.removeAttribute('data-required');
+      repNameField.value = '';
+      document.getElementById('notes1').value = '';
+      document.getElementById('notes2').value = '';
+    }
+  }
+
+
+
   // קריאת פרמטר discount מה-URL (נשמר אצלך כבר)
   const discountParam = urlParams.get('discount');
   if (discountParam) {
@@ -896,6 +918,24 @@ document.querySelectorAll('.next-button').forEach(button => {
       }
     }
 
+    // בדיקה לשדה שם הנציג רק אם הוא חובה ורק בעמוד תוספות כיסוי
+    const repNameField = document.getElementById('representativeName');
+    if (
+      sections[currentSectionIndex].id === 'coverageAddons' && // רק בעמוד תוספות כיסוי
+      repNameField &&
+      repNameField.getAttribute('data-required') === 'true'
+    ) {
+      if (!repNameField.value.trim()) {
+        isValid = false;
+        repNameField.style.borderColor = 'red';
+        alert('אנא מלא את שם הנציג');
+        return;
+      }
+    }
+
+
+
+
     if (!isValid) {
       //alert('אנא מלא את כל השדות הנדרשים.');
       return;
@@ -1088,18 +1128,22 @@ function updateCoverageOptions() {
   const options = availableOptions[gardenTypeValue] || [];
 
   options.forEach(option => {
-    // הסתרת חבות מעבידים אם אין עובדים או אם הכיסוי כלול במסלול
-    if (option === 'employerLiability') {
-      if ([4, 5, 6, 7].includes(track)) return; // מסלולים שבהם זה כלול
-    }
-
+    if (option === 'employerLiability' && [4, 5, 6, 7].includes(track)) return;
     if (option === 'incomeLoss' && ![6, 7].includes(track)) return;
 
     const template = templates.querySelector(`#coverage-${option}`);
     if (template) {
       const clone = template.cloneNode(true);
+      clone.dataset.option = option; // מאפשר זיהוי
       container.appendChild(clone);
       addEventListenersToOption(clone);
+
+      // === יצירת תצוגת תוספת פרמיה מתחת לכל כיסוי ===
+      const premiumDiv = document.createElement("div");
+      premiumDiv.className = "coverage-premium-display";
+      premiumDiv.id = `premiumDisplay_${option}`;
+      premiumDiv.textContent = "תוספת לפרמיה: ₪0";
+      clone.appendChild(premiumDiv);
     }
   });
 
@@ -1107,6 +1151,8 @@ function updateCoverageOptions() {
   setupPersonalAccidentEmployees();
   setupProfessionalLiabilityEmployees();
 }
+
+
 
 // אוכף ערך מינימלי 1 לשדות מספרים
 function enforceMinOne(input) {
@@ -1324,16 +1370,14 @@ function determinePolicyTrack() {
 
 
 function calculatePremium() {
-  // קבלת ערכי שדות מרכזיים מהטופס
+  // === שלב 1: קבלת ערכים בסיסיים ===
   const gardenTypeValue = gardenType.value;
   const childrenCountValue = parseInt(childrenCount.value) || 0;
   let basePremium = 0;
 
-  // בודק האם בחרו לבטח תכולה ומבנה
   const hasContentBuilding = document.getElementById('hasContentBuilding');
   const includeContentBuilding = hasContentBuilding ? (hasContentBuilding.value === "true" || hasContentBuilding.checked) : false;
 
-  // אם אין סוג גן או אין ילדים בכלל - הפרמיה תמיד 0
   if (!gardenTypeValue || childrenCountValue < 1) {
     premiumAmount.textContent = '0 ₪';
     const discountDisplay = document.getElementById('discountDisplay');
@@ -1341,65 +1385,9 @@ function calculatePremium() {
     return;
   }
 
-  // חישוב פרמיה בסיסית לפי מסלול (track)
+  // === שלב 2: חישוב פרמיה בסיסית לפי מסלול ===
   const track = determinePolicyTrack();
-  if ([3, 4, 5, 6, 7].includes(track)) {
-    // מסלולים מתקדמים - לכל מסלול מינימום ופרמיה פר ילד
-    let min = 0, perChild = 0;
-    switch (track) {
-      case 3: min = 900; perChild = 105; break;
-      case 4: min = 1100; perChild = 110; break;
-      case 5: min = 1100; perChild = 55; break;
-      case 6: min = 1400; perChild = 80; break;
-      case 7: min = 1400; perChild = 120; break;
-    }
-    basePremium = Math.max(childrenCountValue * perChild, min);
-  } else {
-    // מסלולים אחרים - מחשב לפי מדרגות
-    switch (gardenTypeValue) {
-      case 'tamah':
-        if (childrenCountValue <= 6) basePremium = 500;
-        else if (childrenCountValue <= 10) basePremium = 1000;
-        else basePremium = 1000 + (childrenCountValue - 10) * 100;
-        break;
-      case 'privateFamily':
-        if (childrenCountValue <= 6) basePremium = 650;
-        else if (childrenCountValue <= 8) basePremium = 900;
-        else if (childrenCountValue === 9) basePremium = 900 + 105;
-        else if (childrenCountValue <= 10) basePremium = 1100;
-        else basePremium = 1100 + (childrenCountValue - 10) * 110;
-        break;
-      case 'upTo3':
-        if (includeContentBuilding) {
-          if (childrenCountValue <= 12) basePremium = 1400;
-          else basePremium = 1400 + (childrenCountValue - 12) * 120;
-        } else {
-          if (childrenCountValue <= 6) basePremium = 650;
-          else if (childrenCountValue <= 8) basePremium = 900;
-          else if (childrenCountValue === 9) basePremium = 900 + 105;
-          else if (childrenCountValue <= 10) basePremium = 1100;
-          else basePremium = 1100 + (childrenCountValue - 10) * 110;
-        }
-        break;
-      case 'over3':
-      case 'afterSchool':
-        if (includeContentBuilding) {
-          if (childrenCountValue <= 17) basePremium = 1400;
-          else basePremium = 1400 + (childrenCountValue - 17) * 80;
-        } else {
-          if (childrenCountValue <= 20) basePremium = 1100;
-          else basePremium = 1100 + (childrenCountValue - 20) * 55;
-        }
-        break;
-    }
-  }
-
-  // === הנחת מועדון (אם קיים) ===
-  const isMemberCheckbox = document.getElementById('isMember');
-  const isMember = isMemberCheckbox && (isMemberCheckbox.checked || isMemberCheckbox.value === "true");
-  let clubDiscount = 0;
-
-  let min = 0;
+  let min = 0, perChild = 0;
   switch (track) {
     case 3: min = 900; perChild = 105; break;
     case 4: min = 1100; perChild = 110; break;
@@ -1407,69 +1395,125 @@ function calculatePremium() {
     case 6: min = 1400; perChild = 80; break;
     case 7: min = 1400; perChild = 120; break;
   }
-  let minPremium = min; // המינימום שצריך להישאר אחרי הנחות
+
+  if ([3, 4, 5, 6, 7].includes(track)) {
+    basePremium = Math.max(childrenCountValue * perChild, min);
+  } else {
+    switch (gardenTypeValue) {
+      case 'tamah':
+        basePremium = childrenCountValue <= 6 ? 500 :
+          childrenCountValue <= 10 ? 1000 :
+            1000 + (childrenCountValue - 10) * 100;
+        break;
+      case 'privateFamily':
+        if (childrenCountValue <= 6) basePremium = 650;
+        else if (childrenCountValue <= 8) basePremium = 900;
+        else if (childrenCountValue === 9) basePremium = 1005;
+        else if (childrenCountValue <= 10) basePremium = 1100;
+        else basePremium = 1100 + (childrenCountValue - 10) * 110;
+        break;
+      case 'upTo3':
+        if (includeContentBuilding) {
+          basePremium = childrenCountValue <= 12 ? 1400 : 1400 + (childrenCountValue - 12) * 120;
+        } else {
+          basePremium = childrenCountValue <= 6 ? 650 :
+            childrenCountValue <= 8 ? 900 :
+              childrenCountValue === 9 ? 1005 :
+                childrenCountValue <= 10 ? 1100 :
+                  1100 + (childrenCountValue - 10) * 110;
+        }
+        break;
+      case 'over3':
+      case 'afterSchool':
+        if (includeContentBuilding) {
+          basePremium = childrenCountValue <= 17 ? 1400 : 1400 + (childrenCountValue - 17) * 80;
+        } else {
+          basePremium = childrenCountValue <= 20 ? 1100 : 1100 + (childrenCountValue - 20) * 55;
+        }
+        break;
+    }
+  }
+
+  // === שלב 3: הנחות ===
+  const isMember = document.getElementById('isMember')?.value === 'true';
+  let clubDiscount = 0;
+  let minPremium = min;
 
   if (isMember) {
-    // מחשב את סכום ההנחה ומינימום לכל מסלול רלוונטי
     const currentTrack = determinePolicyTrack();
-    if (currentTrack === 4 || currentTrack === 7) {
-      clubDiscount = childrenCountValue * 10;
-      minPremium = currentTrack === 4 ? 1100 : 1400;
-    } else if (currentTrack === 5 || currentTrack === 6) {
-      clubDiscount = childrenCountValue * 5;
-      minPremium = currentTrack === 5 ? 1100 : 1400;
-    }
+    if ([4, 7].includes(currentTrack)) clubDiscount = childrenCountValue * 10;
+    else if ([5, 6].includes(currentTrack)) clubDiscount = childrenCountValue * 5;
   }
 
-  // === הנחה עבור ילדים מעל גיל 3 ===
   let over3Discount = 0;
   const hasOver3Children = document.getElementById('hasOver3Children')?.value === 'true';
-  let over3ChildrenCount = 0;
   if (hasOver3Children) {
-    // מושך את כמות הילדים מהשדה הנסתר
-    over3ChildrenCount = parseInt(document.getElementById('over3ChildrenCount')?.value) || 0;
-    over3Discount = over3ChildrenCount * 40; // 40 ש"ח לכל ילד מעל גיל 3
+    const over3ChildrenCount = parseInt(document.getElementById('over3ChildrenCount')?.value) || 0;
+    over3Discount = over3ChildrenCount * 40;
   }
 
-  // === סכום כל התוספות שנבחרו ===
-  let addonsTotal = 0;
-  document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
-    const optionName = optionDiv.dataset.option;
-    const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
-    if (!optionName || !hiddenInput) return;
-    if (hiddenInput.value === 'true') {
-      let price = 0;
-      try {
-        price = getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeContentBuilding);
-      } catch (e) { price = 0; }
-      addonsTotal += price;
+  // === שלב 4: חישוב ביטוח מבנה, תכולה וחצר ===
+  let buildingPremium = 0;
+  let contentPremium = 0;
+  let yardPremium = 0;
+
+  // חישוב תוספת מבנה - בדיקה אם נבחר "מעל 70 מ"ר"
+  const buildingSizeSelected = document.querySelector('.building-size-button.selected')?.dataset?.value;
+  if (buildingSizeSelected === 'over100') {
+    const exactSize = parseFloat(document.getElementById('buildingSizeExact')?.value || '0');
+    if (exactSize > 70) {
+      buildingPremium = 120; // תוספת קבועה למבנים מעל 70 מ"ר
     }
-  });
-
-  // תוספת על תכולה ומבנה אם נבחרה
-  if (includeContentBuilding) {
-    const contentBuildingCost = getOptionCost('contentBuilding', gardenTypeValue, childrenCountValue, includeContentBuilding);
-    addonsTotal += contentBuildingCost;
   }
 
-  // === חיבור כל המרכיבים לסכום הסופי ===
-  let totalDiscounts = clubDiscount + over3Discount; // סך כל ההנחות (מועדון + ילדים מעל גיל 3)
-  let totalPremium = Math.max(basePremium - totalDiscounts, minPremium) + addonsTotal; // חישוב סופי
+  // חישוב תוספת תכולה - בדיקה אם נבחר "מעל 200,000 ₪"
+  const contentValueSelected = document.querySelector('.content-value-button.selected')?.dataset?.value;
+  if (contentValueSelected === 'over200k') {
+    const contentSum = parseFloat(document.getElementById('contentSumExact')?.value || '0');
+    if (contentSum > 200000) {
+      contentPremium = Math.round((contentSum - 200000) * 0.0005);
+    }
+  }
 
-  // ודא שהסכום לא יורד מהמינימום אחרי כל ההנחות
+  // חישוב תוספת חצר - בדיקה אם נבחר "מעל 20,000 ₪"
+  const yardValueSelected = document.querySelector('.yard-value-button.selected')?.dataset?.value;
+  if (yardValueSelected === 'over20k') {
+    const yardSum = parseFloat(document.getElementById('yardContentSumExact')?.value || '0');
+    if (yardSum > 20000) {
+      yardPremium = Math.round((yardSum - 20000) * 0.001);
+    }
+  }
+
+  // === שלב 5: עדכון תצוגת תוספת לכל רכיב ===
+  const buildingDisplay = document.getElementById('buildingPremiumDisplay');
+  if (buildingDisplay)
+    buildingDisplay.textContent = `תוספת לפרמיה: ₪${buildingPremium.toLocaleString()}`;
+
+  const contentDisplay = document.getElementById('contentPremiumDisplay');
+  if (contentDisplay)
+    contentDisplay.textContent = `תוספת לפרמיה: ₪${contentPremium.toLocaleString()}`;
+
+  const yardDisplay = document.getElementById('yardPremiumDisplay');
+  if (yardDisplay)
+    yardDisplay.textContent = `תוספת לפרמיה: ₪${yardPremium.toLocaleString()}`;
+
+  // === שלב 6: סכום כולל ===
+  const addonsTotal = buildingPremium + contentPremium + yardPremium;
+  let totalDiscounts = clubDiscount + over3Discount;
+  let totalPremium = Math.max(basePremium - totalDiscounts, minPremium) + addonsTotal;
   if (totalPremium < minPremium) totalPremium = minPremium;
 
-  // עדכון התצוגה ללקוח
-  premiumAmount.textContent = totalPremium + ' ₪';
+  premiumAmount.textContent = totalPremium.toLocaleString() + ' ₪';
 
-  // הצגת פירוט ההנחות (אם יש)
+  // === שלב 7: הצגת הנחות ===
   const discountDisplay = document.getElementById('discountDisplay');
   if (discountDisplay) {
-    let desc = '';
-    if (clubDiscount > 0) desc += `הנחת מועדון: ${clubDiscount} ש"ח`;
-    discountDisplay.textContent = desc;
+    discountDisplay.textContent = clubDiscount > 0
+      ? `הנחת מועדון: ${clubDiscount} ₪`
+      : '';
   }
 }
+
 
 
 
@@ -3738,6 +3782,19 @@ function getCoverageDisplayName(coverageName) {
       history.replaceState(null, '', newUrl);
     }
   }
+
+  const fieldsToWatch = [
+    'buildingSizeExact',
+    'contentSumExact',
+    'yardContentSumExact'
+  ];
+
+  fieldsToWatch.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', calculatePremium);
+  });
+
+  calculatePremium();
 
 
   // === האזנות כלליות ===

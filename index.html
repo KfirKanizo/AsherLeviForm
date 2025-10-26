@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>טופס חידוש ביטוח</title>
-  <link href="style.css?v=202508291" rel="stylesheet" />
+  <link href="style.css?v=202510251" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;display=swap" rel="stylesheet" />
 </head>
 
@@ -295,6 +295,7 @@
             style="margin-top:8px; color:#2c3e50; font-size:0.95em;">
             סכום כיסוי למבנה: <span id="insuredBuildingAmountText">₪0</span>
           </div>
+          <div id="buildingPremiumDisplay" class="coverage-premium-display">תוספת לפרמיה: ₪0</div>
           <div id="buildingSizeExtraInput" style="display: none;">
 
             <input class="buildingSum" id="buildingSizeExact" placeholder="ציין את גודל המבנה" type="number" min="70"
@@ -311,6 +312,7 @@
             <input class="contentSum" id="contentSumExact" placeholder="ציין את שווי התכולה" type="number" min="200000"
               step="1" />
           </div>
+          <div id="contentPremiumDisplay" class="coverage-premium-display">תוספת לפרמיה: ₪0</div>
         </div>
         <div class="form-group">
           <label>סכום תכולת חצר
@@ -330,6 +332,7 @@
             <input class="yardContentSum" id="yardContentSumExact" placeholder="ציין את שווי תכולת החצר" type="number"
               min="20000" step="1" />
           </div>
+          <div id="yardPremiumDisplay" class="coverage-premium-display">תוספת לפרמיה: ₪0</div>
         </div>
         <div class="form-group" id="contentBuildingGroup">
           <label for="buildingType">סוג המבנה</label>
@@ -421,6 +424,11 @@
         <div class="agent-notes-box">
           <h3>שדות לשימוש נציג החברה בלבד</h3>
           <p class="notes-hint">אנא אל תמלא שדות אלו – מיועדים לנציג מטעמנו.</p>
+
+          <div class="form-group">
+            <label for="representativeName">שם הנציג</label>
+            <input type="text" id="representativeName" name="representativeName" />
+          </div>
 
           <div class="form-group">
             <label for="notes1">הערות 1</label>
@@ -660,7 +668,7 @@
           <p>ביטוח עבור הגננת או עובדת הגן במהלך שעות היממה. הכיסוי במקרים של כוויות, נכות ומוות.<br />
             <strong>מסלול א'</strong>: פיצוי של 250,000 ₪ – במסגרת פוליסה קולקטיבית בגבולות אחריות 3.2 מיליון ₪ לשנה.
             כולל פיצוי לשברים עם גיבוס בסך 5,000 ₪ למקרה.<br />
-            <strong>מסלול ב'</strong>: פיצוי שבועי של 2,000 ₪ לתקופה של עד 24 חודשים, 2 ימי המתנה. שברים וכוויות – 5,000
+            <strong>מסלול ב'</strong>: פיצוי חד פעמי של 150,000 ₪ + 1,000 ₪ פיצוי שבועי לתקופה של עד 24 חודשים, 2 ימי המתנה. שברים וכוויות – 5,000
             ₪ למקרה. פיצוי לאשפוז כתוצאה מתאונה מעל 3 ימים ועד 14 יום – 150 ₪ ליום.<br />
             <strong>מסלול ג'</strong>: פיצוי של 300,000 ₪. פיצוי שבועי של 2,000 ₪ לתקופה של עד 24 חודשים, 2 ימי המתנה.
             שברים וכוויות – 5,000 ₪ למקרה. פיצוי לאשפוז כתוצאה מתאונה מעל 3 ימים ועד 14 יום – 150 ₪ ליום.
@@ -811,7 +819,7 @@
       </div>
     </form>
   </div>
-  <script src="script.js?v=202508291"></script>
+  <script src="script.js?v=202510251"></script>
 </body>
 
 <div id="form-controls" style="text-align: center; margin: 2em 0;">
