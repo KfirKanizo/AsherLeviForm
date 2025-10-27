@@ -200,18 +200,18 @@ function parseUrlParams() {
   // בדיקה אם הקישור הוא של נציג
   const isRepresentative = urlParams.get('representative') === 'true';
   const agentBox = document.querySelector('.agent-notes-box');
-  const repNameField = document.getElementById('representativeName');
+  const repCodeField = document.getElementById('representativeCode');
 
-  if (agentBox && repNameField) {
+  if (agentBox && repCodeField) {
     if (isRepresentative) {
       // נציג → הצג שדות, הפוך את שם הנציג לחובה
       agentBox.style.display = 'block';
-      repNameField.setAttribute('data-required', 'true');
+      repCodeField.setAttribute('data-required', 'true');
     } else {
       // משתמש רגיל → הסתר שדות
       agentBox.style.display = 'none';
-      repNameField.removeAttribute('data-required');
-      repNameField.value = '';
+      repCodeField.removeAttribute('data-required');
+      repCodeField.value = '';
       document.getElementById('notes1').value = '';
       document.getElementById('notes2').value = '';
     }
@@ -243,7 +243,7 @@ function parseUrlParams() {
   if (notes1Param !== null) {
     const notes1Field = document.getElementById('notes1');
     if (notes1Field) {
-      notes1Field.value = decodeURIComponent(notes1Param);
+      notes1Field.value = notes1Param;
       notes1Field.style.display = 'block';
       notes1Field.closest('.form-group').style.display = 'block';
     }
@@ -252,7 +252,7 @@ function parseUrlParams() {
   if (notes2Param !== null) {
     const notes2Field = document.getElementById('notes2');
     if (notes2Field) {
-      notes2Field.value = decodeURIComponent(notes2Param);
+      notes2Field.value = notes2Param;
       notes2Field.style.display = 'block';
       notes2Field.closest('.form-group').style.display = 'block';
     }
@@ -919,16 +919,16 @@ document.querySelectorAll('.next-button').forEach(button => {
     }
 
     // בדיקה לשדה שם הנציג רק אם הוא חובה ורק בעמוד תוספות כיסוי
-    const repNameField = document.getElementById('representativeName');
+    const repCodeField = document.getElementById('representativeCode');
     if (
       sections[currentSectionIndex].id === 'coverageAddons' && // רק בעמוד תוספות כיסוי
-      repNameField &&
-      repNameField.getAttribute('data-required') === 'true'
+      repCodeField &&
+      repCodeField.getAttribute('data-required') === 'true'
     ) {
-      if (!repNameField.value.trim()) {
+      if (!repCodeField.value.trim()) {
         isValid = false;
-        repNameField.style.borderColor = 'red';
-        alert('אנא מלא את שם הנציג');
+        repCodeField.style.borderColor = 'red';
+        alert('אנא מלא את קוד הנציג');
         return;
       }
     }
@@ -1138,12 +1138,6 @@ function updateCoverageOptions() {
       container.appendChild(clone);
       addEventListenersToOption(clone);
 
-      // === יצירת תצוגת תוספת פרמיה מתחת לכל כיסוי ===
-      const premiumDiv = document.createElement("div");
-      premiumDiv.className = "coverage-premium-display";
-      premiumDiv.id = `premiumDisplay_${option}`;
-      premiumDiv.textContent = "תוספת לפרמיה: ₪0";
-      clone.appendChild(premiumDiv);
     }
   });
 
