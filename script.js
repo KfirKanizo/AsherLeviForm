@@ -200,18 +200,18 @@ function parseUrlParams() {
   // בדיקה אם הקישור הוא של נציג
   const isRepresentative = urlParams.get('representative') === 'true';
   const agentBox = document.querySelector('.agent-notes-box');
-  const repNameField = document.getElementById('representativeName');
+  const repCodeField = document.getElementById('representativeCode');
 
-  if (agentBox && repNameField) {
+  if (agentBox && repCodeField) {
     if (isRepresentative) {
       // נציג → הצג שדות, הפוך את שם הנציג לחובה
       agentBox.style.display = 'block';
-      repNameField.setAttribute('data-required', 'true');
+      repCodeField.setAttribute('data-required', 'true');
     } else {
       // משתמש רגיל → הסתר שדות
       agentBox.style.display = 'none';
-      repNameField.removeAttribute('data-required');
-      repNameField.value = '';
+      repCodeField.removeAttribute('data-required');
+      repCodeField.value = '';
       document.getElementById('notes1').value = '';
       document.getElementById('notes2').value = '';
     }
@@ -919,16 +919,16 @@ document.querySelectorAll('.next-button').forEach(button => {
     }
 
     // בדיקה לשדה שם הנציג רק אם הוא חובה ורק בעמוד תוספות כיסוי
-    const repNameField = document.getElementById('representativeName');
+    const repCodeField = document.getElementById('representativeCode');
     if (
       sections[currentSectionIndex].id === 'coverageAddons' && // רק בעמוד תוספות כיסוי
-      repNameField &&
-      repNameField.getAttribute('data-required') === 'true'
+      repCodeField &&
+      repCodeField.getAttribute('data-required') === 'true'
     ) {
-      if (!repNameField.value.trim()) {
+      if (!repCodeField.value.trim()) {
         isValid = false;
-        repNameField.style.borderColor = 'red';
-        alert('אנא מלא את שם הנציג');
+        repCodeField.style.borderColor = 'red';
+        alert('אנא מלא את קוד הנציג');
         return;
       }
     }
