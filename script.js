@@ -243,7 +243,7 @@ function parseUrlParams() {
   if (notes1Param !== null) {
     const notes1Field = document.getElementById('notes1');
     if (notes1Field) {
-      notes1Field.value = decodeURIComponent(notes1Param);
+      notes1Field.value = notes1Param;
       notes1Field.style.display = 'block';
       notes1Field.closest('.form-group').style.display = 'block';
     }
@@ -252,7 +252,7 @@ function parseUrlParams() {
   if (notes2Param !== null) {
     const notes2Field = document.getElementById('notes2');
     if (notes2Field) {
-      notes2Field.value = decodeURIComponent(notes2Param);
+      notes2Field.value = notes2Param;
       notes2Field.style.display = 'block';
       notes2Field.closest('.form-group').style.display = 'block';
     }
@@ -1138,12 +1138,6 @@ function updateCoverageOptions() {
       container.appendChild(clone);
       addEventListenersToOption(clone);
 
-      // === יצירת תצוגת תוספת פרמיה מתחת לכל כיסוי ===
-      const premiumDiv = document.createElement("div");
-      premiumDiv.className = "coverage-premium-display";
-      premiumDiv.id = `premiumDisplay_${option}`;
-      premiumDiv.textContent = "תוספת לפרמיה: ₪0";
-      clone.appendChild(premiumDiv);
     }
   });
 
