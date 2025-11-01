@@ -1493,7 +1493,7 @@ function calculatePremium() {
   if (contentValueSelected === 'over200k') {
     const contentSum = parseFloat(document.getElementById('contentSumExact')?.value || '0');
     if (contentSum > 200000) {
-      contentPremium = Math.round((contentSum - 200000) * 0.0005);
+      contentPremium = Math.round(getContentAdditionCost());
     }
   }
 
@@ -1502,7 +1502,7 @@ function calculatePremium() {
   if (yardValueSelected === 'over20k') {
     const yardSum = parseFloat(document.getElementById('yardContentSumExact')?.value || '0');
     if (yardSum > 20000) {
-      yardPremium = Math.round((yardSum - 20000) * 0.001);
+      yardPremium = Math.round(getYardAdditionCost());
     }
   }
 
