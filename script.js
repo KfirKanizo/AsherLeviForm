@@ -1378,20 +1378,44 @@ function calculatePremium() {
     if (discountDisplay) discountDisplay.textContent = '';
     return;
   }
-
   // === שלב 2: חישוב פרמיה בסיסית לפי מסלול ===
   const track = determinePolicyTrack();
-  let min = 0, perChild = 0;
+  let min = 0, perChild = 0, threshold = 0;
+
   switch (track) {
-    case 3: min = 900; perChild = 105; break;
-    case 4: min = 1100; perChild = 110; break;
-    case 5: min = 1100; perChild = 55; break;
-    case 6: min = 1400; perChild = 80; break;
-    case 7: min = 1400; perChild = 120; break;
+    case 3:
+      min = 900;
+      perChild = 105;
+      threshold = 8; // עד 8 ילדים זה 900 ₪, כל ילד נוסף +105 ₪
+      break;
+    case 4:
+      min = 1100;
+      perChild = 110;
+      break;
+    case 5:
+      min = 1100;
+      perChild = 55;
+      break;
+    case 6:
+      min = 1400;
+      perChild = 80;
+      break;
+    case 7:
+      min = 1400;
+      perChild = 120;
+      break;
   }
 
   if ([3, 4, 5, 6, 7].includes(track)) {
-    basePremium = Math.max(childrenCountValue * perChild, min);
+    if (track === 3) {
+      // חישוב אלגנטי למסלול 3
+      basePremium = childrenCountValue <= threshold
+        ? min
+        : min + (childrenCountValue - threshold) * perChild;
+    } else {
+      // חישוב רגיל לשאר המסלולים
+      basePremium = Math.max(childrenCountValue * perChild, min);
+    }
   } else {
     switch (gardenTypeValue) {
       case 'tamah':
@@ -1399,24 +1423,27 @@ function calculatePremium() {
           childrenCountValue <= 10 ? 1000 :
             1000 + (childrenCountValue - 10) * 100;
         break;
+
       case 'privateFamily':
         if (childrenCountValue <= 6) basePremium = 650;
         else if (childrenCountValue <= 8) basePremium = 900;
-        else if (childrenCountValue === 9) basePremium = 1005;
+        else if (childrenCountValue === 9) basePremium = 900 + 105;
         else if (childrenCountValue <= 10) basePremium = 1100;
         else basePremium = 1100 + (childrenCountValue - 10) * 110;
         break;
+
       case 'upTo3':
         if (includeContentBuilding) {
           basePremium = childrenCountValue <= 12 ? 1400 : 1400 + (childrenCountValue - 12) * 120;
         } else {
           basePremium = childrenCountValue <= 6 ? 650 :
             childrenCountValue <= 8 ? 900 :
-              childrenCountValue === 9 ? 1005 :
+              childrenCountValue === 9 ? 900 + 105 :
                 childrenCountValue <= 10 ? 1100 :
                   1100 + (childrenCountValue - 10) * 110;
         }
         break;
+
       case 'over3':
       case 'afterSchool':
         if (includeContentBuilding) {
@@ -1427,6 +1454,7 @@ function calculatePremium() {
         break;
     }
   }
+
 
   // === שלב 3: הנחות ===
   const isMember = document.getElementById('isMember')?.value === 'true';
@@ -1456,7 +1484,7 @@ function calculatePremium() {
   if (buildingSizeSelected === 'over100') {
     const exactSize = parseFloat(document.getElementById('buildingSizeExact')?.value || '0');
     if (exactSize > 70) {
-      buildingPremium = 120; // תוספת קבועה למבנים מעל 70 מ"ר
+      buildingPremium = Math.round(getBuildingAdditionCost());
     }
   }
 
@@ -1465,7 +1493,7 @@ function calculatePremium() {
   if (contentValueSelected === 'over200k') {
     const contentSum = parseFloat(document.getElementById('contentSumExact')?.value || '0');
     if (contentSum > 200000) {
-      contentPremium = Math.round((contentSum - 200000) * 0.0005);
+      contentPremium = Math.round(getContentAdditionCost());
     }
   }
 
@@ -1474,7 +1502,7 @@ function calculatePremium() {
   if (yardValueSelected === 'over20k') {
     const yardSum = parseFloat(document.getElementById('yardContentSumExact')?.value || '0');
     if (yardSum > 20000) {
-      yardPremium = Math.round((yardSum - 20000) * 0.001);
+      yardPremium = Math.round(getYardAdditionCost());
     }
   }
 
