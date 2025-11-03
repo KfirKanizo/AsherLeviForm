@@ -1519,10 +1519,37 @@ function calculatePremium() {
   if (yardDisplay)
     yardDisplay.textContent = `תוספת לפרמיה: ₪${yardPremium.toLocaleString()}`;
 
+  // === שלב 5.5: חישוב סך כל התוספות האחרות (מעמוד 'תוספות כיסוי') ===
+  let otherAddonsTotal = 0;
+  // אנו אוספים את הנתונים העדכניים כדי להעביר ל-getOptionCost
+  const gardenTypeValueForAddons = gardenType.value;
+  const childrenCountValueForAddons = parseInt(childrenCount.value) || 0;
+  const includeContentBuildingForAddons = document.getElementById('hasContentBuilding') ? (document.getElementById('hasContentBuilding').value === "true") : false;
+
+  document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optionDiv => {
+    const optionName = optionDiv.dataset.option;
+    if (!optionName) return; // דלג אם אין שם לכיסוי
+    const hiddenInput = optionDiv.querySelector(`input[name="insuranceOptions[${optionName}]"]`);
+
+    // בדוק אם הכיסוי נבחר (מעוניין)
+    if (hiddenInput && hiddenInput.value === 'true') {
+      try {
+        // קורא ל-getOptionCost עם הערכים העדכניים
+        otherAddonsTotal += getOptionCost(optionName, gardenTypeValueForAddons, childrenCountValueForAddons, includeContentBuildingForAddons);
+      } catch (e) {
+        console.warn(`Error in getOptionCost for ${optionName}:`, e);
+      }
+    }
+  });
+
   // === שלב 6: סכום כולל ===
+  // 'addonsTotal' מכיל עכשיו רק את תוספות המבנה/תכולה/חצר
   const addonsTotal = buildingPremium + contentPremium + yardPremium;
   let totalDiscounts = clubDiscount + over3Discount;
-  let totalPremium = Math.max(basePremium - totalDiscounts, minPremium) + addonsTotal;
+
+  // מחברים את פרמיית הבסיס (לאחר הנחות) + תוספות מבנה/תכולה + התוספות האחרות
+  let totalPremium = Math.max(basePremium - totalDiscounts, minPremium) + addonsTotal + otherAddonsTotal;
+
   if (totalPremium < minPremium) totalPremium = minPremium;
 
   premiumAmount.textContent = totalPremium.toLocaleString() + ' ₪';
