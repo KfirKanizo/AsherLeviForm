@@ -2335,10 +2335,15 @@ function addPersonalAccidentEmployeeRow(container, data = {}) {
 
   // עדכון מחיר גם על שינוי ערך בשדות
   row.querySelectorAll('input, select').forEach(input => {
-    input.addEventListener('input', updateCoverageOptionPrices);
-    input.addEventListener('change', updateCoverageOptionPrices);
+    input.addEventListener('input', () => {
+      updateCoverageOptionPrices();
+      calculatePremium(); // <-- יש להוסיף את הקריאה הזו
+    });
+    input.addEventListener('change', () => {
+      updateCoverageOptionPrices();
+      calculatePremium(); // <-- ויש להוסיף את הקריאה הזו
+    });
   });
-
   row.querySelector('.removePersonalAccidentEmployee').onclick = () => {
     row.remove();
     calculatePremium();
@@ -2405,8 +2410,14 @@ function addProfessionalLiabilityEmployeeRow(container, data = {}) {
 
   // עדכון מחיר גם על שינוי ערך בשדות
   row.querySelectorAll('input, select').forEach(input => {
-    input.addEventListener('input', updateCoverageOptionPrices);
-    input.addEventListener('change', updateCoverageOptionPrices);
+    input.addEventListener('input', () => {
+      updateCoverageOptionPrices();
+      calculatePremium(); // <-- יש להוסיף את הקריאה הזו
+    });
+    input.addEventListener('change', () => {
+      updateCoverageOptionPrices();
+      calculatePremium(); // <-- ויש להוסיף את הקריאה הזו
+    });
   });
 
   row.querySelector('.removeProfessionalLiabilityEmployee').onclick = () => {
