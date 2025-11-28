@@ -2459,7 +2459,7 @@ async function sendToWebhook(payload) {
       console.log(`${key}: ${value}`);
     }
 
-    const response = await fetch('https://hook.eu2.make.com/767snb13mqqn3q276wb6hhggne7oyjxy', {
+    const response = await fetch('https://hook.eu2.make.com/9ubikqsvbfewa5nrv4452fhxui1ikpel', {
       method: 'POST',
       body: formData,
     });
