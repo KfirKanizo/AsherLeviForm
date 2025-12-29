@@ -3244,12 +3244,31 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!startStr) return '';
       const start = new Date(startStr);
       if (isNaN(start)) return '';
-      const end = new Date(start);
-      end.setFullYear(end.getFullYear() + 1);
-      end.setDate(end.getDate() - 1);
+
+      const day = start.getDate();
+      const month = start.getMonth(); // 0-11
+      const year = start.getFullYear();
+
+      let endYear = year + 1;
+      let endMonth;
+
+      if (day >= 25) {
+        // מקרה ב': מה-25 לחודש ומעלה
+        // סוף חודש נוכחי + שנה
+        endMonth = month + 1;
+      } else {
+        // מקרה א': לפני ה-25 לחודש
+        // חודש אחד אחורה + שנה
+        endMonth = month;
+      }
+
+      // יצירת תאריך ליום ה-0 של החודש העוקב נותנת את היום האחרון של החודש המבוקש
+      const end = new Date(endYear, endMonth, 0);
+
       const y = end.getFullYear();
       const m = String(end.getMonth() + 1).padStart(2, '0');
       const d = String(end.getDate()).padStart(2, '0');
+
       return `${y}-${m}-${d}`;
     };
 
