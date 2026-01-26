@@ -257,6 +257,28 @@ function parseUrlParams() {
       notes2Field.closest('.form-group').style.display = 'block';
     }
   }
+
+  // קריאת פרמטר installments מה-URL
+  const installmentsParam = urlParams.get('installments');
+  if (installmentsParam) {
+    const installmentsValue = parseInt(installmentsParam);
+    if (!isNaN(installmentsValue) && installmentsValue >= 1 && installmentsValue <= 8) {
+      // הגדרת ערך התשלומים בשני בחירות (כרטיס אשראי והרשאה לחיוב)
+      const creditCardSelect = document.getElementById('creditCardInstallments');
+      const debitSelect = document.getElementById('debitInstallments');
+      
+      if (creditCardSelect) {
+        creditCardSelect.value = installmentsValue.toString();
+        console.log(`✅ מספר תשלומים לכרטיס אשראי נטען: ${installmentsValue}`);
+      }
+      if (debitSelect) {
+        debitSelect.value = installmentsValue.toString();
+        console.log(`✅ מספר תשלומים להרשאה לחיוב נטען: ${installmentsValue}`);
+      }
+    } else {
+      console.warn(`⚠️ ערך תשלומים לא תקין: ${installmentsParam}. ערך תקין הוא מספר בין 1 ל-8`);
+    }
+  }
 }
 
 
@@ -1943,6 +1965,8 @@ function collectFormData() {
     if (el.type === 'file') return;
     let name = el.name || el.id;
     if (!name) return;
+    // דלג על הבחירה הסכמתית של creditInstallments - נטפל בה בנפרד
+    if (el.id === 'creditInstallments' && el.name === 'creditInstallments') return;
     if (el.type === 'checkbox') {
       payload[name] = el.checked ? 'true' : 'false';
     } else if (el.type === 'radio') {
@@ -2117,7 +2141,19 @@ function collectFormData() {
     payload['birthdayActivitiesType'] = '';
   }
 
-
+  // ---------- מספר תשלומים - לפי הסקציה הפעילה ----------
+  const activeSection = document.querySelector('.form-section.active');
+  if (activeSection && activeSection.id === 'creditCardSection') {
+    const creditCardInstallmentsSelect = document.getElementById('creditCardInstallments');
+    if (creditCardInstallmentsSelect) {
+      payload['creditInstallments'] = creditCardInstallmentsSelect.value;
+    }
+  } else if (activeSection && activeSection.id === 'debitAuthSection') {
+    const debitInstallmentsSelect = document.getElementById('debitInstallments');
+    if (debitInstallmentsSelect) {
+      payload['creditInstallments'] = debitInstallmentsSelect.value;
+    }
+  }
 
   // ---------- סוג תשלום ----------
   payload['selectedPaymentMethod'] = selectedPaymentMethod;
@@ -2458,8 +2494,8 @@ async function sendToWebhook(payload) {
     for (let [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
-
     const response = await fetch('https://hook.eu2.make.com/9ubikqsvbfewa5nrv4452fhxui1ikpel', {
+    //const response = await fetch('https://hook.eu2.make.com/iup8l0t5j46g5m69viqn8qns661x64ph', {
       method: 'POST',
       body: formData,
     });
@@ -3239,7 +3275,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (startValue) policyStartDate.value = startValue;
     if (endValue) policyEndDate.value = endValue;
 
-    // פונקציה שמייצרת תאריך סיום: שנה קדימה פחות יום
+    // פונקציה שמייצרת תאריך סיום בהתאם ליום התחלת הפוליסה
     const calcEndDate = (startStr) => {
       if (!startStr) return '';
       const start = new Date(startStr);
@@ -3249,21 +3285,39 @@ document.addEventListener('DOMContentLoaded', () => {
       const month = start.getMonth(); // 0-11
       const year = start.getFullYear();
 
-      let endYear = year + 1;
-      let endMonth;
+      let endYear, endMonth;
 
-      if (day >= 25) {
-        // מקרה ב': מה-25 לחודש ומעלה
-        // סוף חודש נוכחי + שנה
-        endMonth = month + 1;
+      if (!isRenewal) {
+        // לא חידוש: תלוי ביום התחלת הפוליסה
+        if (day <= 14) {
+          // ימים 1-14: סוף החודש הקודם באותה שנה
+          endMonth = month - 1;
+          endYear = year;
+          
+          // אם החודש הוא ינואר, צריך לעבור לדצמבר של השנה הקודמת
+          if (endMonth < 0) {
+            endMonth = 11; // דצמבר
+            endYear = year - 1;
+          }
+        } else {
+          // ימים 15-31: סוף החודש הנוכחי בשנה הבאה
+          endMonth = month;
+          endYear = year + 1;
+        }
       } else {
-        // מקרה א': לפני ה-25 לחודש
-        // חודש אחד אחורה + שנה
-        endMonth = month;
+        // חידוש: לוגיקה קודמת (לא צריכה להיות בשימוש כי תאריכים נעולים בחידוש)
+        endYear = year + 1;
+        if (day >= 25) {
+          // מקרה ב': מה-25 לחודש ומעלה
+          endMonth = month + 1;
+        } else {
+          // מקרה א': לפני ה-25 לחודש
+          endMonth = month;
+        }
       }
 
       // יצירת תאריך ליום ה-0 של החודש העוקב נותנת את היום האחרון של החודש המבוקש
-      const end = new Date(endYear, endMonth, 0);
+      const end = new Date(endYear, endMonth + 1, 0);
 
       const y = end.getFullYear();
       const m = String(end.getMonth() + 1).padStart(2, '0');
