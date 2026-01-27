@@ -1385,6 +1385,40 @@ function determinePolicyTrack() {
 
 
 
+// פונקציה לחישוב הפרש ימים בין שתי תאריכים
+function calculateDaysDifference(startDateStr, endDateStr) {
+  if (!startDateStr || !endDateStr) return null;
+  
+  const startDate = new Date(startDateStr);
+  const endDate = new Date(endDateStr);
+  
+  if (isNaN(startDate) || isNaN(endDate)) return null;
+  
+  // חישוב ההפרש בימים
+  const timeDiff = endDate - startDate;
+  const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+  
+  return daysDiff;
+}
+
+// פונקציה לחישוב פרמיה מותאמת לתקופת ביטוח
+function adjustPremiumForPeriod(basePremium, startDateStr, endDateStr) {
+  const daysDiff = calculateDaysDifference(startDateStr, endDateStr);
+  
+  // אם לא ניתן לחשב או ההפרש הוא עד שנה - החזר את הפרמיה המקורית
+  if (daysDiff === null || daysDiff <= 365) {
+    return basePremium;
+  }
+  
+  // אם ההפרש גדול משנה - חשב לפי ימים בפועל
+  // פרמיה ליום = פרמיה שנתית / 365
+  const dailyRate = basePremium / 365;
+  const adjustedPremium = dailyRate * daysDiff;
+  
+  // עגל למעלה
+  return Math.ceil(adjustedPremium);
+}
+
 function calculatePremium() {
   // === שלב 1: קבלת ערכים בסיסיים ===
   const gardenTypeValue = gardenType.value;
@@ -1573,6 +1607,15 @@ function calculatePremium() {
   let totalPremium = Math.max(basePremium - totalDiscounts, minPremium) + addonsTotal + otherAddonsTotal;
 
   if (totalPremium < minPremium) totalPremium = minPremium;
+
+  // === שלב 6.5: התאמה לתקופת ביטוח בפועל ===
+  const policyStartDate = document.getElementById('policyStartDate')?.value;
+  const policyEndDate = document.getElementById('policyEndDate')?.value;
+  
+  if (policyStartDate && policyEndDate) {
+    // חשב את הפרמיה המותאמת לתקופה
+    totalPremium = adjustPremiumForPeriod(totalPremium, policyStartDate, policyEndDate);
+  }
 
   premiumAmount.textContent = totalPremium.toLocaleString() + ' ₪';
 
@@ -3343,6 +3386,13 @@ document.addEventListener('DOMContentLoaded', () => {
       // חישוב אוטומטי בעת שינוי
       policyStartDate.addEventListener('change', () => {
         policyEndDate.value = calcEndDate(policyStartDate.value);
+        // טריגר חישוב פרמיה כאשר התאריכים משתנים
+        calculatePremium();
+      });
+      
+      // טריגר חישוב פרמיה גם כאשר תאריך הסיום משתנה (אם הוא מעדכן ידנית)
+      policyEndDate.addEventListener('change', () => {
+        calculatePremium();
       });
     }
   }
