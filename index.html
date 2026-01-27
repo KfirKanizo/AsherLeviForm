@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>טופס חידוש ביטוח</title>
-  <link href="style.css?v=202511281" rel="stylesheet" />
+  <link href="style.css?v=202601271" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;display=swap" rel="stylesheet" />
 </head>
 
@@ -121,7 +121,7 @@
           </label>
           <select id="gardenType" name="gardenType" required="">
             <option value="">בחר סוג גן</option>
-            <option value="tamah">תמ"ת</option>
+            <option value="tamah">תמ"ת - משרד העבודה והרווחה</option>
             <option value="privateFamily">משפחתון פרטי</option>
             <option value="upTo3">גן פרטי / מעון</option>
             <option value="over3">גן מעל גיל 3</option>
@@ -166,7 +166,7 @@
           </label>
           <input id="childrenCount" min="1" name="childrenCount" type="number" required />
           <div id="childrenCountTamahWarning" style="display:none; color:#d03499; font-size:0.95em; margin-top:4px;">בגן
-            תמ"ת לא ניתן לבחור יותר מ-6 ילדים.</div>
+            תמ"ת - משרד העבודה והרווחה לא ניתן לבחור יותר מ-6 ילדים.</div>
         </div>
 
         <div class="form-group">
@@ -519,8 +519,8 @@
         <p class="talah-info">הכיסוי הביטוחי יכנס לתוקף רק לאחר ביצוע התשלום והעברת התשלום</p>
         <!-- Installments (Credit Card) -->
         <div class="form-group" id="creditInstallmentsGroup">
-          <label for="creditInstallments">מספר תשלומים</label>
-          <select id="creditInstallments" name="creditInstallments" class="installments-select" required>
+          <label for="creditCardInstallments">מספר תשלומים</label>
+          <select id="creditCardInstallments" name="creditInstallments" class="installments-select" required>
             <option value="1" selected>1 תשלום</option>
             <option value="2">2 תשלומים</option>
             <option value="3">3 תשלומים</option>
@@ -562,9 +562,9 @@
         <p class="premium-info">הקמת הרשאה לחיוב חשבון עבור מגדל חברה לביטוח (קוד מוסד: 502)</p>
         <p class="premium-info">ההרשאה צריכה להיות ללא הגבלת סכום או מועד, ולציין את מספר התשלומים:</p>
         <!-- Installments (Debit Authorization) -->
-        <div class="form-group" id="creditInstallmentsGroup">
-          <label for="creditInstallments">מספר תשלומים</label>
-          <select id="creditInstallments" name="creditInstallments" class="installments-select" required>
+        <div class="form-group" id="debitInstallmentsGroup">
+          <label for="debitInstallments">מספר תשלומים</label>
+          <select id="debitInstallments" name="creditInstallments" class="installments-select" required>
             <option value="1" selected>1 תשלום</option>
             <option value="2">2 תשלומים</option>
             <option value="3">3 תשלומים</option>
@@ -819,7 +819,7 @@
       </div>
     </form>
   </div>
-  <script src="script.js?v=202511281"></script>
+  <script src="script.js?v=202601271"></script>
 </body>
 
 <div id="form-controls" style="text-align: center; margin: 2em 0;">

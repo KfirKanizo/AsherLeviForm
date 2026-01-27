@@ -257,6 +257,28 @@ function parseUrlParams() {
       notes2Field.closest('.form-group').style.display = 'block';
     }
   }
+
+  // קריאת פרמטר installments מה-URL
+  const installmentsParam = urlParams.get('installments');
+  if (installmentsParam) {
+    const installmentsValue = parseInt(installmentsParam);
+    if (!isNaN(installmentsValue) && installmentsValue >= 1 && installmentsValue <= 8) {
+      // הגדרת ערך התשלומים בשני בחירות (כרטיס אשראי והרשאה לחיוב)
+      const creditCardSelect = document.getElementById('creditCardInstallments');
+      const debitSelect = document.getElementById('debitInstallments');
+      
+      if (creditCardSelect) {
+        creditCardSelect.value = installmentsValue.toString();
+        console.log(`✅ מספר תשלומים לכרטיס אשראי נטען: ${installmentsValue}`);
+      }
+      if (debitSelect) {
+        debitSelect.value = installmentsValue.toString();
+        console.log(`✅ מספר תשלומים להרשאה לחיוב נטען: ${installmentsValue}`);
+      }
+    } else {
+      console.warn(`⚠️ ערך תשלומים לא תקין: ${installmentsParam}. ערך תקין הוא מספר בין 1 ל-8`);
+    }
+  }
 }
 
 
@@ -1363,6 +1385,40 @@ function determinePolicyTrack() {
 
 
 
+// פונקציה לחישוב הפרש ימים בין שתי תאריכים
+function calculateDaysDifference(startDateStr, endDateStr) {
+  if (!startDateStr || !endDateStr) return null;
+  
+  const startDate = new Date(startDateStr);
+  const endDate = new Date(endDateStr);
+  
+  if (isNaN(startDate) || isNaN(endDate)) return null;
+  
+  // חישוב ההפרש בימים
+  const timeDiff = endDate - startDate;
+  const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+  
+  return daysDiff;
+}
+
+// פונקציה לחישוב פרמיה מותאמת לתקופת ביטוח
+function adjustPremiumForPeriod(basePremium, startDateStr, endDateStr) {
+  const daysDiff = calculateDaysDifference(startDateStr, endDateStr);
+  
+  // אם לא ניתן לחשב או ההפרש הוא עד שנה - החזר את הפרמיה המקורית
+  if (daysDiff === null || daysDiff <= 365) {
+    return basePremium;
+  }
+  
+  // אם ההפרש גדול משנה - חשב לפי ימים בפועל
+  // פרמיה ליום = פרמיה שנתית / 365
+  const dailyRate = basePremium / 365;
+  const adjustedPremium = dailyRate * daysDiff;
+  
+  // עגל למעלה
+  return Math.ceil(adjustedPremium);
+}
+
 function calculatePremium() {
   // === שלב 1: קבלת ערכים בסיסיים ===
   const gardenTypeValue = gardenType.value;
@@ -1551,6 +1607,15 @@ function calculatePremium() {
   let totalPremium = Math.max(basePremium - totalDiscounts, minPremium) + addonsTotal + otherAddonsTotal;
 
   if (totalPremium < minPremium) totalPremium = minPremium;
+
+  // === שלב 6.5: התאמה לתקופת ביטוח בפועל ===
+  const policyStartDate = document.getElementById('policyStartDate')?.value;
+  const policyEndDate = document.getElementById('policyEndDate')?.value;
+  
+  if (policyStartDate && policyEndDate) {
+    // חשב את הפרמיה המותאמת לתקופה
+    totalPremium = adjustPremiumForPeriod(totalPremium, policyStartDate, policyEndDate);
+  }
 
   premiumAmount.textContent = totalPremium.toLocaleString() + ' ₪';
 
@@ -1943,6 +2008,8 @@ function collectFormData() {
     if (el.type === 'file') return;
     let name = el.name || el.id;
     if (!name) return;
+    // דלג על הבחירה הסכמתית של creditInstallments - נטפל בה בנפרד
+    if (el.id === 'creditInstallments' && el.name === 'creditInstallments') return;
     if (el.type === 'checkbox') {
       payload[name] = el.checked ? 'true' : 'false';
     } else if (el.type === 'radio') {
@@ -2117,7 +2184,19 @@ function collectFormData() {
     payload['birthdayActivitiesType'] = '';
   }
 
-
+  // ---------- מספר תשלומים - לפי הסקציה הפעילה ----------
+  const activeSection = document.querySelector('.form-section.active');
+  if (activeSection && activeSection.id === 'creditCardSection') {
+    const creditCardInstallmentsSelect = document.getElementById('creditCardInstallments');
+    if (creditCardInstallmentsSelect) {
+      payload['creditInstallments'] = creditCardInstallmentsSelect.value;
+    }
+  } else if (activeSection && activeSection.id === 'debitAuthSection') {
+    const debitInstallmentsSelect = document.getElementById('debitInstallments');
+    if (debitInstallmentsSelect) {
+      payload['creditInstallments'] = debitInstallmentsSelect.value;
+    }
+  }
 
   // ---------- סוג תשלום ----------
   payload['selectedPaymentMethod'] = selectedPaymentMethod;
@@ -2458,8 +2537,8 @@ async function sendToWebhook(payload) {
     for (let [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
-
     const response = await fetch('https://hook.eu2.make.com/9ubikqsvbfewa5nrv4452fhxui1ikpel', {
+    //const response = await fetch('https://hook.eu2.make.com/iup8l0t5j46g5m69viqn8qns661x64ph', {
       method: 'POST',
       body: formData,
     });
@@ -3239,7 +3318,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (startValue) policyStartDate.value = startValue;
     if (endValue) policyEndDate.value = endValue;
 
-    // פונקציה שמייצרת תאריך סיום: שנה קדימה פחות יום
+    // פונקציה שמייצרת תאריך סיום בהתאם ליום התחלת הפוליסה
     const calcEndDate = (startStr) => {
       if (!startStr) return '';
       const start = new Date(startStr);
@@ -3249,21 +3328,39 @@ document.addEventListener('DOMContentLoaded', () => {
       const month = start.getMonth(); // 0-11
       const year = start.getFullYear();
 
-      let endYear = year + 1;
-      let endMonth;
+      let endYear, endMonth;
 
-      if (day >= 25) {
-        // מקרה ב': מה-25 לחודש ומעלה
-        // סוף חודש נוכחי + שנה
-        endMonth = month + 1;
+      if (!isRenewal) {
+        // לא חידוש: תלוי ביום התחלת הפוליסה
+        if (day <= 14) {
+          // ימים 1-14: סוף החודש הקודם באותה שנה
+          endMonth = month - 1;
+          endYear = year;
+          
+          // אם החודש הוא ינואר, צריך לעבור לדצמבר של השנה הקודמת
+          if (endMonth < 0) {
+            endMonth = 11; // דצמבר
+            endYear = year - 1;
+          }
+        } else {
+          // ימים 15-31: סוף החודש הנוכחי בשנה הבאה
+          endMonth = month;
+          endYear = year + 1;
+        }
       } else {
-        // מקרה א': לפני ה-25 לחודש
-        // חודש אחד אחורה + שנה
-        endMonth = month;
+        // חידוש: לוגיקה קודמת (לא צריכה להיות בשימוש כי תאריכים נעולים בחידוש)
+        endYear = year + 1;
+        if (day >= 25) {
+          // מקרה ב': מה-25 לחודש ומעלה
+          endMonth = month + 1;
+        } else {
+          // מקרה א': לפני ה-25 לחודש
+          endMonth = month;
+        }
       }
 
       // יצירת תאריך ליום ה-0 של החודש העוקב נותנת את היום האחרון של החודש המבוקש
-      const end = new Date(endYear, endMonth, 0);
+      const end = new Date(endYear, endMonth + 1, 0);
 
       const y = end.getFullYear();
       const m = String(end.getMonth() + 1).padStart(2, '0');
@@ -3289,6 +3386,13 @@ document.addEventListener('DOMContentLoaded', () => {
       // חישוב אוטומטי בעת שינוי
       policyStartDate.addEventListener('change', () => {
         policyEndDate.value = calcEndDate(policyStartDate.value);
+        // טריגר חישוב פרמיה כאשר התאריכים משתנים
+        calculatePremium();
+      });
+      
+      // טריגר חישוב פרמיה גם כאשר תאריך הסיום משתנה (אם הוא מעדכן ידנית)
+      policyEndDate.addEventListener('change', () => {
+        calculatePremium();
       });
     }
   }
