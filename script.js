@@ -3317,6 +3317,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const endValue = urlParams.get('policyEndDate');
     if (startValue) policyStartDate.value = startValue;
     if (endValue) policyEndDate.value = endValue;
+    // אם נטענו תאריכים מה-URL – עדכן פרמיה מיד אם שניהם קיימים
+    if (policyStartDate.value && policyEndDate.value) calculatePremium();
 
     // פונקציה שמייצרת תאריך סיום בהתאם ליום התחלת הפוליסה
     const calcEndDate = (startStr) => {
@@ -3332,15 +3334,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!isRenewal) {
         // לא חידוש: תלוי ביום התחלת הפוליסה
+        // אם היום <=14 אז התאריך יהיה סוף החודש הקודם בשנת הסיום הבאה,
+        // למעט כשחודש ההתחלה הוא ינואר — אז נניח דצמבר של אותה שנה.
         if (day <= 14) {
-          // ימים 1-14: סוף החודש הקודם באותה שנה
-          endMonth = month - 1;
-          endYear = year;
-          
-          // אם החודש הוא ינואר, צריך לעבור לדצמבר של השנה הקודמת
-          if (endMonth < 0) {
+          if (month === 0) {
+            // התחלה בינואר → סוף דצמבר של אותה שנה
             endMonth = 11; // דצמבר
-            endYear = year - 1;
+            endYear = year;
+          } else {
+            // חודשים אחרים → סוף החודש הקודם בשנה הבאה
+            endMonth = month - 1;
+            endYear = year + 1;
           }
         } else {
           // ימים 15-31: סוף החודש הנוכחי בשנה הבאה
@@ -3381,6 +3385,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // אם כבר קיים start (מ-URL/דיפולט) – חשב מיד את הסיום
       if (policyStartDate.value && !policyEndDate.value) {
         policyEndDate.value = calcEndDate(policyStartDate.value);
+        // לאחר חישוב ותזמון אוטומטי של תאריך הסיום - עדכן פרמיה
+        calculatePremium();
       }
 
       // חישוב אוטומטי בעת שינוי
