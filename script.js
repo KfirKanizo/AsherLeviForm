@@ -266,7 +266,7 @@ function parseUrlParams() {
       // הגדרת ערך התשלומים בשני בחירות (כרטיס אשראי והרשאה לחיוב)
       const creditCardSelect = document.getElementById('creditCardInstallments');
       const debitSelect = document.getElementById('debitInstallments');
-      
+
       if (creditCardSelect) {
         creditCardSelect.value = installmentsValue.toString();
         console.log(`✅ מספר תשלומים לכרטיס אשראי נטען: ${installmentsValue}`);
@@ -1388,33 +1388,33 @@ function determinePolicyTrack() {
 // פונקציה לחישוב הפרש ימים בין שתי תאריכים
 function calculateDaysDifference(startDateStr, endDateStr) {
   if (!startDateStr || !endDateStr) return null;
-  
+
   const startDate = new Date(startDateStr);
   const endDate = new Date(endDateStr);
-  
+
   if (isNaN(startDate) || isNaN(endDate)) return null;
-  
+
   // חישוב ההפרש בימים
   const timeDiff = endDate - startDate;
   const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-  
+
   return daysDiff;
 }
 
 // פונקציה לחישוב פרמיה מותאמת לתקופת ביטוח
 function adjustPremiumForPeriod(basePremium, startDateStr, endDateStr) {
   const daysDiff = calculateDaysDifference(startDateStr, endDateStr);
-  
+
   // אם לא ניתן לחשב או ההפרש הוא עד שנה - החזר את הפרמיה המקורית
   if (daysDiff === null || daysDiff <= 365) {
     return basePremium;
   }
-  
+
   // אם ההפרש גדול משנה - חשב לפי ימים בפועל
   // פרמיה ליום = פרמיה שנתית / 365
   const dailyRate = basePremium / 365;
   const adjustedPremium = dailyRate * daysDiff;
-  
+
   // עגל למעלה
   return Math.ceil(adjustedPremium);
 }
@@ -1430,6 +1430,7 @@ function calculatePremium() {
 
   if (!gardenTypeValue || childrenCountValue < 1) {
     premiumAmount.textContent = '0 ₪';
+    premiumAmount.dataset.annualPremium = 0;
     const discountDisplay = document.getElementById('discountDisplay');
     if (discountDisplay) discountDisplay.textContent = '';
     return;
@@ -1608,10 +1609,13 @@ function calculatePremium() {
 
   if (totalPremium < minPremium) totalPremium = minPremium;
 
+  // שמירת הפרמיה השנתית ב-DATA ATTRIBUTE עבור הוובהוק
+  premiumAmount.dataset.annualPremium = totalPremium;
+
   // === שלב 6.5: התאמה לתקופת ביטוח בפועל ===
   const policyStartDate = document.getElementById('policyStartDate')?.value;
   const policyEndDate = document.getElementById('policyEndDate')?.value;
-  
+
   if (policyStartDate && policyEndDate) {
     // חשב את הפרמיה המותאמת לתקופה
     totalPremium = adjustPremiumForPeriod(totalPremium, policyStartDate, policyEndDate);
@@ -2127,8 +2131,14 @@ function collectFormData() {
 
 
   // ---------- פרמיה, תשלום, חתימה, קבצים ----------
-  let premiumText = document.getElementById('premiumAmount').textContent.replace(/[^\d.]/g, '');
+  const premiumElem = document.getElementById('premiumAmount');
+  let premiumText = premiumElem.textContent.replace(/[^\d.]/g, '');
   payload['premium'] = formatCurrency(premiumText);
+
+  // הוספת השדה לוובהוק: פרמיה שנתית (לפני התאמת ימים)
+  // אם לא קיים ב-dataset מסיבה כלשהי, נשתמש בפרמיה הסופית כברירת מחדל
+  const annualVal = premiumElem.dataset.annualPremium !== undefined ? premiumElem.dataset.annualPremium : premiumText;
+  payload['annualPremium'] = formatCurrency(annualVal);
 
   // ---------- automation מתוך URL ----------
   payload['automation'] = window.formAutomationFlag || 'true';
@@ -2227,6 +2237,17 @@ function collectFormData() {
     delete payload.incomeLossDuration;
     delete payload.incomeLossAmount;
   }
+
+  // --- שינוי פורמט תאריך ל-DD.MM.YYYY ---
+  const formatToDotDate = (dateStr) => {
+    if (!dateStr || typeof dateStr !== 'string') return dateStr;
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return dateStr;
+    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+  };
+
+  if (payload['policyStartDate']) payload['policyStartDate'] = formatToDotDate(payload['policyStartDate']);
+  if (payload['policyEndDate']) payload['policyEndDate'] = formatToDotDate(payload['policyEndDate']);
 
   sanitizeConditionalFields(payload);
   console.log('🚀 Sending payload to webhook:', payload);
@@ -2538,7 +2559,7 @@ async function sendToWebhook(payload) {
       console.log(`${key}: ${value}`);
     }
     const response = await fetch('https://hook.eu2.make.com/9ubikqsvbfewa5nrv4452fhxui1ikpel', {
-    //const response = await fetch('https://hook.eu2.make.com/iup8l0t5j46g5m69viqn8qns661x64ph', {
+      //const response = await fetch('https://hook.eu2.make.com/iup8l0t5j46g5m69viqn8qns661x64ph', {
       method: 'POST',
       body: formData,
     });
@@ -3395,7 +3416,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // טריגר חישוב פרמיה כאשר התאריכים משתנים
         calculatePremium();
       });
-      
+
       // טריגר חישוב פרמיה גם כאשר תאריך הסיום משתנה (אם הוא מעדכן ידנית)
       policyEndDate.addEventListener('change', () => {
         calculatePremium();
