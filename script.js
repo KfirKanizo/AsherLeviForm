@@ -1049,19 +1049,68 @@ document.querySelectorAll('#bankTransferSection .back-button, #creditCardSection
   });
 
 
-document.querySelector('.bank-button').addEventListener('click', () => {
+document.querySelector('.bank-button').addEventListener('click', async function () {
   selectedPaymentMethod = 'bank';
-  showSection(6);
+  if (window.formAutomationFlag === 'false' || window.formAutomationFlag === false) {
+    const currentPremium = parseFloat(document.getElementById('premiumAmount').dataset.annualPremium) ||
+      parseFloat(document.getElementById('premiumAmount').textContent.replace(/[^\d.]/g, '')) || 0;
+
+    if (currentPremium > (window.initialPremiumAmount || 0)) {
+      showSection(6);
+    } else {
+      const btn = this;
+      const originalText = btn.textContent;
+      btn.textContent = 'שולח...';
+      btn.style.pointerEvents = 'none';
+      try {
+        const formValues = collectFormData();
+        await sendToWebhook(formValues);
+      } catch (e) { console.error(e); }
+      btn.textContent = originalText;
+      btn.style.pointerEvents = 'auto';
+      showSection(9);
+    }
+  } else {
+    showSection(6);
+  }
 });
 
-document.querySelector('.credit-button').addEventListener('click', () => {
+document.querySelector('.credit-button').addEventListener('click', async function () {
   selectedPaymentMethod = 'credit';
-  showSection(7);
+  if (window.formAutomationFlag === 'false' || window.formAutomationFlag === false) {
+    const btn = this;
+    const originalText = btn.textContent;
+    btn.textContent = 'שולח...';
+    btn.style.pointerEvents = 'none';
+    try {
+      const formValues = collectFormData();
+      await sendToWebhook(formValues);
+    } catch (e) { console.error(e); }
+    btn.textContent = originalText;
+    btn.style.pointerEvents = 'auto';
+    showSection(9);
+  } else {
+    showSection(7);
+  }
 });
 
-document.querySelector('.debit-auth-button').addEventListener('click', () => {
+document.querySelector('.debit-auth-button').addEventListener('click', async function () {
   selectedPaymentMethod = 'debit';
-  showSection(8);
+  if (window.formAutomationFlag === 'false' || window.formAutomationFlag === false) {
+    const btn = this;
+    const originalText = btn.textContent;
+    btn.textContent = 'שולח...';
+    btn.style.pointerEvents = 'none';
+    try {
+      const formValues = collectFormData();
+      await sendToWebhook(formValues);
+    } catch (e) { console.error(e); }
+    btn.textContent = originalText;
+    btn.style.pointerEvents = 'auto';
+    showSection(9);
+  } else {
+    showSection(8);
+  }
 });
 
 if (isMemberCheckbox && membershipSection) {
@@ -3115,7 +3164,18 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('📥 prefill מה-URL');
   prefillFromUrl();
 
+  // שמירת סכום התחלתי לאחר קריאת הנתונים מה־URL
+  setTimeout(() => {
+    const premiumAmountEl = document.getElementById('premiumAmount');
+    if (premiumAmountEl) {
+      window.initialPremiumAmount = parseFloat(premiumAmountEl.dataset.annualPremium) ||
+        parseFloat(premiumAmountEl.textContent.replace(/[^\d.]/g, '')) || 0;
+      console.log('Initial premium recorded:', window.initialPremiumAmount);
+    }
+  }, 500);
+
   updateInsuredBuildingAmountDisplay();
+
 
 
   // ויתור שיבוב
