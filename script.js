@@ -1893,12 +1893,24 @@ window.clearSignature = function (type) {
 form.addEventListener('submit', async (e) => {
   // מאפשר שליחה רק בסקשנים ייעודיים
   const activeId = sections[currentSectionIndex]?.id;
-  const allowSubmitSections = ['bankTransferSection', 'debitAuthSection', 'creditCardSection'];
+  const allowSubmitSections = ['bankTransferSection', 'debitAuthSection'];
   if (!allowSubmitSections.includes(activeId)) {
     e.preventDefault();
     return; // לא שולחים Webhook ולא מציגים "תודה" מחוץ למסכי התשלום הרלוונטיים
   }
   e.preventDefault();
+  // 0) בדיקת הצהרת פרטיות
+  const currentSection = sections[currentSectionIndex];
+  const privacyCb = currentSection.querySelector('.privacyConsentCheckbox');
+  if (privacyCb && !privacyCb.checked) {
+    alert('אנא אשר/י את הצהרת הגנת הפרטיות לפני השליחה.');
+    const group = privacyCb.closest('.privacy-consent-group');
+    if (group) group.style.borderColor = 'red';
+    return; // חוסם לחלוטין את השליחה לוובהוק
+  } else if (privacyCb) {
+    const group = privacyCb.closest('.privacy-consent-group');
+    if (group) group.style.borderColor = '#e0e4ec';
+  }
   let isValid = true;
   const visibleInputs = sections[currentSectionIndex].querySelectorAll('input:required, select:required');
   visibleInputs.forEach(input => {
@@ -3256,6 +3268,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sections[currentSectionIndex]?.id !== 'creditCardSection') return;
         e.preventDefault();
 
+        // 0) בדיקת הצהרת פרטיות לפני המעבר לאשראי
+        const privacyCb = creditCardSection.querySelector('.privacyConsentCheckbox');
+        if (privacyCb && !privacyCb.checked) {
+          const group = privacyCb.closest('.privacy-consent-group');
+          if (group) group.style.borderColor = 'red';
+          return; // עוצר את הפונקציה לחלוטין ולא נותן לה להמשיך לסליקה
+        } else if (privacyCb) {
+          const group = privacyCb.closest('.privacy-consent-group');
+          if (group) group.style.borderColor = '#e0e4ec';
+        }
+
         // 1) בדיקת חתימה
         const signatureCanvas = document.getElementById('signatureCanvasCredit');
         if (!signatureCanvas || isCanvasBlank(signatureCanvas)) {
@@ -3505,6 +3528,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // נוודא שאכן נמצאים ב-section הנכון (זהירות עם מעבר בין סקשנים)
         if (sections[currentSectionIndex].id !== sectionId) return;
 
+        const privacyCb = section.querySelector('.privacyConsentCheckbox');
+        if (privacyCb && !privacyCb.checked) {
+          e.preventDefault();
+          alert('אנא אשר/י את הצהרת הגנת הפרטיות לפני השליחה.');
+          const group = privacyCb.closest('.privacy-consent-group');
+          if (group) group.style.borderColor = 'red';
+          return false;
+        } else if (privacyCb) {
+          const group = privacyCb.closest('.privacy-consent-group');
+          if (group) group.style.borderColor = '#e0e4ec';
+        }
+
         if (isCanvasBlank(signatureCanvas)) {
           e.preventDefault();
           alert('יש לחתום על הטופס לפני השליחה.');
@@ -3736,10 +3771,10 @@ document.addEventListener('DOMContentLoaded', () => {
             hidden.value = 'false';
           }
         } else {
-          // אין ערך מה-URL - השתמש בברירת מחדל
+          // אין ערך מה-URL - לא מסומן כלום כברירת מחדל
           yesBtn.classList.remove('selected');
-          noBtn.classList.add('selected');
-          hidden.value = 'false';
+          noBtn.classList.remove('selected');
+          hidden.value = '';
         }
       }
     });
@@ -3805,6 +3840,30 @@ document.addEventListener('DOMContentLoaded', () => {
   setupNumericInputListeners();
 
 
+  // --- הצהרת פרטיות - פתיחה וסגירה ---
+  const privacyLinks = document.querySelectorAll('.privacy-popup-link');
+  const privacyPopup = document.getElementById('privacyPopup');
+  const privacyOverlay = document.getElementById('privacyPopupOverlay');
+  const closePrivacyBtn = document.getElementById('closePrivacyPopupBtn');
+
+  if (privacyPopup && privacyOverlay) {
+    privacyLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        privacyPopup.style.display = 'block';
+        privacyOverlay.style.display = 'block';
+      });
+    });
+
+    const closePrivacy = () => {
+      privacyPopup.style.display = 'none';
+      privacyOverlay.style.display = 'none';
+    };
+
+    if (closePrivacyBtn) closePrivacyBtn.addEventListener('click', closePrivacy);
+    privacyOverlay.addEventListener('click', closePrivacy);
+  }
+
 });
 
 // חיזוק: ודא שלכל כיסוי יש option-cost
@@ -3860,7 +3919,6 @@ function getCoverageDisplayName(coverageName) {
     urlSyncTimer = setTimeout(updateUrlFromForm, 100); // מעט דיליי כדי שה-UI יספיק לעדכן hidden inputs
   }
 
-  // אוסף ערכים משמעותיים ומעדכן את ה-URL
   // אוסף ערכים משמעותיים ומעדכן את ה-URL
   function updateUrlFromForm() {
     const params = new URLSearchParams(window.location.search);

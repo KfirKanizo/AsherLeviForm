@@ -498,6 +498,19 @@
           המידע שנמסר יועבר לגורמים מטעמה של חברת הביטוח לשם מתן שירותי ביטוח וכן לצורך גביית תשלומים. האמור לעיל יחול
           גם לגבי מידע שאמסור לחברת הביטוח בעתיד בקשר עם שירות הביטוח, ידוע לי כי הביטוח יכנס לתוקף רק לאחר שטופס ההצעה
           יאושר בחתימת החברה.</p>
+        <div class="form-group privacy-consent-group"
+          style="text-align: right; margin-top: 20px; background: #f9fafc; padding: 15px; border-radius: 10px; border: 1px solid #e0e4ec;">
+          <label
+            style="display: flex; align-items: flex-start; gap: 10px; font-size: 1.05em; color: #2c3e50; cursor: pointer;">
+            <input type="checkbox" class="privacyConsentCheckbox" name="privacyConsent" required
+              style="margin-top: 5px; width: 20px; height: 20px;">
+            <span>
+              קראתי ואני מסכים/ה ל<a href="#" class="privacy-popup-link"
+                style="color: #d03499; text-decoration: underline; font-weight: bold;">הצהרות והסכמות לפי חוק הגנת
+                הפרטיות</a>
+            </span>
+          </label>
+        </div>
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לבחירת אמצעי תשלום</button>
           <button class="submit-button" type="submit">שלח</button>
@@ -551,6 +564,19 @@
           המידע שנמסר יועבר לגורמים מטעמה של חברת הביטוח לשם מתן שירותי ביטוח וכן לצורך גביית תשלומים. האמור לעיל יחול
           גם לגבי מידע שאמסור לחברת הביטוח בעתיד בקשר עם שירות הביטוח, ידוע לי כי הביטוח יכנס לתוקף רק לאחר שטופס ההצעה
           יאושר בחתימת החברה.</p>
+        <div class="form-group privacy-consent-group"
+          style="text-align: right; margin-top: 20px; background: #f9fafc; padding: 15px; border-radius: 10px; border: 1px solid #e0e4ec;">
+          <label
+            style="display: flex; align-items: flex-start; gap: 10px; font-size: 1.05em; color: #2c3e50; cursor: pointer;">
+            <input type="checkbox" class="privacyConsentCheckbox" name="privacyConsent" required
+              style="margin-top: 5px; width: 20px; height: 20px;">
+            <span>
+              קראתי ואני מסכים/ה ל<a href="#" class="privacy-popup-link"
+                style="color: #d03499; text-decoration: underline; font-weight: bold;">הצהרות והסכמות לפי חוק הגנת
+                הפרטיות</a>
+            </span>
+          </label>
+        </div>
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לבחירת אמצעי תשלום</button>
           <button class="submit-button" type="submit">שליחה ומעבר לתשלום</button>
@@ -616,6 +642,19 @@
           המידע שנמסר יועבר לגורמים מטעמה של חברת הביטוח לשם מתן שירותי ביטוח וכן לצורך גביית תשלומים. האמור לעיל יחול
           גם לגבי מידע שאמסור לחברת הביטוח בעתיד בקשר עם שירות הביטוח, ידוע לי כי הביטוח יכנס לתוקף רק לאחר שטופס ההצעה
           יאושר בחתימת החברה.</p>
+        <div class="form-group privacy-consent-group"
+          style="text-align: right; margin-top: 20px; background: #f9fafc; padding: 15px; border-radius: 10px; border: 1px solid #e0e4ec;">
+          <label
+            style="display: flex; align-items: flex-start; gap: 10px; font-size: 1.05em; color: #2c3e50; cursor: pointer;">
+            <input type="checkbox" class="privacyConsentCheckbox" name="privacyConsent" required
+              style="margin-top: 5px; width: 20px; height: 20px;">
+            <span>
+              קראתי ואני מסכים/ה ל<a href="#" class="privacy-popup-link"
+                style="color: #d03499; text-decoration: underline; font-weight: bold;">הצהרות והסכמות לפי חוק הגנת
+                הפרטיות</a>
+            </span>
+          </label>
+        </div>
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לבחירת אמצעי תשלום</button>
           <button class="submit-button" type="submit">שלח</button>
@@ -819,6 +858,26 @@
         </div>
       </div>
     </form>
+  </div>
+  <div id="privacyPopupOverlay" class="popup-overlay" style="display: none;"></div>
+  <div id="privacyPopup" class="popup" style="display: none; max-width: 600px; z-index: 10000;">
+    <div class="popup-content"
+      style="max-height: 400px; overflow-y: auto; text-align: right; font-size: 0.9em; line-height: 1.5; padding: 10px;">
+      <h3 style="color: #4362cc; margin-top: 0;">הצהרות והסכמות לפי חוק הגנת הפרטיות</h3>
+      <p>ידוע לי כי המידע שמסרתי במסמך זה וכל מידע נוסף שאמסור (ביחד להלן: "המידע") יישמר במאגרי המידע של מגדל חברה
+        לביטוח בע"מ ו/או מגדל מקפת קרנות פנסיה וקופות גמל בע"מ ו/או גופים בשליטת מגדל אחזקות ביטוח ופיננסיים בע"מ ו/או
+        מי מטעמן (ביחד להלן: "קבוצת מגדל") ו/או ישותף ביניהם, ויעובד בהתאם לשימושים המנויים במדיניות הפרטיות, לרבות בכל
+        עניין הקשור לניהול, תפעול ושירות של פוליסות, תוכניות ו/או מוצרים על שמי, פילוח ועיבוד סטטיסטי, דיוור ישיר, יצירת
+        קשר, שירותים נוספים וקיום חובות שבדין.</p>
+      <p>אני מאשר שהמידע נמסר מרצוני ובהסכמתי ולא חלה עלי חובה חוקית למסור אותו. כמו כן, ידוע לי כי אי מסירת המידע תמנע
+        מקבוצת מגדל את היכולת לספק לי את השירותים באופן מיטבי.</p>
+      <p>אני מאשר כי המידע יועבר לצדדים שלישיים לצורך המטרות הנ"ל, לרבות לסוכני ביטוח, בעלי רישיון, ספקים, מבטחי משנה,
+        גורמים מתפעלים ונותני שירותים.</p>
+      <p>ידוע לי כי בהתאם להוראות חוק הגנת הפרטיות, התשמ"א-1981, הנני רשאי לעיין במידע שמנוהל לגביי, וכי יש לי את הזכות
+        לבקש את תיקונו אם נמצא כי אינו שלם או מעודכן. בבקשה למימוש זכות העיון, ניתן לפנות למוקד קשרי הלקוחות באמצעות
+        טלפון 03-9201010 או דואר אלקטרוני mokedbi@migdal.co.il.</p>
+    </div>
+    <button type="button" class="popup-close" id="closePrivacyPopupBtn">סגור</button>
   </div>
   <script src="script.js?v=202602201"></script>
 </body>
