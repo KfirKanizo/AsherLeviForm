@@ -6,7 +6,8 @@
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>טופס חידוש ביטוח</title>
-  <link href="style.css?v=202602201" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/@n8n/chat@1.2.1/dist/style.css" rel="stylesheet" />
+  <link href="style.css?v=202603252" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;display=swap" rel="stylesheet" />
 </head>
 
@@ -859,6 +860,9 @@
       </div>
     </form>
   </div>
+  <div id="form-controls" style="text-align: center; margin: 2em 0;">
+    <button id="resetButton" onclick="resetForm()">איפוס טופס</button>
+  </div>
   <div id="privacyPopupOverlay" class="popup-overlay" style="display: none;"></div>
   <div id="privacyPopup" class="popup" style="display: none; max-width: 600px; z-index: 10000;">
     <div class="popup-content"
@@ -886,5 +890,13 @@
   <button id="resetButton" onclick="resetForm()">איפוס טופס</button>
 </div>
 
+  <script src="script.js?v=202603252"></script>
+  <script type="module">
+    import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat@1.2.1/dist/chat.bundle.es.js';
 
+    if (typeof window.initializeInsuranceBotWidget === 'function') {
+      window.initializeInsuranceBotWidget(createChat);
+    }
+  </script>
+</body>
 </html>
