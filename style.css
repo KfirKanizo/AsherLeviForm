@@ -893,3 +893,156 @@ input[type="date"]:focus {
   text-align: right;
   display: inline-block;
 }
+
+/* =========================================
+   עיצוב חלון הצהרת פרטיות (פופאפ)
+   ========================================= */
+
+/* הרקע הכהה מאחורי הפופאפ */
+#privacyPopupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(15, 23, 42, 0.65);
+  /* צבע כהה עם שקיפות */
+  backdrop-filter: blur(4px);
+  /* אפקט טשטוש עדין לרקע */
+  z-index: 9999;
+}
+
+/* החלון עצמו */
+#privacyPopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ffffff;
+  padding: 35px 30px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 650px;
+  z-index: 10000;
+  direction: rtl;
+  border: 1px solid #e2e8f0;
+}
+
+/* כותרת הפופאפ */
+#privacyPopup h3 {
+  color: #1e293b;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.5em;
+  font-weight: 700;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 15px;
+}
+
+/* אזור הטקסט הנגלל */
+#privacyPopup .popup-content {
+  max-height: 55vh;
+  /* מגביל את הגובה כדי שיתאים למסכים קטנים */
+  overflow-y: auto;
+  font-size: 0.95em;
+  line-height: 1.7;
+  color: #475569;
+  padding-left: 15px;
+  /* מרווח לפס הגלילה */
+}
+
+/* עיצוב פס הגלילה בתוך הפופאפ (לדפדפני כרום/ספארי) */
+#privacyPopup .popup-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+#privacyPopup .popup-content::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 10px;
+}
+
+#privacyPopup .popup-content::-webkit-scrollbar-track {
+  background-color: #f8fafc;
+}
+
+/* כפתור הסגירה של הפופאפ */
+#closePrivacyPopupBtn {
+  display: block;
+  width: 100%;
+  margin-top: 25px;
+  padding: 14px;
+  background-color: #4362cc;
+  /* כחול בולט - אפשר לשנות לצבע הכפתורים הקיים שלך */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+#closePrivacyPopupBtn:hover {
+  background-color: #324ea8;
+  transform: translateY(-1px);
+}
+
+
+/* =========================================
+   עיצוב אזור הצ'קבוקס בתחתית הטופס
+   ========================================= */
+
+.privacy-consent-group {
+  text-align: right;
+  margin-top: 25px;
+  margin-bottom: 25px;
+  background: #f8fafc;
+  padding: 18px 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.privacy-consent-group:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.privacy-consent-group label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 1.05em;
+  color: #334155;
+  cursor: pointer;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* הגדלה ועיצוב של התיבה עצמה */
+.privacy-consent-group input[type="checkbox"] {
+  margin-top: 2px;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  accent-color: #4362cc;
+  /* צבע ה-V שמופיע בעת לחיצה */
+}
+
+/* הקישור לפופאפ */
+.privacy-popup-link {
+  color: #d03499;
+  /* צבע ורוד/סגול בולט - שנה בהתאם למיתוג שלך */
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+  position: relative;
+}
+
+.privacy-popup-link:hover {
+  color: #a02675;
+  text-decoration: underline;
+}
