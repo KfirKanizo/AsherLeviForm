@@ -266,7 +266,7 @@ function parseUrlParams() {
       // הגדרת ערך התשלומים בשני בחירות (כרטיס אשראי והרשאה לחיוב)
       const creditCardSelect = document.getElementById('creditCardInstallments');
       const debitSelect = document.getElementById('debitInstallments');
-      
+
       if (creditCardSelect) {
         creditCardSelect.value = installmentsValue.toString();
         console.log(`✅ מספר תשלומים לכרטיס אשראי נטען: ${installmentsValue}`);
@@ -1242,19 +1242,68 @@ document.querySelectorAll('#bankTransferSection .back-button, #creditCardSection
   });
 
 
-document.querySelector('.bank-button').addEventListener('click', () => {
+document.querySelector('.bank-button').addEventListener('click', async function () {
   selectedPaymentMethod = 'bank';
-  showSection(6);
+  if (window.formAutomationFlag === 'false' || window.formAutomationFlag === false) {
+    const currentPremium = parseFloat(document.getElementById('premiumAmount').dataset.annualPremium) ||
+      parseFloat(document.getElementById('premiumAmount').textContent.replace(/[^\d.]/g, '')) || 0;
+
+    if (currentPremium > (window.initialPremiumAmount || 0)) {
+      showSection(6);
+    } else {
+      const btn = this;
+      const originalText = btn.textContent;
+      btn.textContent = 'שולח...';
+      btn.style.pointerEvents = 'none';
+      try {
+        const formValues = collectFormData();
+        await sendToWebhook(formValues);
+      } catch (e) { console.error(e); }
+      btn.textContent = originalText;
+      btn.style.pointerEvents = 'auto';
+      showSection(9);
+    }
+  } else {
+    showSection(6);
+  }
 });
 
-document.querySelector('.credit-button').addEventListener('click', () => {
+document.querySelector('.credit-button').addEventListener('click', async function () {
   selectedPaymentMethod = 'credit';
-  showSection(7);
+  if (window.formAutomationFlag === 'false' || window.formAutomationFlag === false) {
+    const btn = this;
+    const originalText = btn.textContent;
+    btn.textContent = 'שולח...';
+    btn.style.pointerEvents = 'none';
+    try {
+      const formValues = collectFormData();
+      await sendToWebhook(formValues);
+    } catch (e) { console.error(e); }
+    btn.textContent = originalText;
+    btn.style.pointerEvents = 'auto';
+    showSection(9);
+  } else {
+    showSection(7);
+  }
 });
 
-document.querySelector('.debit-auth-button').addEventListener('click', () => {
+document.querySelector('.debit-auth-button').addEventListener('click', async function () {
   selectedPaymentMethod = 'debit';
-  showSection(8);
+  if (window.formAutomationFlag === 'false' || window.formAutomationFlag === false) {
+    const btn = this;
+    const originalText = btn.textContent;
+    btn.textContent = 'שולח...';
+    btn.style.pointerEvents = 'none';
+    try {
+      const formValues = collectFormData();
+      await sendToWebhook(formValues);
+    } catch (e) { console.error(e); }
+    btn.textContent = originalText;
+    btn.style.pointerEvents = 'auto';
+    showSection(9);
+  } else {
+    showSection(8);
+  }
 });
 
 if (isMemberCheckbox && membershipSection) {
@@ -1581,33 +1630,33 @@ function determinePolicyTrack() {
 // פונקציה לחישוב הפרש ימים בין שתי תאריכים
 function calculateDaysDifference(startDateStr, endDateStr) {
   if (!startDateStr || !endDateStr) return null;
-  
+
   const startDate = new Date(startDateStr);
   const endDate = new Date(endDateStr);
-  
+
   if (isNaN(startDate) || isNaN(endDate)) return null;
-  
+
   // חישוב ההפרש בימים
   const timeDiff = endDate - startDate;
   const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-  
+
   return daysDiff;
 }
 
 // פונקציה לחישוב פרמיה מותאמת לתקופת ביטוח
 function adjustPremiumForPeriod(basePremium, startDateStr, endDateStr) {
   const daysDiff = calculateDaysDifference(startDateStr, endDateStr);
-  
+
   // אם לא ניתן לחשב או ההפרש הוא עד שנה - החזר את הפרמיה המקורית
   if (daysDiff === null || daysDiff <= 365) {
     return basePremium;
   }
-  
+
   // אם ההפרש גדול משנה - חשב לפי ימים בפועל
   // פרמיה ליום = פרמיה שנתית / 365
   const dailyRate = basePremium / 365;
   const adjustedPremium = dailyRate * daysDiff;
-  
+
   // עגל למעלה
   return Math.ceil(adjustedPremium);
 }
@@ -1623,6 +1672,7 @@ function calculatePremium() {
 
   if (!gardenTypeValue || childrenCountValue < 1) {
     premiumAmount.textContent = '0 ₪';
+    premiumAmount.dataset.annualPremium = 0;
     const discountDisplay = document.getElementById('discountDisplay');
     if (discountDisplay) discountDisplay.textContent = '';
     return;
@@ -1801,10 +1851,13 @@ function calculatePremium() {
 
   if (totalPremium < minPremium) totalPremium = minPremium;
 
+  // שמירת הפרמיה השנתית ב-DATA ATTRIBUTE עבור הוובהוק
+  premiumAmount.dataset.annualPremium = totalPremium;
+
   // === שלב 6.5: התאמה לתקופת ביטוח בפועל ===
   const policyStartDate = document.getElementById('policyStartDate')?.value;
   const policyEndDate = document.getElementById('policyEndDate')?.value;
-  
+
   if (policyStartDate && policyEndDate) {
     // חשב את הפרמיה המותאמת לתקופה
     totalPremium = adjustPremiumForPeriod(totalPremium, policyStartDate, policyEndDate);
@@ -2033,12 +2086,24 @@ window.clearSignature = function (type) {
 form.addEventListener('submit', async (e) => {
   // מאפשר שליחה רק בסקשנים ייעודיים
   const activeId = sections[currentSectionIndex]?.id;
-  const allowSubmitSections = ['bankTransferSection', 'debitAuthSection', 'creditCardSection'];
+  const allowSubmitSections = ['bankTransferSection', 'debitAuthSection'];
   if (!allowSubmitSections.includes(activeId)) {
     e.preventDefault();
     return; // לא שולחים Webhook ולא מציגים "תודה" מחוץ למסכי התשלום הרלוונטיים
   }
   e.preventDefault();
+  // 0) בדיקת הצהרת פרטיות
+  const currentSection = sections[currentSectionIndex];
+  const privacyCb = currentSection.querySelector('.privacyConsentCheckbox');
+  if (privacyCb && !privacyCb.checked) {
+    alert('אנא אשר/י את הצהרת הגנת הפרטיות לפני השליחה.');
+    const group = privacyCb.closest('.privacy-consent-group');
+    if (group) group.style.borderColor = 'red';
+    return; // חוסם לחלוטין את השליחה לוובהוק
+  } else if (privacyCb) {
+    const group = privacyCb.closest('.privacy-consent-group');
+    if (group) group.style.borderColor = '#e0e4ec';
+  }
   let isValid = true;
   const visibleInputs = sections[currentSectionIndex].querySelectorAll('input:required, select:required');
   visibleInputs.forEach(input => {
@@ -2320,8 +2385,14 @@ function collectFormData() {
 
 
   // ---------- פרמיה, תשלום, חתימה, קבצים ----------
-  let premiumText = document.getElementById('premiumAmount').textContent.replace(/[^\d.]/g, '');
+  const premiumElem = document.getElementById('premiumAmount');
+  let premiumText = premiumElem.textContent.replace(/[^\d.]/g, '');
   payload['premium'] = formatCurrency(premiumText);
+
+  // הוספת השדה לוובהוק: פרמיה שנתית (לפני התאמת ימים)
+  // אם לא קיים ב-dataset מסיבה כלשהי, נשתמש בפרמיה הסופית כברירת מחדל
+  const annualVal = premiumElem.dataset.annualPremium !== undefined ? premiumElem.dataset.annualPremium : premiumText;
+  payload['annualPremium'] = formatCurrency(annualVal);
 
   // ---------- automation מתוך URL ----------
   payload['automation'] = window.formAutomationFlag || 'true';
@@ -2420,6 +2491,17 @@ function collectFormData() {
     delete payload.incomeLossDuration;
     delete payload.incomeLossAmount;
   }
+
+  // --- שינוי פורמט תאריך ל-DD.MM.YYYY ---
+  const formatToDotDate = (dateStr) => {
+    if (!dateStr || typeof dateStr !== 'string') return dateStr;
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return dateStr;
+    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+  };
+
+  if (payload['policyStartDate']) payload['policyStartDate'] = formatToDotDate(payload['policyStartDate']);
+  if (payload['policyEndDate']) payload['policyEndDate'] = formatToDotDate(payload['policyEndDate']);
 
   sanitizeConditionalFields(payload);
   console.log('🚀 Sending payload to webhook:', payload);
@@ -2731,7 +2813,7 @@ async function sendToWebhook(payload) {
       console.log(`${key}: ${value}`);
     }
     const response = await fetch('https://hook.eu2.make.com/9ubikqsvbfewa5nrv4452fhxui1ikpel', {
-    //const response = await fetch('https://hook.eu2.make.com/iup8l0t5j46g5m69viqn8qns661x64ph', {
+      //const response = await fetch('https://hook.eu2.make.com/iup8l0t5j46g5m69viqn8qns661x64ph', {
       method: 'POST',
       body: formData,
     });
@@ -3287,7 +3369,18 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('📥 prefill מה-URL');
   prefillFromUrl();
 
+  // שמירת סכום התחלתי לאחר קריאת הנתונים מה־URL
+  setTimeout(() => {
+    const premiumAmountEl = document.getElementById('premiumAmount');
+    if (premiumAmountEl) {
+      window.initialPremiumAmount = parseFloat(premiumAmountEl.dataset.annualPremium) ||
+        parseFloat(premiumAmountEl.textContent.replace(/[^\d.]/g, '')) || 0;
+      console.log('Initial premium recorded:', window.initialPremiumAmount);
+    }
+  }, 500);
+
   updateInsuredBuildingAmountDisplay();
+
 
 
   // ויתור שיבוב
@@ -3367,6 +3460,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // פועלים רק אם הסקשן הנוכחי הוא של אשראי
         if (sections[currentSectionIndex]?.id !== 'creditCardSection') return;
         e.preventDefault();
+
+        // 0) בדיקת הצהרת פרטיות לפני המעבר לאשראי
+        const privacyCb = creditCardSection.querySelector('.privacyConsentCheckbox');
+        if (privacyCb && !privacyCb.checked) {
+          const group = privacyCb.closest('.privacy-consent-group');
+          if (group) group.style.borderColor = 'red';
+          return; // עוצר את הפונקציה לחלוטין ולא נותן לה להמשיך לסליקה
+        } else if (privacyCb) {
+          const group = privacyCb.closest('.privacy-consent-group');
+          if (group) group.style.borderColor = '#e0e4ec';
+        }
 
         // 1) בדיקת חתימה
         const signatureCanvas = document.getElementById('signatureCanvasCredit');
@@ -3588,7 +3692,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // טריגר חישוב פרמיה כאשר התאריכים משתנים
         calculatePremium();
       });
-      
+
       // טריגר חישוב פרמיה גם כאשר תאריך הסיום משתנה (אם הוא מעדכן ידנית)
       policyEndDate.addEventListener('change', () => {
         calculatePremium();
@@ -3616,6 +3720,18 @@ document.addEventListener('DOMContentLoaded', () => {
       submitBtn.addEventListener('click', function (e) {
         // נוודא שאכן נמצאים ב-section הנכון (זהירות עם מעבר בין סקשנים)
         if (sections[currentSectionIndex].id !== sectionId) return;
+
+        const privacyCb = section.querySelector('.privacyConsentCheckbox');
+        if (privacyCb && !privacyCb.checked) {
+          e.preventDefault();
+          alert('אנא אשר/י את הצהרת הגנת הפרטיות לפני השליחה.');
+          const group = privacyCb.closest('.privacy-consent-group');
+          if (group) group.style.borderColor = 'red';
+          return false;
+        } else if (privacyCb) {
+          const group = privacyCb.closest('.privacy-consent-group');
+          if (group) group.style.borderColor = '#e0e4ec';
+        }
 
         if (isCanvasBlank(signatureCanvas)) {
           e.preventDefault();
@@ -3848,10 +3964,10 @@ document.addEventListener('DOMContentLoaded', () => {
             hidden.value = 'false';
           }
         } else {
-          // אין ערך מה-URL - השתמש בברירת מחדל
+          // אין ערך מה-URL - לא מסומן כלום כברירת מחדל
           yesBtn.classList.remove('selected');
-          noBtn.classList.add('selected');
-          hidden.value = 'false';
+          noBtn.classList.remove('selected');
+          hidden.value = '';
         }
       }
     });
@@ -3917,6 +4033,30 @@ document.addEventListener('DOMContentLoaded', () => {
   setupNumericInputListeners();
 
 
+  // --- הצהרת פרטיות - פתיחה וסגירה ---
+  const privacyLinks = document.querySelectorAll('.privacy-popup-link');
+  const privacyPopup = document.getElementById('privacyPopup');
+  const privacyOverlay = document.getElementById('privacyPopupOverlay');
+  const closePrivacyBtn = document.getElementById('closePrivacyPopupBtn');
+
+  if (privacyPopup && privacyOverlay) {
+    privacyLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        privacyPopup.style.display = 'block';
+        privacyOverlay.style.display = 'block';
+      });
+    });
+
+    const closePrivacy = () => {
+      privacyPopup.style.display = 'none';
+      privacyOverlay.style.display = 'none';
+    };
+
+    if (closePrivacyBtn) closePrivacyBtn.addEventListener('click', closePrivacy);
+    privacyOverlay.addEventListener('click', closePrivacy);
+  }
+
 });
 
 // חיזוק: ודא שלכל כיסוי יש option-cost
@@ -3972,7 +4112,6 @@ function getCoverageDisplayName(coverageName) {
     urlSyncTimer = setTimeout(updateUrlFromForm, 100); // מעט דיליי כדי שה-UI יספיק לעדכן hidden inputs
   }
 
-  // אוסף ערכים משמעותיים ומעדכן את ה-URL
   // אוסף ערכים משמעותיים ומעדכן את ה-URL
   function updateUrlFromForm() {
     const params = new URLSearchParams(window.location.search);
