@@ -287,6 +287,7 @@ function resetForm() {
   if (confirm("האם אתה בטוח שברצונך לאפס את הטופס?")) {
     // הסרת שמירה
     localStorage.removeItem("formProgress");
+    clearBotSession();
 
     // ניקוי פרמטרים מה-URL
     const cleanUrl = window.location.origin + window.location.pathname;
@@ -296,6 +297,198 @@ function resetForm() {
     location.reload();
   }
 }
+
+const BOT_SESSION_STORAGE_KEY = 'n8n-chat/sessionId';
+const BOT_OPEN_CLASS = 'bot-chat-open';
+const BOT_HINT_SHOW_DELAY_MS = 0;
+const BOT_HINT_VISIBLE_MS = 7000;
+const BOT_HINT_FADE_MS = 420;
+const BOT_HINT_MOUNT_RETRY_MS = 120;
+const BOT_HINT_MAX_RETRIES = 30;
+let botWindowObserver = null;
+let botHintShowTimer = null;
+let botHintHideTimer = null;
+let botHintRemoveTimer = null;
+let botHintElement = null;
+
+function getBotHintText() {
+  const isMobile = window.matchMedia('(max-width: 600px)').matches;
+  return isMobile ? 'צריך עזרה? 👉' : 'צריך עזרה? 👇';
+}
+
+function updateBotHintText() {
+  const hintText = document.querySelector('.chat-entry-hint-text');
+  if (hintText) hintText.textContent = getBotHintText();
+}
+
+function clearBotSession() {
+  try {
+    localStorage.removeItem(BOT_SESSION_STORAGE_KEY);
+  } catch (err) {
+    console.warn('Failed clearing bot session:', err);
+  }
+}
+
+function isBotChatOpen() {
+  const chatWindow = document.querySelector('#n8n-chat .chat-window');
+  if (!chatWindow) return false;
+  return window.getComputedStyle(chatWindow).display !== 'none';
+}
+
+function getOrCreateBotHintElement() {
+  if (botHintElement && document.body.contains(botHintElement)) return botHintElement;
+
+  const hint = document.createElement('div');
+  hint.id = 'chatEntryHint';
+  hint.className = 'chat-entry-hint';
+  hint.setAttribute('dir', 'rtl');
+
+  const closeButton = document.createElement('button');
+  closeButton.type = 'button';
+  closeButton.className = 'chat-entry-hint-close';
+  closeButton.setAttribute('aria-label', 'סגור רמז');
+  closeButton.textContent = '×';
+  closeButton.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (botHintHideTimer) {
+      clearTimeout(botHintHideTimer);
+      botHintHideTimer = null;
+    }
+    hideBotEntryHint();
+  });
+
+  const text = document.createElement('span');
+  text.className = 'chat-entry-hint-text';
+  text.textContent = getBotHintText();
+
+  hint.appendChild(closeButton);
+  hint.appendChild(text);
+  document.body.appendChild(hint);
+  botHintElement = hint;
+  return hint;
+}
+
+function removeBotEntryHint() {
+  if (!botHintElement) return;
+  botHintElement.remove();
+  botHintElement = null;
+}
+
+function hideBotEntryHint() {
+  if (!botHintElement) return;
+  botHintElement.classList.add('is-hiding');
+  botHintElement.classList.remove('is-visible');
+  if (botHintRemoveTimer) clearTimeout(botHintRemoveTimer);
+  botHintRemoveTimer = setTimeout(removeBotEntryHint, BOT_HINT_FADE_MS);
+}
+
+function showBotEntryHint(attempt = 0) {
+  if (isBotChatOpen()) {
+    return;
+  }
+
+  const chatToggle = document.querySelector('#n8n-chat .chat-window-toggle');
+  if (!chatToggle) {
+    if (attempt < BOT_HINT_MAX_RETRIES) {
+      botHintShowTimer = setTimeout(() => showBotEntryHint(attempt + 1), BOT_HINT_MOUNT_RETRY_MS);
+    }
+    return;
+  }
+
+  const hint = getOrCreateBotHintElement();
+  updateBotHintText();
+  hint.classList.remove('is-hiding');
+  requestAnimationFrame(() => {
+    hint.classList.add('is-visible');
+  });
+
+  if (botHintHideTimer) clearTimeout(botHintHideTimer);
+  botHintHideTimer = setTimeout(hideBotEntryHint, BOT_HINT_VISIBLE_MS);
+}
+
+function scheduleBotEntryHint() {
+  if (botHintShowTimer) clearTimeout(botHintShowTimer);
+  if (BOT_HINT_SHOW_DELAY_MS <= 0) {
+    showBotEntryHint(0);
+    return;
+  }
+  botHintShowTimer = setTimeout(() => showBotEntryHint(0), BOT_HINT_SHOW_DELAY_MS);
+}
+
+function syncBotOpenState() {
+  const chatWindow = document.querySelector('#n8n-chat .chat-window');
+  const isDesktop = window.matchMedia('(min-width: 1200px)').matches;
+
+  if (!chatWindow) {
+    document.body.classList.remove(BOT_OPEN_CLASS);
+    return false;
+  }
+
+  const isOpen = window.getComputedStyle(chatWindow).display !== 'none';
+  if (isOpen) {
+    hideBotEntryHint();
+    if (botHintShowTimer) {
+      clearTimeout(botHintShowTimer);
+      botHintShowTimer = null;
+    }
+  }
+
+  document.body.classList.toggle(BOT_OPEN_CLASS, isDesktop && isOpen);
+  return true;
+}
+
+function observeBotWindowState() {
+  const chatWindow = document.querySelector('#n8n-chat .chat-window');
+  if (!chatWindow) return false;
+
+  if (botWindowObserver) botWindowObserver.disconnect();
+  botWindowObserver = new MutationObserver(syncBotOpenState);
+  botWindowObserver.observe(chatWindow, { attributes: true, attributeFilter: ['style', 'class'] });
+  syncBotOpenState();
+  return true;
+}
+
+function attachBotWindowStateObserver(attempt = 0) {
+  if (observeBotWindowState()) return;
+  if (attempt >= 50) return;
+  setTimeout(() => attachBotWindowStateObserver(attempt + 1), 120);
+}
+
+window.addEventListener('resize', syncBotOpenState);
+window.addEventListener('resize', updateBotHintText, { passive: true });
+window.addEventListener('orientationchange', updateBotHintText);
+window.clearBotSession = clearBotSession;
+
+window.initializeInsuranceBotWidget = function (createChat) {
+  if (window.__insuranceBotInitialized) return;
+  window.__insuranceBotInitialized = true;
+
+  createChat({
+    webhookUrl: '',
+    mode: 'window',
+    webhookConfig: {
+      method: 'POST',
+      headers: {
+        'Authorization': ''
+      }
+    },
+    initialMessages: [
+      ' שלום,   👋',
+      'אני הבוט לביטוחי גני ילדים של סוכנות אשר לוי. איך אפשר לעזור?'
+    ],
+    i18n: {
+      en: {
+        title: ' אשר לוי, הסוכן הדיגיטלי',
+        subtitle: ' סוכן לביטוחי גני ילדים - סוכנות אשר לוי ',
+        inputPlaceholder: 'הקלידו את שאלתכם...'
+      }
+    }
+  });
+
+  attachBotWindowStateObserver();
+  scheduleBotEntryHint();
+};
 
 
 function saveFormProgress() {
