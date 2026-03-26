@@ -3111,7 +3111,13 @@ function prefillFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
 
   // --- דגלים כלליים (automation, renewal, agent, policyNumber, representative) ---
-  window.formAutomationFlag = urlParams.get('automation') || 'true';
+  let automationValue = 'true';
+  for (const [key, value] of urlParams.entries()) {
+    if (key.toLowerCase() === 'automation') {
+      automationValue = value.toLowerCase();
+    }
+  }
+  window.formAutomationFlag = automationValue;
   window.formRepresentativeFlag = urlParams.get('representative') || 'false';
   window.formRenewalFlag = (urlParams.get('renewal') === null || urlParams.get('renewal') === 'true') ? 'true' : 'false';
   window.formAgentFlag = urlParams.get('agent');
@@ -3484,6 +3490,37 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
+        // קריאת מצב עדכון מהמשתנה הגלובלי שמוגדר מה-URL
+        const isUpdateMode = (window.formAutomationFlag === 'false' || window.formAutomationFlag === false);
+
+        if (isUpdateMode) {
+          // מניעת לחיצות כפולות
+          const originalText = submitBtn.innerText;
+          submitBtn.disabled = true;
+          submitBtn.innerText = 'מעדכן נתונים...';
+
+          try {
+            // איסוף נתונים (כולל החתימה החדשה) ושליחה ישירה ל-Make
+            const payload = collectFormData();
+            payload['selectedPaymentMethod'] = 'credit';
+            await sendToWebhook(payload);
+
+            // מעבר ישיר למסך סיום (תודה)
+            const thankYouSectionIndex = sections.findIndex(sec => sec.id === 'thankYouSection');
+            if (thankYouSectionIndex !== -1) showSection(thankYouSectionIndex);
+
+          } catch (err) {
+            console.error('Webhook send failed (update flow):', err);
+            alert('שגיאה בשליחת הנתונים. נא לנסות שוב.');
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalText;
+          }
+
+          // עצירת הפונקציה לחלוטין כדי שלא תמשיך לחיוב של קארדקום!
+          return;
+        }
+
         // 2) ReturnValue: policyNumber מה-URL, ואם אין — idNumber מהטופס
         const urlParams = new URLSearchParams(window.location.search);
         const policyNumberFromUrl = urlParams.get('policyNumber');
@@ -3670,12 +3707,22 @@ document.addEventListener('DOMContentLoaded', () => {
       return `${y}-${m}-${d}`;
     };
 
-    if (isRenewal) {
+    const isUpdateMode = (window.formAutomationFlag === 'false' || window.formAutomationFlag === false);
+
+    if (isUpdateMode) {
+      // מצב עדכון: פותחים את שני התאריכים לעריכה חופשית, ללא חישוב אוטומטי של תאריך סיום
+      policyStartDate.disabled = false;
+      policyEndDate.disabled = false;
+
+      // רק טריגר לחישוב פרמיה אם אחד מהם משתנה
+      policyStartDate.addEventListener('change', calculatePremium);
+      policyEndDate.addEventListener('change', calculatePremium);
+    } else if (isRenewal) {
       // מצב חידוש: שניהם נעולים (כמו שהיה)
       policyStartDate.disabled = true;
       policyEndDate.disabled = true;
     } else {
-      // לא חידוש: פותחים תאריך התחלה, תאריך סיום מחושב ונעול
+      // לא חידוש ולא עדכון: פותחים תאריך התחלה, תאריך סיום מחושב ונעול
       policyStartDate.disabled = false;
       policyEndDate.disabled = true;
 
