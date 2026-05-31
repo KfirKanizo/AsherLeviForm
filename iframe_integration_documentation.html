@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מדריך הטמעה ותיעוד: Iframe חכם - אשר לוי</title>
+    <!-- ייבוא פונט Rubik תואם לעיצוב הטופס -->
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* צבעים מבוססים על ה-style.css של אשר לוי */
+            --primary-color: #4362cc; 
+            --primary-light: #e8ecfa;
+            --accent-color: #d03499; 
+            --accent-hover: #b92d88;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            --bg-page: #f1f4f9; 
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            
+            /* Dark Mode עבור קוד */
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+            --code-header: #2d2d2d;
+            --success-color: #48bb78;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Rubik', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(49, 44, 88, 0.15);
+        }
+
+        header {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 24px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1em;
+        }
+
+        section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 1.4em;
+            font-weight: 500;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h3 {
+            color: var(--text-main);
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            margin-top: 24px;
+        }
+
+        p {
+            margin-bottom: 16px;
+        }
+
+        .highlight-box {
+            background-color: var(--primary-light);
+            border-right: 4px solid var(--primary-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .highlight-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* --- Code Block Dark Mode --- */
+        .code-container {
+            margin: 20px 0;
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            direction: ltr;
+            text-align: left;
+        }
+
+        .code-header {
+            background-color: var(--code-header);
+            color: #a0aabf;
+            padding: 10px 16px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Rubik', sans-serif;
+            border-bottom: 1px solid #111;
+        }
+
+        .code-title {
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .copy-btn {
+            background: #3a3a3a;
+            color: white;
+            border: 1px solid #555;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Rubik', sans-serif;
+            font-weight: 500;
+        }
+
+        .copy-btn:hover {
+            background: #505050;
+        }
+
+        .copy-btn.copied {
+            background: var(--success-color);
+            border-color: var(--success-color);
+            color: white;
+        }
+        
+        .copy-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            color: var(--code-text);
+            padding: 20px;
+            overflow-x: auto;
+            font-family: "Consolas", "Monaco", monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        /* VSCode-like syntax highlighting */
+        .c-comment { color: #6a9955; }
+        .c-tag { color: #569cd6; }
+        .c-attr { color: #9cdcfe; }
+        .c-string { color: #ce9178; }
+        .c-kw { color: #c586c0; }
+        .c-func { color: #dcdcaa; }
+        .c-var { color: #9cdcfe; }
+
+        /* --- Checklists --- */
+        .qa-checklist {
+            list-style: none;
+            padding-right: 0;
+        }
+
+        .qa-checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 16px;
+            background-color: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            transition: border-color 0.3s ease;
+        }
+
+        .qa-checklist li:hover {
+            border-color: var(--primary-color);
+        }
+
+        .qa-checklist input[type="checkbox"] {
+            margin-top: 4px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        label {
+            cursor: pointer;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .footer-text {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        
+        code.inline-code {
+            background-color: #edf2f7;
+            color: #e53e3e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+            direction: ltr;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>מדריך הטמעה ותיעוד טכני</h1>
+        <div class="subtitle">הטמעת Iframe חכם ומסתגל עבור טופס ביטוח דינמי מרובה שלבים</div>
+    </header>
+
+    <section>
+        <h2>מבוא וסקירה כללית</h2>
+        <p>מסמך זה מיועד למפתחים ומנהלי אתרים ומספק את ההנחיות והקוד הנדרש להטמעת הטופס בתוך אתר מארח (Host Website) באמצעות אלמנט <code class="inline-code">&lt;iframe&gt;</code>.</p>
+        <p>מכיוון שהטופס הנו דינמי (גובהו משתנה במעבר בין שלבים או בעת הוספת שדות ותוכן על ידי המשתמש), הוטמע בטופס מנגנון תקשורת חכם מבוסס <code class="inline-code">postMessage</code> ו-<code class="inline-code">ResizeObserver</code> המשדר בזמן אמת את מצב הטופס לאתר המארח.</p>
+        
+        <div class="highlight-box">
+            <strong>המערכת מטפלת אוטומטית בשני אתגרי חווית משתמש (UX) מרכזיים:</strong>
+            <ul style="margin-top: 10px; margin-bottom: 0; padding-right: 20px;">
+                <li><strong>התאמת גובה דינמית (Auto-Resize):</strong> מונעת הופעה של פסי גלילה פנימיים כפולים (Scrollbars). ה-Iframe מתכווץ ומתרחב במדויק לפי גובה התוכן הנוכחי שלו.</li>
+                <li><strong>גלילה חכמה למעלה (Scroll-to-Top):</strong> בעת מעבר שלב בטופס, האתר המארח מקבל פקודה ומגלול את המסך בצורה חלקה חזרה לראש הטופס, כדי למנוע מהמשתמש להישאר "תקוע" בתחתית העמוד הריק.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <h2>שלבי ההטמעה באתר המארח</h2>
+        <p>כדי לבצע את ההטמעה, יש להשתיל את שני חלקי הקוד הבאים בעמוד הרלוונטי באתר המארח:</p>
+
+        <h3>1. קוד ה-HTML (אלמנט ה-Iframe)</h3>
+        <p>הדבק את קוד ה-HTML הבא במיקום המדויק שבו הטופס אמור להיות מוצג בעמוד:</p>
+        
+        <div class="code-container">
+            <div class="code-header">
+                <span class="code-title">HTML Embed Code</span>
+                <button class="copy-btn" onclick="copyCode('html-code', this)">
+                    <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    Copy
+                </button>
+            </div>
+<pre id="html-code"><code><span class="c-comment">&lt;!-- Start of embedded form area --&gt;</span>
+<span class="c-tag">&lt;iframe</span>
+  <span class="c-attr">src</span>=<span class="c-string">"https://asherlevi.com/renewalform/"</span> 
+  <span class="c-attr">id</span>=<span class="c-string">"insuranceFormIframe"</span>
+  <span class="c-attr">style</span>=<span class="c-string">"width: 100%; border: none; overflow: hidden; display: block;"</span>
+  <span class="c-attr">title</span>=<span class="c-string">"Insurance Form"</span>
+  <span class="c-attr">loading</span>=<span class="c-string">"lazy"</span>
+<span class="c-tag">&gt;&lt;/iframe&gt;</span>
+<span class="c-comment">&lt;!-- End of embedded form area --&gt;</span></code></pre>
+        </div>
+
+        <h3 style="margin-top: 32px;">2. קוד ה-JavaScript (האזנה וסנכרון)</h3>
+        <p>הדבק את הסקריפט הבא לפני תגית הסגירה <code class="inline-code">&lt;/body&gt;</code> של האתר המארח. קוד זה כולל הגנת אבטחה מובנית ומאומתת מול הדומיין הרשמי של הטופס:</p>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="code-title">Host Listener Script (JavaScript)</span>
+                <button class="copy-btn" onclick="copyCode('js-code', this)">
+                    <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    Copy
+                </button>
+            </div>
+<pre id="js-code"><code><span class="c-tag">&lt;script&gt;</span>
+  (<span class="c-kw">function</span>() {
+    <span class="c-kw">var</span> <span class="c-var">iframe</span> = <span class="c-var">document</span>.<span class="c-func">getElementById</span>(<span class="c-string">'insuranceFormIframe'</span>);
+    
+    <span class="c-var">window</span>.<span class="c-func">addEventListener</span>(<span class="c-string">'message'</span>, <span class="c-kw">function</span>(<span class="c-var">event</span>) {
+      
+      <span class="c-kw">if</span> (<span class="c-var">event</span>.origin !== <span class="c-string">'https://asherlevi.com'</span>) <span class="c-kw">return</span>;
+
+      <span class="c-kw">if</span> (<span class="c-var">event</span>.data && <span class="c-var">event</span>.data.type === <span class="c-string">'insurance-form-resize'</span> && <span class="c-var">iframe</span>) {
+        <span class="c-var">iframe</span>.style.height = <span class="c-var">event</span>.data.height + <span class="c-string">'px'</span>;
+      }
+
+      <span class="c-kw">if</span> (<span class="c-var">event</span>.data && <span class="c-var">event</span>.data.type === <span class="c-string">'insurance-form-scroll'</span> && <span class="c-var">iframe</span>) {
+        <span class="c-var">iframe</span>.<span class="c-func">scrollIntoView</span>({ behavior: <span class="c-string">'smooth'</span>, block: <span class="c-string">'start'</span> });
+      }
+      
+    });
+  })();
+<span class="c-tag">&lt;/script&gt;</span></code></pre>
+        </div>
+    </section>
+
+    <section>
+        <h2>הסבר מנגנון אבטחה (CORS Security - event.origin)</h2>
+        <p>בתוך קוד ה-JavaScript מוטמעת שורת הבדיקה המכריעה: <code class="inline-code">if (event.origin !== 'https://asherlevi.com') return;</code></p>
+        <p><strong>מה זה אומר ולמה זה פועל כך?</strong><br>
+        הקוד המאזין רץ באתר המארח (האתר של הלקוח שבו מוטמע הטופס). המשמעות היא שהאתר המארח פותח "ערוץ הקשבה" להודעות חיצוניות. ללא הגבלה, כל אתר או סקריפט זדוני שייפתח בלשונית אחרת בדפדפן יוכל לשלוח הודעות מזויפות לאתר המארח ולגרום לו לשנות מימדים, לגלול את המסך בצורה פתאומית, או במקרה הגרוע לבצע מניפולציות מתקדמות על העמוד (מתקפות מסוג Cross-Site Scripting או Clickjacking).</p>
+        <p>המאפיין <code class="inline-code">event.origin</code> הוא מנגנון אבטחה מובנה בדפדפן שלא ניתן לזיוף. הוא מייצג את <strong>מקור התוכן המדויק (הדומיין) שממנו נשלחה ההודעה בפועל</strong>. הבדיקה מוודאת באופן חד-משמעי שההודעה הגיעה אך ורק מהשרת הרשמי של הטופס המקורי שלך (<code>https://asherlevi.com</code>). אם מקור ההודעה שונה – הקוד עוצר מיד (<code>return</code>) ומתעלם ממנה לחלוטין.</p>
+    </section>
+
+    <section>
+        <h2>צ'ק-ליסט לבדיקת איכות (QA) לאחר הטמעה</h2>
+        <p>לאחר סיום הטמעת הקודים, מומלץ לבצע את הבדיקות הבאות כדי לוודא תקינות מלאה:</p>
+        <ul class="qa-checklist">
+            <li>
+                <input type="checkbox" id="qa1">
+                <label for="qa1"><strong>טעינה חלקה:</strong> הטופס נטען במלואו בתוך הדף המארח ואינו מציג שגיאות אדומות בלשונית ה-Console בכלי המפתחים (F12).</label>
+            </li>
+            <li>
+                <input type="checkbox" id="qa2">
+                <label for="qa2"><strong>מניעת כפל גלילה:</strong> ודא שלא מופיע פס גלילה פנימי (Scrollbar) עבור ה-Iframe. חווית הגלילה צריכה להיות טבעית לחלוטין ברמת האתר המארח.</label>
+            </li>
+            <li>
+                <input type="checkbox" id="qa3">
+                <label for="qa3"><strong>בדיקת הגלילה האוטומטית:</strong> מלא שלב ארוך בטופס, גלול מטה ולחץ על כפתור "הבא". ודא שהאתר המארח גולל אותך בצורה חלקה חזרה לראש הטופס החדש.</label>
+            </li>
+            <li>
+                <input type="checkbox" id="qa4">
+                <label for="qa4"><strong>התרחבות וכיווץ גובה:</strong> נסה להפעיל שדות דינמיים (כמו הוספת שורות עובדים). ודא שגובה ה-Iframe גדל וקטן בהתאמה מדויקת ואינו משאיר מרווחים לבנים עצומים.</label>
+            </li>
+            <li>
+                <input type="checkbox" id="qa5">
+                <label for="qa5"><strong>רספונסיביות במובייל:</strong> פתח את העמוד במצב נייד בדפדפן וודא שהטופס מתאים את עצמו לרוחב המסך ב-100% ללא חריגות.</label>
+            </li>
+        </ul>
+    </section>
+
+    <div class="footer-text">
+        קובץ תיעוד זה הותאם במיוחד למערכת הטפסים המעודכנת של אשר לוי. כל הזכויות שמורות © 2026.
+    </div>
+</div>
+
+<script>
+    // פונקציה להעתקת קוד
+    function copyCode(elementId, btnElement) {
+        var preElement = document.getElementById(elementId);
+        var codeText = preElement.innerText;
+        
+        navigator.clipboard.writeText(codeText).then(function() {
+            var originalHTML = btnElement.innerHTML;
+            btnElement.classList.add('copied');
+            btnElement.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg> Copied!';
+            
+            setTimeout(function() {
+                btnElement.classList.remove('copied');
+                btnElement.innerHTML = originalHTML;
+            }, 2000);
+        }).catch(function(err) {
+            console.error('Failed to copy text: ', err);
+        });
+    }
+</script>
+
+</body>
+</html>

@@ -2814,8 +2814,8 @@ async function sendToWebhook(payload) {
     for (let [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
-    const response = await fetch('https://hook.eu2.make.com/9ubikqsvbfewa5nrv4452fhxui1ikpel', {
-      //const response = await fetch('https://hook.eu2.make.com/iup8l0t5j46g5m69viqn8qns661x64ph', {
+    // const response = await fetch('https://hook.eu2.make.com/9ubikqsvbfewa5nrv4452fhxui1ikpel', {   # Old one
+    const response = await fetch('https://hook.eu2.make.com/iup8l0t5j46g5m69viqn8qns661x64ph', {
       method: 'POST',
       body: formData,
     });
@@ -4386,5 +4386,52 @@ function getCoverageDisplayName(coverageName) {
     document.addEventListener('DOMContentLoaded', scheduleUpdateUrlFromForm);
   } else {
     scheduleUpdateUrlFromForm();
+  }
+})();
+
+// ===== Iframe Auto-Resize & Scroll =====
+(function() {
+  function isInIframe() {
+    try { return window.self !== window.top; }
+    catch (e) { return true; }
+  }
+
+  function sendHeight() {
+    if (!window.__inIframe) return;
+    var form = document.getElementById('insuranceForm');
+    if (form) {
+      parent.postMessage({ type: 'insurance-form-resize', height: form.scrollHeight }, '*');
+    }
+  }
+
+  function sendScroll() {
+    if (!window.__inIframe) return;
+    parent.postMessage({ type: 'insurance-form-scroll' }, '*');
+  }
+
+  if (isInIframe()) {
+    window.__inIframe = true;
+    document.body.classList.add('in-iframe');
+
+    var target = document.getElementById('insuranceForm');
+    if (target) {
+      var ro = new ResizeObserver(sendHeight);
+      ro.observe(target);
+    }
+
+    var origShow = window.showSection;
+    if (typeof origShow === 'function') {
+      window.showSection = function(idx) {
+        origShow(idx);
+        setTimeout(sendScroll, 450);
+        setTimeout(sendHeight, 500);
+      };
+    }
+
+    function onReady() { setTimeout(sendHeight, 400); }
+    if (document.readyState === 'complete') onReady();
+    else window.addEventListener('load', onReady);
+
+    if (document.fonts) document.fonts.ready.then(sendHeight);
   }
 })();

@@ -1254,3 +1254,23 @@ input[type="date"]:focus {
   color: #a02675;
   text-decoration: underline;
 }
+
+/* =========================================
+   Iframe Embed Mode
+   ========================================= */
+body.in-iframe {
+  min-height: auto;
+  display: block;
+  padding: 0;
+  align-items: flex-start;
+  overflow: hidden;
+}
+
+body.in-iframe .container {
+  max-width: 100%;
+}
+
+body.in-iframe form {
+  border-radius: 0;
+  box-shadow: none;
+}
