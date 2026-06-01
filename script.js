@@ -1243,10 +1243,10 @@ document.querySelectorAll('#bankTransferSection .back-button, #creditCardSection
     });
   });
 
-
+const isUpdateMode = isUpdateModeActive();
 document.querySelector('.bank-button').addEventListener('click', async function () {
   selectedPaymentMethod = 'bank';
-  if (window.formAutomationFlag === 'false' || window.formAutomationFlag === false) {
+  if (isUpdateMode) {
     const currentPremium = parseFloat(document.getElementById('premiumAmount').dataset.annualPremium) ||
       parseFloat(document.getElementById('premiumAmount').textContent.replace(/[^\d.]/g, '')) || 0;
 
@@ -1272,7 +1272,7 @@ document.querySelector('.bank-button').addEventListener('click', async function 
 
 document.querySelector('.credit-button').addEventListener('click', async function () {
   selectedPaymentMethod = 'credit';
-  if (window.formAutomationFlag === 'false' || window.formAutomationFlag === false) {
+  if (isUpdateMode) {
     const btn = this;
     const originalText = btn.textContent;
     btn.textContent = 'שולח...';
@@ -1291,7 +1291,7 @@ document.querySelector('.credit-button').addEventListener('click', async functio
 
 document.querySelector('.debit-auth-button').addEventListener('click', async function () {
   selectedPaymentMethod = 'debit';
-  if (window.formAutomationFlag === 'false' || window.formAutomationFlag === false) {
+  if (isUpdateMode) {
     const btn = this;
     const originalText = btn.textContent;
     btn.textContent = 'שולח...';
@@ -2967,6 +2967,18 @@ function updateBuildingTypeRequired() {
   }
 }
 
+function isUpdateModeActive() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const autoParam = urlParams.get('automation') || urlParams.get('Automation');
+  if (autoParam) {
+    return autoParam.trim().toLowerCase() === 'false';
+  }
+  if (typeof window.formAutomationFlag === 'string') {
+    return window.formAutomationFlag.trim().toLowerCase() === 'false';
+  }
+  return window.formAutomationFlag === false;
+}
+
 
 function prefillCoverageAddonsFromUrl() {
   if (!urlPrefillData) return;
@@ -3493,7 +3505,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // קריאת מצב עדכון מהמשתנה הגלובלי שמוגדר מה-URL
-        const isUpdateMode = (window.formAutomationFlag === 'false' || window.formAutomationFlag === false);
+        const isUpdateMode = isUpdateModeActive();
 
         if (isUpdateMode) {
           // מניעת לחיצות כפולות
@@ -3709,7 +3721,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return `${y}-${m}-${d}`;
     };
 
-    const isUpdateMode = (window.formAutomationFlag === 'false' || window.formAutomationFlag === false);
+    const isUpdateMode = isUpdateModeActive();
 
     if (isUpdateMode) {
       // מצב עדכון: פותחים את שני התאריכים לעריכה חופשית, ללא חישוב אוטומטי של תאריך סיום
