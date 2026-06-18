@@ -563,27 +563,36 @@ const over3ChildrenInput = document.getElementById('over3ChildrenCount');
 const hasOver3ChildrenGroup = document.getElementById('hasOver3ChildrenGroup');
 
 if (gardenType && hasOver3ChildrenGroup) {
-  const toggleOver3ChildrenField = () => {
-    if (gardenType.value === 'over3' || gardenType.value === 'afterSchool') {
-      hasOver3ChildrenGroup.style.display = 'none';
-      // איפוס הערכים כשמסתירים
-      const hasOver3Input = document.getElementById('hasOver3Children');
-      if (hasOver3Input) hasOver3Input.value = '';
-
-      const over3Count = document.getElementById('over3ChildrenCount');
-      if (over3Count) over3Count.value = '';
-
-      const over3Group = document.getElementById('over3ChildrenCountGroup');
-      if (over3Group) over3Group.style.display = 'none';
-    } else {
-      hasOver3ChildrenGroup.style.display = 'block';
+  const resetOver3Toggle = () => {
+    const toggleGroup = document.querySelector('[data-field="hasOver3Children"]');
+    if (!toggleGroup) return;
+    const yesBtn = toggleGroup.querySelector('.yes-btn');
+    const noBtn = toggleGroup.querySelector('.no-btn');
+    const hiddenInput = toggleGroup.querySelector('input[type="hidden"]');
+    if (yesBtn) yesBtn.classList.remove('selected');
+    if (noBtn) noBtn.classList.remove('selected');
+    if (hiddenInput) {
+      hiddenInput.value = '';
+      hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
     }
   };
 
-  // הפעלה ראשונית
-  toggleOver3ChildrenField();
+  const toggleOver3ChildrenField = () => {
+    const isHidden = gardenType.value === 'over3' || gardenType.value === 'afterSchool';
 
-  // האזנה לשינויים
+    hasOver3ChildrenGroup.style.display = isHidden ? 'none' : 'block';
+
+    const over3Count = document.getElementById('over3ChildrenCount');
+    if (over3Count) over3Count.value = '';
+
+    const over3Group = document.getElementById('over3ChildrenCountGroup');
+    if (over3Group) over3Group.style.display = 'none';
+
+    resetOver3Toggle();
+    calculatePremium();
+  };
+
+  toggleOver3ChildrenField();
   gardenType.addEventListener('change', toggleOver3ChildrenField);
 }
 
@@ -2814,8 +2823,8 @@ async function sendToWebhook(payload) {
     for (let [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
-    const response = await fetch('https://hook.eu2.make.com/9ubikqsvbfewa5nrv4452fhxui1ikpel', {
-      //const response = await fetch('https://hook.eu2.make.com/iup8l0t5j46g5m69viqn8qns661x64ph', {
+    //const response = await fetch('https://hook.eu2.make.com/9ubikqsvbfewa5nrv4452fhxui1ikpel', {
+    const response = await fetch('https://hook.eu2.make.com/iup8l0t5j46g5m69viqn8qns661x64ph', {
       method: 'POST',
       body: formData,
     });
