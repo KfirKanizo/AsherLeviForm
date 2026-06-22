@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>טופס הצטרפות לביטוח תאונות אישיות לתלמידים</title>
+  <link href="style.css?v=1" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="container">
+    <form dir="rtl" id="insuranceForm" novalidate>
+      <div class="logo-container">
+        <a href="https://asherlevi.com/" target="_blank">
+          <img alt="Asher Levi Logo"
+            src="https://asherlevi.com/wp-content/uploads/2022/07/%D7%9C%D7%95%D7%92%D7%95-%D7%9E%D7%97%D7%95%D7%93%D7%A9-%D7%A6%D7%91%D7%A2%D7%95%D7%A0%D7%99%D7%95%D7%AA-01-1-768x477.png" />
+        </a>
+      </div>
+
+      <div class="stepper-container">
+        <div class="stepper">
+          <div class="stepper-step active" data-step="1">
+            <div class="stepper-circle">1</div>
+            <span class="stepper-label">פרטי המוסד</span>
+          </div>
+          <div class="stepper-line"></div>
+          <div class="stepper-step" data-step="2">
+            <div class="stepper-circle">2</div>
+            <span class="stepper-label">חתימות</span>
+          </div>
+          <div class="stepper-line"></div>
+          <div class="stepper-step" data-step="3">
+            <div class="stepper-circle">3</div>
+            <span class="stepper-label">העלאת קובץ</span>
+          </div>
+        </div>
+        <div class="stepper-progress-bar">
+          <div class="stepper-progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <!-- ===== STEP 1: Institutional Data ===== -->
+      <div class="form-section active" id="step1">
+        <h2>פרטי הגורם המזמין</h2>
+
+        <div class="form-group">
+          <label for="orderingEntityName">שם הגורם המזמין *</label>
+          <input id="orderingEntityName" name="orderingEntityName" required type="text" />
+        </div>
+
+        <div class="form-group">
+          <label for="formDate">תאריך *</label>
+          <input id="formDate" name="formDate" required type="date" />
+        </div>
+
+        <div class="form-group">
+          <label for="insuredName">שם המבוטח *</label>
+          <input id="insuredName" name="insuredName" required type="text" />
+        </div>
+
+        <div class="form-group">
+          <label for="companyId">מספר ח.פ. / ע.ר *</label>
+          <input id="companyId" name="companyId" required type="text" />
+        </div>
+
+        <div class="form-group">
+          <label for="companyAddress">כתובת המוסד *</label>
+          <input id="companyAddress" name="companyAddress" required type="text" />
+        </div>
+
+        <hr class="section-divider" />
+
+        <h2>נתוני תלמידים</h2>
+
+        <div class="form-group">
+          <label for="studentsCount3to18">מספר התלמידים מגיל 3 עד 18 *</label>
+          <input id="studentsCount3to18" name="studentsCount3to18" required type="number" min="0" />
+        </div>
+
+        <div class="form-group">
+          <label for="childrenCount0to3">מספר הילדים במעונות / משפחתונים מגיל 0 עד 3 *</label>
+          <input id="childrenCount0to3" name="childrenCount0to3" required type="number" min="0" />
+        </div>
+
+        <hr class="section-divider" />
+
+        <h2>העדפות הפקת והפצת פוליסות</h2>
+        <p class="field-description">כיצד ברצונך לקבל את עותקי הפוליסה?</p>
+
+        <div class="distribution-options">
+          <div class="distribution-card" data-value="printAll">
+            <div class="distribution-radio">
+              <div class="distribution-radio-inner"></div>
+            </div>
+            <div class="distribution-content">
+              <strong>אופציה א':</strong> הפקת עותקים מודפסים במספר זהה למספר התלמידים המבוטחים
+            </div>
+            <input type="hidden" name="distributionPreference" value="printAll" />
+          </div>
+
+          <div class="distribution-card" data-value="electronicOnly">
+            <div class="distribution-radio">
+              <div class="distribution-radio-inner"></div>
+            </div>
+            <div class="distribution-content">
+              <strong>אופציה ב':</strong> הפצה אלקטרונית בלבד (אין צורך בעותקים מודפסים)
+            </div>
+            <input type="hidden" name="distributionPreference" value="electronicOnly" />
+          </div>
+
+          <div class="distribution-card" data-value="mixed">
+            <div class="distribution-radio">
+              <div class="distribution-radio-inner"></div>
+            </div>
+            <div class="distribution-content">
+              <strong>אופציה ג':</strong> הפצה מעורבת — דרושים עותקים מודפסים בכמות:
+            </div>
+            <input type="hidden" name="distributionPreference" value="mixed" />
+          </div>
+        </div>
+
+        <div class="form-group" id="printedCopiesGroup" style="display:none;">
+          <label for="printedCopiesCount">כמות עותקים מודפסים *</label>
+          <input id="printedCopiesCount" name="printedCopiesCount" type="number" min="1" />
+        </div>
+
+        <hr class="section-divider" />
+
+        <h2>איש קשר למשלוח הפוליסה</h2>
+
+        <div class="form-group">
+          <label for="contactFullName">שם מלא *</label>
+          <input id="contactFullName" name="contactFullName" required type="text" />
+        </div>
+
+        <div class="form-group">
+          <label for="contactPhone">טלפון *</label>
+          <input id="contactPhone" name="contactPhone" required type="tel" />
+        </div>
+
+        <div class="form-group">
+          <label for="contactRole">תפקיד בארגון *</label>
+          <input id="contactRole" name="contactRole" required type="text" />
+        </div>
+
+        <div class="form-group">
+          <label for="contactMobile">נייד</label>
+          <input id="contactMobile" name="contactMobile" type="tel" />
+        </div>
+
+        <div class="form-group">
+          <label for="contactEmail">דוא"ל *</label>
+          <input id="contactEmail" name="contactEmail" required type="email" />
+        </div>
+
+        <div class="form-group">
+          <label for="contactAddress">כתובת למשלוח פיזי *</label>
+          <input id="contactAddress" name="contactAddress" required type="text" />
+        </div>
+
+        <hr class="section-divider" />
+
+        <h2>חותמי המוסד</h2>
+        <p class="field-description">פרטי החותמים על גבי נספחי הביטוח</p>
+
+        <div class="form-group">
+          <label for="signeeHeadAuthority">ראש הרשות / מנכ"ל המוסד החינוכי *</label>
+          <input id="signeeHeadAuthority" name="signeeHeadAuthority" required type="text" />
+        </div>
+
+        <div class="form-group">
+          <label for="signeeTreasurer">גזבר הרשות *</label>
+          <input id="signeeTreasurer" name="signeeTreasurer" required type="text" />
+        </div>
+
+        <div class="form-group">
+          <label for="signeeEducationDirector">מנהל מחלקת החינוך *</label>
+          <input id="signeeEducationDirector" name="signeeEducationDirector" required type="text" />
+        </div>
+
+        <div class="navigation-buttons">
+          <span></span>
+          <button class="next-button" type="button">לשלב הבא — חתימות</button>
+        </div>
+      </div>
+
+      <!-- ===== STEP 2: Digital Signatures ===== -->
+      <div class="form-section" id="step2">
+        <h2>חתימות דיגיטליות</h2>
+        <p class="field-description">אנא חתמו על שני נספחי הביטוח להלן</p>
+
+        <div class="signatures-grid">
+          <div class="signature-wrapper">
+            <label class="signature-label">חתימה — נספח 1: טופס הצטרפות לביטוח תאונות אישיות לתלמידים</label>
+            <canvas height="150" id="signatureCanvas1" width="400"></canvas>
+            <button class="clear-signature-button" onclick="clearSignature(1)" type="button">נקה חתימה</button>
+          </div>
+
+          <div class="signature-wrapper">
+            <label class="signature-label">חתימה — נספח 2: המצאת עותקים של פוליסות ביטוח תאונות אישיות</label>
+            <canvas height="150" id="signatureCanvas2" width="400"></canvas>
+            <button class="clear-signature-button" onclick="clearSignature(2)" type="button">נקה חתימה</button>
+          </div>
+        </div>
+
+        <div class="navigation-buttons">
+          <button class="back-button" type="button">חזור לפרטי המוסד</button>
+          <button class="next-button" type="button">לשלב הבא — העלאת קובץ</button>
+        </div>
+      </div>
+
+      <!-- ===== STEP 3: Excel Upload + Submit ===== -->
+      <div class="form-section" id="step3">
+        <h2>העלאת קובץ תלמידים</h2>
+        <p class="field-description">העלו קובץ אקסל עם רשימת הילדים המבוטחים</p>
+
+        <div class="file-upload-zone" id="fileUploadZone">
+          <div class="file-upload-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z" fill="#e0e4ec" />
+              <path d="M13 2V8H19" fill="#e0e4ec" />
+              <path d="M12 18V12M9 15H15" stroke="#4362cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <p class="file-upload-text">גררו לכאן קובץ אקסל או לחצו לבחירה</p>
+          <p class="file-upload-hint">קבצים מותרים: .xlsx, .xls</p>
+          <input id="excelFile" name="excelFile" type="file" accept=".xlsx,.xls" class="file-upload-input-hidden" />
+          <div class="file-upload-label" id="fileUploadLabel">בחרו קובץ</div>
+          <div id="fileInfo" class="file-info" style="display:none;">
+            <span id="fileNameDisplay"></span>
+            <button type="button" id="removeFileBtn" class="file-remove-btn">הסר</button>
+          </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <div class="form-group privacy-consent-group" style="text-align: right; margin-top: 20px; background: #f9fafc; padding: 15px; border-radius: 10px; border: 1px solid #e0e4ec;">
+          <label style="display: flex; align-items: flex-start; gap: 10px; font-size: 1.05em; color: #2c3e50; cursor: pointer;">
+            <input type="checkbox" id="privacyConsent" name="privacyConsent" style="margin-top: 5px; width: 20px; height: 20px;">
+            <span>
+              קראתי ואני מאשר/ת כי המידע שמסרתי לעיל הינו מלא ונכון. ידוע לי כי המידע ישמש לשם הפקת נספחי הביטוח וכי הוא יועבר לגורמים המטפלים מטעם הסוכנות.
+            </span>
+          </label>
+        </div>
+
+        <div class="navigation-buttons">
+          <button class="back-button" type="button">חזור לחתימות</button>
+          <button class="submit-button" type="submit">שלח</button>
+        </div>
+      </div>
+
+      <!-- ===== SUCCESS OVERLAY ===== -->
+      <div class="form-section" id="successSection">
+        <div class="success-animation">
+          <img alt="Success" class="success-image" src="success-icon.svg" />
+        </div>
+        <h2 style="text-align: center;">הפרטים נשלחו בהצלחה!</h2>
+        <p style="text-align: center; color: #4362cc; margin-top: 10px;">תודה, נציגנו יחזרו אליכם בהקדם</p>
+      </div>
+
+      <input type="hidden" id="distributionPreference" name="distributionPreference" value="" />
+    </form>
+  </div>
+  <script src="script.js?v=1"></script>
+</body>
+</html>
