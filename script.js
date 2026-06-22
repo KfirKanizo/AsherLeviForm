@@ -913,17 +913,20 @@ document.querySelectorAll('.next-button').forEach(button => {
       }
     }
 
-    // וידוא בחירה בכפתורי כן/לא בסקשן פרטי ביטוח
+// וידוא בחירה בכפתורי כן/לא בסקשן פרטי ביטוח
     if (sections[currentSectionIndex].id === 'insuranceDetails') {
       // אין לדרוש "hasOver3Children" אם נבחר גן מעל גיל 3 או צהרון בלבד
       const requireHasOver3 = !(gardenType.value === 'over3' || gardenType.value === 'afterSchool');
+      
+      // נוסיף תנאי: אין לדרוש "hasContentBuilding" אם נבחר מסלול תמ"ת
+      const requireContentBuilding = gardenType.value !== 'tamah';
 
       const yesNoFields = [
         ...(requireHasOver3 ? ['hasOver3Children'] : []),
         'isMember',
         'claimsLastYear',
         'supplementalInsurance',
-        'hasContentBuilding'
+        ...(requireContentBuilding ? ['hasContentBuilding'] : [])
       ];
 
       // בדיקת בחירה בכל שדות ה־כן/לא הנדרשים
@@ -3823,14 +3826,19 @@ document.addEventListener('DOMContentLoaded', () => {
     hasContentBuilding.addEventListener('change', updateBuildingTypeRequired);
   }
 
-  // --- הצגה/הסתרה של צ'קבוקס "האם תרצה לבטח את המבנה ותכולת הגן?" ---
+// --- הצגה/הסתרה של צ'קבוקס "האם תרצה לבטח את המבנה ותכולת הגן?" ---
   const hasContentBuildingGroup = document.getElementById('hasContentBuildingGroup');
   const gardenTypeSelect = document.getElementById('gardenType');
 
   function updateHasContentBuildingVisibility() {
     if (gardenTypeSelect.value === 'tamah' || gardenTypeSelect.value === '') {
       hasContentBuildingGroup.style.display = 'none';
-      document.getElementById('hasContentBuilding').checked = false;
+      
+      // התיקון: מדובר בשדה מסוג 'hidden' ולכן מתייחסים אליו כאל value ולא checked
+      const hiddenInput = document.getElementById('hasContentBuilding');
+      if (hiddenInput) {
+          hiddenInput.value = 'false';
+      }
     } else {
       hasContentBuildingGroup.style.display = '';
     }
