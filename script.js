@@ -27,6 +27,7 @@ const sections = [
   document.getElementById('bankTransferSection'),
   document.getElementById('creditCardSection'),
   document.getElementById('debitAuthSection'),
+  document.getElementById('lastYearSection'),
   document.getElementById('thankYouSection')
 ];
 let currentSectionIndex = 0;
@@ -682,7 +683,7 @@ function showSection(index) {
     if (progressFill) {
       const totalSteps = 7;
       let stepForProgress = index;
-      if ([5, 6, 7, 8].includes(index)) stepForProgress = 5; // מסכי תשלום = סוף שלב 5
+      if ([5, 6, 7, 8, 9].includes(index)) stepForProgress = 5; // מסכי תשלום = סוף שלב 5
       const percentage = Math.min((stepForProgress / (totalSteps - 1)) * 100, 100);
       progressFill.style.width = `${percentage}%`;
     }
@@ -691,6 +692,7 @@ function showSection(index) {
     if (index === 6) initSignatureCanvas('signatureCanvasBank');
     if (index === 7) initSignatureCanvas('signatureCanvasCredit');
     if (index === 8) initSignatureCanvas('signatureCanvasDebit');
+    if (index === 9) initSignatureCanvas('signatureCanvasLastYear');
 
     // עדכון אינדקס
     currentSectionIndex = index;
@@ -1110,12 +1112,13 @@ document.querySelectorAll('.next-button').forEach(button => {
     }
 
     // וידוא חתימה וקבצים לפי אמצעי התשלום
-    if (['bankTransferSection', 'creditCardSection', 'debitAuthSection'].includes(sections[currentSectionIndex].id)) {
+    if (['bankTransferSection', 'creditCardSection', 'debitAuthSection', 'lastYearSection'].includes(sections[currentSectionIndex].id)) {
       // וידוא חתימה
       let canvasId = '';
       if (sections[currentSectionIndex].id === 'bankTransferSection') canvasId = 'signatureCanvasBank';
       if (sections[currentSectionIndex].id === 'creditCardSection') canvasId = 'signatureCanvasCredit';
       if (sections[currentSectionIndex].id === 'debitAuthSection') canvasId = 'signatureCanvasDebit';
+      if (sections[currentSectionIndex].id === 'lastYearSection') canvasId = 'signatureCanvasLastYear';
 
       const signatureCanvas = document.getElementById(canvasId);
       if (signatureCanvas && isCanvasBlank(signatureCanvas)) {
@@ -1248,7 +1251,7 @@ document.querySelectorAll('.back-button').forEach(button => {
 
 
 
-document.querySelectorAll('#bankTransferSection .back-button, #creditCardSection .back-button, #debitAuthSection .back-button')
+document.querySelectorAll('#bankTransferSection .back-button, #creditCardSection .back-button, #debitAuthSection .back-button, #lastYearSection .back-button')
   .forEach(button => {
     button.addEventListener('click', () => {
       showSection(5); // חוזר למסך בחירת אמצעי תשלום
@@ -1275,7 +1278,7 @@ document.querySelector('.bank-button').addEventListener('click', async function 
       } catch (e) { console.error(e); }
       btn.textContent = originalText;
       btn.style.pointerEvents = 'auto';
-      showSection(9);
+      showSection(10);
     }
   } else {
     showSection(6);
@@ -1295,7 +1298,7 @@ document.querySelector('.credit-button').addEventListener('click', async functio
     } catch (e) { console.error(e); }
     btn.textContent = originalText;
     btn.style.pointerEvents = 'auto';
-    showSection(9);
+    showSection(10);
   } else {
     showSection(7);
   }
@@ -1314,10 +1317,15 @@ document.querySelector('.debit-auth-button').addEventListener('click', async fun
     } catch (e) { console.error(e); }
     btn.textContent = originalText;
     btn.style.pointerEvents = 'auto';
-    showSection(9);
+    showSection(10);
   } else {
     showSection(8);
   }
+});
+
+document.querySelector('.last-year-button').addEventListener('click', async function () {
+  selectedPaymentMethod = 'last_year';
+  showSection(9);
 });
 
 if (isMemberCheckbox && membershipSection) {
@@ -2100,7 +2108,7 @@ window.clearSignature = function (type) {
 form.addEventListener('submit', async (e) => {
   // מאפשר שליחה רק בסקשנים ייעודיים
   const activeId = sections[currentSectionIndex]?.id;
-  const allowSubmitSections = ['bankTransferSection', 'debitAuthSection'];
+  const allowSubmitSections = ['bankTransferSection', 'debitAuthSection', 'lastYearSection'];
   if (!allowSubmitSections.includes(activeId)) {
     e.preventDefault();
     return; // לא שולחים Webhook ולא מציגים "תודה" מחוץ למסכי התשלום הרלוונטיים
@@ -2134,7 +2142,7 @@ form.addEventListener('submit', async (e) => {
     try {
       const formValues = collectFormData();
       await sendToWebhook(formValues); // כולל הכל: חתימה, קבצים, ערכים
-      showSection(9); // מעבר לעמוד תודה
+      showSection(10); // מעבר לעמוד תודה
     } catch (error) {
       alert('שגיאה בשליחת הטופס. אנא נסה שוב.');
     }
@@ -2858,6 +2866,7 @@ function appendSignatureToFormData(formData, method) {
     if (method === 'bank') canvasId = 'signatureCanvasBank';
     if (method === 'credit') canvasId = 'signatureCanvasCredit';
     if (method === 'debit') canvasId = 'signatureCanvasDebit';
+    if (method === 'last_year') canvasId = 'signatureCanvasLastYear';
 
     if (canvasId) {
       const canvas = document.getElementById(canvasId);
@@ -3778,7 +3787,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const payments = [
     { sectionId: 'bankTransferSection', canvasId: 'signatureCanvasBank', buttonSelector: '.submit-button' },
     { sectionId: 'creditCardSection', canvasId: 'signatureCanvasCredit', buttonSelector: '.submit-button' },
-    { sectionId: 'debitAuthSection', canvasId: 'signatureCanvasDebit', buttonSelector: '.submit-button' }
+    { sectionId: 'debitAuthSection', canvasId: 'signatureCanvasDebit', buttonSelector: '.submit-button' },
+    { sectionId: 'lastYearSection', canvasId: 'signatureCanvasLastYear', buttonSelector: '.submit-button' }
   ];
 
   payments.forEach(({ sectionId, canvasId, buttonSelector }) => {

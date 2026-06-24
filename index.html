@@ -7,7 +7,7 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>טופס חידוש ביטוח</title>
   <link href="https://cdn.jsdelivr.net/npm/@n8n/chat@1.2.1/dist/style.css" rel="stylesheet" />
-  <link href="style.css?v=202606221" rel="stylesheet" />
+  <link href="style.css?v=202606241" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;display=swap" rel="stylesheet" />
 </head>
 
@@ -460,6 +460,7 @@
           <button class="credit-button" type="button">תשלום באשראי</button>
           <button class="bank-button" type="button">העברה בנקאית</button>
           <button class="debit-auth-button" type="button">הרשאה לחיוב חשבון</button>
+          <button class="last-year-button" type="button">אמצעי תשלום משנה שעברה</button>
         </div>
         <div class="navigation-buttons">
           <button class="back-button" type="button">חזור לתוספות כיסויים</button>
@@ -634,6 +635,51 @@
           <label class="signature-label">חתימה:</label>
           <canvas height="150" id="signatureCanvasDebit" width="300"></canvas>
           <button class="clear-signature-button" onclick="clearSignature('Debit')" type="button">נקה חתימה</button>
+        </div>
+        <p class="talah-info">אנו החתומים מטה מצהירים בזה כי כל תשובתינו שפורטו לעיל הן מלאות ונכונות וכי לא העלמנו
+          עובדות או פרטים אשר יש בהם כדי להשפיע על הערכת הסיכון על ידי החברה מוסכם כי הצעה זו תהווה בסיס לחוזה הביטוח
+          בינינו לבין מגדל חברה לביטוח בע"מ. ידוע לי כי השאלות המופיעות בטופס זה תחשבנה לעניין מהותי לפי הוראות סעיף 6
+          לחוק חוזה ביטוח התשמ"א ,1981 אנחנו מצהירים בזאת כי המידע המבקש נמסר מרצוננו, בהסכמתנו, וידוע לנו כי הוא נחוץ
+          לחברת הביטוח לצורך הוצאת הפוליסה, גביית תשלומים בגינה, תשלום תגמולי ביטוח וביצוע פעולות נלוות. אני מסכים כי
+          המידע שנמסר יועבר לגורמים מטעמה של חברת הביטוח לשם מתן שירותי ביטוח וכן לצורך גביית תשלומים. האמור לעיל יחול
+          גם לגבי מידע שאמסור לחברת הביטוח בעתיד בקשר עם שירות הביטוח, ידוע לי כי הביטוח יכנס לתוקף רק לאחר שטופס ההצעה
+          יאושר בחתימת החברה.</p>
+        <div class="form-group privacy-consent-group"
+          style="text-align: right; margin-top: 20px; background: #f9fafc; padding: 15px; border-radius: 10px; border: 1px solid #e0e4ec;">
+          <label
+            style="display: flex; align-items: flex-start; gap: 10px; font-size: 1.05em; color: #2c3e50; cursor: pointer;">
+            <input type="checkbox" class="privacyConsentCheckbox" name="privacyConsent"
+              style="margin-top: 5px; width: 20px; height: 20px;">
+            <span>
+              קראתי ואני מסכים/ה ל<a href="#" class="privacy-popup-link"
+                style="color: #d03499; text-decoration: underline; font-weight: bold;">הצהרות והסכמות לפי חוק הגנת
+                הפרטיות</a>
+            </span>
+          </label>
+        </div>
+        <div class="navigation-buttons">
+          <button class="back-button" type="button">חזור לבחירת אמצעי תשלום</button>
+          <button class="submit-button" type="submit">שלח</button>
+        </div>
+      </div>
+      <!-- Last Year Payment Section -->
+      <div class="form-section" id="lastYearSection">
+        <h2>אמצעי תשלום משנה שעברה</h2>
+        <div class="form-group approval-request-group">
+          <label style="align-items: center; gap: 8px;">
+            <input type="checkbox" class="needsApprovalCheckbox" style="width: 18px;">
+            האם צריך אישור עריכת ביטוח?
+          </label>
+          <div class="approval-info-text" style="display: none; margin-top: 8px; color: #b92d88; font-size:1.05em;">
+            יש לשלוח למייל ganim5@asherlevi.com<br>
+            או לוואטסאפ את טופס עריכת הביטוח, נא להקפיד לציין מי מבקש האישור.
+          </div>
+        </div>
+        <p class="talah-info">הכיסוי הביטוחי יכנס לתוקף רק לאחר אישור החברה</p>
+        <div class="signature-wrapper">
+          <label class="signature-label">חתימה:</label>
+          <canvas height="150" id="signatureCanvasLastYear" width="300"></canvas>
+          <button class="clear-signature-button" onclick="clearSignature('LastYear')" type="button">נקה חתימה</button>
         </div>
         <p class="talah-info">אנו החתומים מטה מצהירים בזה כי כל תשובתינו שפורטו לעיל הן מלאות ונכונות וכי לא העלמנו
           עובדות או פרטים אשר יש בהם כדי להשפיע על הערכת הסיכון על ידי החברה מוסכם כי הצעה זו תהווה בסיס לחוזה הביטוח
@@ -887,7 +933,7 @@
     </div>
     <button type="button" class="popup-close" id="closePrivacyPopupBtn">סגור</button>
   </div>
-  <script src="script.js?v=202606221"></script>
+  <script src="script.js?v=202606241"></script>
 <script type="module">
   import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat@1.2.1/dist/chat.bundle.es.js';
 
