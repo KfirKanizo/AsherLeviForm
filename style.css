@@ -195,6 +195,7 @@ input[type="checkbox"] {
 .credit-button,
 .bank-button,
 .debit-auth-button,
+.last-year-button,
 .offer-button,
 .submit-button {
   flex: 1;
@@ -213,6 +214,8 @@ input[type="checkbox"] {
 .back-button:hover,
 .credit-button:hover,
 .bank-button:hover,
+.last-year-button:hover,
+.debit-auth-button:hover,
 .offer-button:hover,
 .submit-button:hover {
   background: #b92d88;
@@ -223,6 +226,8 @@ input[type="checkbox"] {
 .back-button:active,
 .credit-button:active,
 .bank-button:active,
+.last-year-button:active,
+.debit-auth-button:active,
 .offer-button:active,
 .submit-button:active {
   transform: scale(0.96);
