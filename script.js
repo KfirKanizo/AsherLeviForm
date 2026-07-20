@@ -1500,6 +1500,13 @@ function addEventListenersToOption(optionDiv) {
       });
     }
 
+    if (optionName === 'incomeLoss') {
+      const durationSelect = optionDiv.querySelector('.incomeLossDuration');
+      const amountSelect = optionDiv.querySelector('.incomeLossAmount');
+      if (durationSelect) durationSelect.selectedIndex = 0;
+      if (amountSelect) amountSelect.selectedIndex = 0;
+    }
+
     calculatePremium();
     updateCoverageOptionPrices();
   });
@@ -1723,7 +1730,7 @@ function calculatePremium() {
       break;
     case 7:
       min = 1400;
-      perChild = 120;
+      perChild = 110;
       break;
   }
 
@@ -1784,7 +1791,7 @@ function calculatePremium() {
 
   if (isMember) {
     const currentTrack = determinePolicyTrack();
-    if ([4, 7].includes(currentTrack)) clubDiscount = childrenCountValue * 10;
+    if ([4].includes(currentTrack)) clubDiscount = childrenCountValue * 10;
     else if ([5, 6].includes(currentTrack)) clubDiscount = childrenCountValue * 5;
   }
 
