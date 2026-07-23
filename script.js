@@ -1813,7 +1813,7 @@ function calculatePremium() {
 
   if (isMember) {
     const currentTrack = determinePolicyTrack();
-    if ([4].includes(currentTrack)) clubDiscount = childrenCountValue * 10;
+    if ([4, 7].includes(currentTrack)) clubDiscount = childrenCountValue * 10;
     else if ([5, 6].includes(currentTrack)) clubDiscount = childrenCountValue * 5;
   }
 
