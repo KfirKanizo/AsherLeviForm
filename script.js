@@ -188,6 +188,28 @@ for (const trackArr of Object.values(policyFeaturesByTrack)) {
 
 let urlPrefillData = {};
 
+function formatDateForHTMLInput(dateStr) {
+  if (!dateStr || typeof dateStr !== 'string') return '';
+  const trimmed = dateStr.trim();
+  if (!trimmed) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+  const dotMatch = trimmed.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if (dotMatch) {
+    const [, day, month, year] = dotMatch;
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  }
+  try {
+    const d = new Date(trimmed);
+    if (isNaN(d.getTime())) return '';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dd}`;
+  } catch {
+    return '';
+  }
+}
+
 function parseUrlParams() {
   const urlParams = new URLSearchParams(window.location.search);
   urlPrefillData = {};
@@ -1500,6 +1522,13 @@ function addEventListenersToOption(optionDiv) {
       });
     }
 
+    if (optionName === 'incomeLoss') {
+      const durationSelect = optionDiv.querySelector('.incomeLossDuration');
+      const amountSelect = optionDiv.querySelector('.incomeLossAmount');
+      if (durationSelect) durationSelect.selectedIndex = 0;
+      if (amountSelect) amountSelect.selectedIndex = 0;
+    }
+
     calculatePremium();
     updateCoverageOptionPrices();
   });
@@ -1723,7 +1752,7 @@ function calculatePremium() {
       break;
     case 7:
       min = 1400;
-      perChild = 120;
+      perChild = 110;
       break;
   }
 
@@ -3171,7 +3200,7 @@ function prefillFromUrl() {
         let radio = document.querySelector(`[name="${key}"][value="${value}"]`);
         if (radio) radio.checked = true;
       } else {
-        el.value = value;
+        el.value = el.type === 'date' ? formatDateForHTMLInput(value) : value;
         el.dispatchEvent(new Event('input', { bubbles: true }));
       }
     }
@@ -3684,8 +3713,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Prefill אם הגיעו תאריכים מה-URL
     const startValue = urlParams.get('policyStartDate');
     const endValue = urlParams.get('policyEndDate');
-    if (startValue) policyStartDate.value = startValue;
-    if (endValue) policyEndDate.value = endValue;
+    if (startValue) policyStartDate.value = formatDateForHTMLInput(startValue);
+    if (endValue) policyEndDate.value = formatDateForHTMLInput(endValue);
     // אם נטענו תאריכים מה-URL – עדכן פרמיה מיד אם שניהם קיימים
     if (policyStartDate.value && policyEndDate.value) calculatePremium();
 
