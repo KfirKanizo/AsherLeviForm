@@ -1752,7 +1752,7 @@ function calculatePremium() {
       break;
     case 7:
       min = 1400;
-      perChild = 110;
+      perChild = 120;
       break;
   }
 
