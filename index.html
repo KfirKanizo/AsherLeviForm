@@ -7,7 +7,7 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>טופס חידוש ביטוח</title>
   <link href="https://cdn.jsdelivr.net/npm/@n8n/chat@1.2.1/dist/style.css" rel="stylesheet" />
-  <link href="style.css?v=202607231" rel="stylesheet" />
+  <link href="style.css?v=202607271" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;display=swap" rel="stylesheet" />
 </head>
 
@@ -179,6 +179,10 @@
           <input type="date" id="policyEndDate" name="policyEndDate" />
         </div>
 
+        <div class="form-group" id="additionEndDateGroup" style="display:none;">
+          <label for="additionEndDate">תאריך סיום תוספות</label>
+          <input type="date" id="additionEndDate" name="additionEndDate" />
+        </div>
 
         <div class="form-group" id="hasOver3ChildrenGroup">
           <label>האם יש ילדים שמלאו להם 3 בספטמבר של שנת הלימודים של הפוליסה?</label>
@@ -420,6 +424,7 @@
         <div id="premiumDisplay">
           <p id="premiumAmount">0 ₪</p>
           <p id="discountDisplay" style="color:#d03499; font-size:1.1em; margin-top: 12px;"></p>
+          <div id="additionsBreakdown" style="display:none;"></div>
         </div>
 
         <div class="agent-notes-box">
@@ -933,7 +938,7 @@
     </div>
     <button type="button" class="popup-close" id="closePrivacyPopupBtn">סגור</button>
   </div>
-  <script src="script.js?v=202607231"></script>
+  <script src="script.js?v=202607271"></script>
 <script type="module">
   import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat@1.2.1/dist/chat.bundle.es.js';
 

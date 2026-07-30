@@ -1752,7 +1752,7 @@ function calculatePremium() {
       break;
     case 7:
       min = 1400;
-      perChild = 110;
+      perChild = 120;
       break;
   }
 
@@ -1892,6 +1892,24 @@ function calculatePremium() {
     }
   });
 
+  // === שלב 5.6: איסוף פריטי תוספות לפירוט (מצב automation=false) ===
+  const breakdownItems = [];
+  if (buildingPremium > 0) breakdownItems.push({ name: 'תוספת מבנה', cost: Math.round(buildingPremium) });
+  if (contentPremium > 0) breakdownItems.push({ name: 'תוספת תכולה', cost: Math.round(contentPremium) });
+  if (yardPremium > 0) breakdownItems.push({ name: 'תוספת חצר', cost: Math.round(yardPremium) });
+
+  document.querySelectorAll('#coverageOptionsContainer .coverage-option').forEach(optDiv => {
+    const optName = optDiv.dataset.option;
+    if (!optName) return;
+    const hiddenInput = optDiv.querySelector(`input[name="insuranceOptions[${optName}]"]`);
+    if (hiddenInput && hiddenInput.value === 'true') {
+      const cost = getOptionCost(optName, gardenTypeValueForAddons, childrenCountValueForAddons, includeContentBuildingForAddons);
+      if (cost > 0) {
+        breakdownItems.push({ name: getCoverageDisplayName(optName), cost });
+      }
+    }
+  });
+
   // === שלב 6: סכום כולל ===
   // 'addonsTotal' מכיל עכשיו רק את תוספות המבנה/תכולה/חצר
   const addonsTotal = buildingPremium + contentPremium + yardPremium;
@@ -1922,6 +1940,36 @@ function calculatePremium() {
     discountDisplay.textContent = clubDiscount > 0
       ? `הנחת מועדון: ${clubDiscount} ₪`
       : '';
+  }
+
+  // === שלב 8: תצוגת פירוט תוספות (מצב automation=false) ===
+  const totalAdditions = addonsTotal + otherAddonsTotal;
+  premiumAmount.dataset.additionsTotal = totalAdditions;
+
+  const breakdownDiv = document.getElementById('additionsBreakdown');
+  if (breakdownDiv) {
+    if (window.isAutomationMode && breakdownItems.length > 0) {
+      let html = '';
+      breakdownItems.forEach(item => {
+        html += `<div class="additions-breakdown-item"><span>${item.name}</span><span>₪${item.cost.toLocaleString()}</span></div>`;
+      });
+      html += `<div class="additions-breakdown-total additions-breakdown-item"><span>סך הכל תוספות</span><span>₪${totalAdditions.toLocaleString()}</span></div>`;
+      breakdownDiv.innerHTML = html;
+      breakdownDiv.style.display = 'block';
+      premiumAmount.style.display = 'none';
+
+      const addonsDisp = document.getElementById('addonsTotalDisplay');
+      if (addonsDisp) {
+        addonsDisp.textContent = `סך הכל תוספות: ₪${totalAdditions.toLocaleString()}`;
+        addonsDisp.style.fontSize = '1.5em';
+        addonsDisp.style.fontWeight = '700';
+        addonsDisp.style.color = '#1a237e';
+        addonsDisp.style.marginTop = '20px';
+      }
+    } else {
+      breakdownDiv.style.display = 'none';
+      premiumAmount.style.display = '';
+    }
   }
 }
 
@@ -2444,6 +2492,9 @@ function collectFormData() {
   // אם לא קיים ב-dataset מסיבה כלשהי, נשתמש בפרמיה הסופית כברירת מחדל
   const annualVal = premiumElem.dataset.annualPremium !== undefined ? premiumElem.dataset.annualPremium : premiumText;
   payload['annualPremium'] = formatCurrency(annualVal);
+
+  // ---------- Additions Amount ----------
+  payload['additionsAmount'] = formatCurrency(premiumElem.dataset.additionsTotal || '0');
 
   // ---------- automation מתוך URL ----------
   payload['automation'] = window.formAutomationFlag || 'true';
@@ -3182,6 +3233,7 @@ function prefillFromUrl() {
     }
   }
   window.formAutomationFlag = automationValue;
+  window.isAutomationMode = isUpdateModeActive();
   window.formRepresentativeFlag = urlParams.get('representative') || 'false';
   window.formRenewalFlag = (urlParams.get('renewal') === null || urlParams.get('renewal') === 'true') ? 'true' : 'false';
   window.formAgentFlag = urlParams.get('agent');
@@ -3774,11 +3826,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const isUpdateMode = isUpdateModeActive();
 
     if (isUpdateMode) {
-      // מצב עדכון: פותחים את שני התאריכים לעריכה חופשית, ללא חישוב אוטומטי של תאריך סיום
-      policyStartDate.disabled = false;
-      policyEndDate.disabled = false;
+      // מצב automation=false: נועל את התאריכים כך שהמשתמש לא יכול לערוך אותם
+      policyStartDate.readOnly = true;
+      policyEndDate.readOnly = true;
 
-      // רק טריגר לחישוב פרמיה אם אחד מהם משתנה
+      // עדכון פרמיה בעת שינוי תאריכים (מופעל בעת טעינת URL)
       policyStartDate.addEventListener('change', calculatePremium);
       policyEndDate.addEventListener('change', calculatePremium);
     } else if (isRenewal) {
@@ -3811,6 +3863,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+
+  // === Addition End Date for automation=false mode ===
+  const additionEndDateGroup = document.getElementById('additionEndDateGroup');
+  const additionEndDateInput = document.getElementById('additionEndDate');
+  if (additionEndDateGroup && additionEndDateInput) {
+    if (window.isAutomationMode) {
+      additionEndDateGroup.style.display = 'block';
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+      const d = String(today.getDate()).padStart(2, '0');
+      if (!additionEndDateInput.value) {
+        additionEndDateInput.value = `${y}-${m}-${d}`;
+      }
+    } else {
+      additionEndDateGroup.style.display = 'none';
+    }
+  }
 
   // הגדרה לפי עמודי התשלום
   const payments = [
