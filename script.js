@@ -291,6 +291,7 @@ function parseUrlParams() {
       // הגדרת ערך התשלומים בשני בחירות (כרטיס אשראי והרשאה לחיוב)
       const creditCardSelect = document.getElementById('creditCardInstallments');
       const debitSelect = document.getElementById('debitInstallments');
+      const lastYearSelect = document.getElementById('lastYearInstallments');
 
       if (creditCardSelect) {
         creditCardSelect.value = installmentsValue.toString();
@@ -299,6 +300,10 @@ function parseUrlParams() {
       if (debitSelect) {
         debitSelect.value = installmentsValue.toString();
         console.log(`✅ מספר תשלומים להרשאה לחיוב נטען: ${installmentsValue}`);
+      }
+      if (lastYearSelect) {
+        lastYearSelect.value = installmentsValue.toString();
+        console.log(`✅ מספר תשלומים לאמצעי תשלום משנה שעברה נטען: ${installmentsValue}`);
       }
     } else {
       console.warn(`⚠️ ערך תשלומים לא תקין: ${installmentsParam}. ערך תקין הוא מספר בין 1 ל-8`);
@@ -631,12 +636,14 @@ if (childrenCountInput && over3ChildrenInput) {
     }
   });
 
-  // גם בשינוי בשדה מעל גיל 3 – למנוע חריגה
+  // גם בשינוי בשדה מעל גיל 3 – למנוע חריגה ולעדכן פרמיה
   over3ChildrenInput.addEventListener('input', () => {
     const total = parseInt(childrenCountInput.value) || 0;
     if (parseInt(over3ChildrenInput.value) > total) {
       over3ChildrenInput.value = total;
     }
+    calculatePremium();
+    updateCoverageOptionPrices();
   });
 }
 
@@ -1450,6 +1457,7 @@ function updateCoverageOptions() {
   });
 
   calculatePremium();
+  updateCoverageOptionPrices();
   setupPersonalAccidentEmployees();
   setupProfessionalLiabilityEmployees();
 }
@@ -1762,6 +1770,9 @@ function calculatePremium() {
       basePremium = childrenCountValue <= threshold
         ? min
         : min + (childrenCountValue - threshold) * perChild;
+    } else if (track === 6) {
+      // מסלול 6 (גן מעל גיל 3 / צהרון + ביטוח תכולה ומבנה): נוסחה ייעודית
+      basePremium = childrenCountValue <= 17 ? 1400 : 1400 + (childrenCountValue - 17) * 80;
     } else {
       // חישוב רגיל לשאר המסלולים
       basePremium = Math.max(childrenCountValue * perChild, min);
@@ -2562,6 +2573,11 @@ function collectFormData() {
     if (debitInstallmentsSelect) {
       payload['creditInstallments'] = debitInstallmentsSelect.value;
     }
+  } else if (activeSection && activeSection.id === 'lastYearSection') {
+    const lastYearInstallmentsSelect = document.getElementById('lastYearInstallments');
+    if (lastYearInstallmentsSelect) {
+      payload['creditInstallments'] = lastYearInstallmentsSelect.value;
+    }
   }
 
   // ---------- סוג תשלום ----------
@@ -2885,7 +2901,51 @@ function addProfessionalLiabilityEmployeeRow(container, data = {}) {
   updateCoverageOptionPrices();
 }
 
+function buildDefaultProofFile() {
+  const getVal = (id) => document.getElementById(id)?.value?.trim() || '';
 
+  const contactName = getVal('customerName');
+  const gardenName = getVal('gardenName');
+  const phoneNumber = getVal('phoneNumber');
+  const idNumber = getVal('idNumber');
+  const childrenCount = getVal('childrenCount');
+
+  const gardenTypeSelect = document.getElementById('gardenType');
+  const gardenTypeText = gardenTypeSelect
+    ? gardenTypeSelect.options[gardenTypeSelect.selectedIndex]?.text || ''
+    : '';
+
+  const policyStartDate = getVal('policyStartDate');
+
+  const toDDMMYYYY = (dateStr) => {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
+    return dateStr;
+  };
+
+  const today = new Date();
+  const todayStr = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
+  const policyStartFormatted = toDDMMYYYY(policyStartDate);
+
+  const summary = [
+    'שים לב: לא הועלה קובץ אסמכתא.',
+    '',
+    `איש קשר: ${contactName}`,
+    `שם הגן: ${gardenName}`,
+    `סוג הגן: ${gardenTypeText}`,
+    `טלפון: ${phoneNumber}`,
+    `מספר ת.ז: ${idNumber}`,
+    `מספר ילדים: ${childrenCount}`,
+    `תאריך התחלה של הפוליסה: ${policyStartFormatted}`,
+    `תאריך: ${todayStr}`
+  ].join('\n');
+
+  const safeGardenName = (gardenName || 'unknown').replace(/[^a-zA-Z0-9\u0590-\u05FF]/g, '_');
+  const fileName = `אין_אסמכתא_${safeGardenName}_${todayStr}_תחילת_פוליסה-${policyStartFormatted || 'NA'}.txt`;
+
+  return new File([summary], fileName, { type: 'text/plain' });
+}
 
 async function sendToWebhook(payload) {
   try {
@@ -2896,14 +2956,18 @@ async function sendToWebhook(payload) {
       formData.append(key, value);
     });
 
-    // טיפול באסמכתא
+    // טיפול באסמכתא – תמיד נשלח קובץ ל-Make
+    let proofFile = null;
     if (selectedPaymentMethod === 'bank') {
-      const file = document.getElementById('bankTransferProof').files[0];
-      if (file) formData.append('proofFile', file);
+      proofFile = document.getElementById('bankTransferProof').files[0] || null;
     } else if (selectedPaymentMethod === 'debit') {
-      const file = document.getElementById('debitAuthUpload').files[0];
-      if (file) formData.append('proofFile', file);
+      proofFile = document.getElementById('debitAuthUpload').files[0] || null;
     }
+
+    if (!proofFile) {
+      proofFile = buildDefaultProofFile();
+    }
+    formData.append('proofFile', proofFile);
 
     // הוספת חתימה
     await appendSignatureToFormData(formData, selectedPaymentMethod);
@@ -3486,6 +3550,7 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('📊 חיבור אירועים לחישוב פרמיה');
   gardenType.addEventListener('change', calculatePremium);
   childrenCount.addEventListener('input', calculatePremium);
+  childrenCount.addEventListener('input', updateCoverageOptionPrices);
 
   // רק אחרי שהכל מוכן – prefill
   console.log('📥 prefill מה-URL');
@@ -3548,19 +3613,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
-
-  // ילדים מעל גיל 3
-  const hasOver3Checkbox = document.getElementById('hasOver3Children');
-  const over3CountGroup = document.getElementById('over3ChildrenCountGroup');
-  const over3CountInput = document.getElementById('over3ChildrenCount');
-  if (hasOver3Checkbox && over3CountGroup) {
-    console.log('⚙️ הגדרת ילדים מעל גיל 3');
-    hasOver3Checkbox.addEventListener('change', () => {
-      over3CountGroup.style.display = hasOver3Checkbox.checked ? 'block' : 'none';
-      if (!hasOver3Checkbox.checked && over3CountInput) over3CountInput.value = '';
-    });
-    over3CountGroup.style.display = hasOver3Checkbox.checked ? 'block' : 'none';
-  }
 
   // תצוגה לפי תיבות סימון שדורשות אישור
   document.querySelectorAll('.needsApprovalCheckbox').forEach(checkbox => {
@@ -3997,6 +4049,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateOver3ChildrenGroup() {
       const value = document.getElementById('hasOver3Children').value;
       document.getElementById('over3ChildrenCountGroup').style.display = value === "true" ? "block" : "none";
+      calculatePremium();
+      updateCoverageOptionPrices();
     }
     updateOver3ChildrenGroup();
     document.querySelectorAll('[data-field="hasOver3Children"] .yes-btn, [data-field="hasOver3Children"] .no-btn').forEach(btn =>
