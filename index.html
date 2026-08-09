@@ -7,7 +7,7 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>טופס חידוש ביטוח</title>
   <link href="https://cdn.jsdelivr.net/npm/@n8n/chat@1.2.1/dist/style.css" rel="stylesheet" />
-  <link href="style.css?v=202607271" rel="stylesheet" />
+  <link href="style.css?v=202607302" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&amp;display=swap" rel="stylesheet" />
 </head>
 
@@ -180,7 +180,7 @@
         </div>
 
         <div class="form-group" id="additionEndDateGroup" style="display:none;">
-          <label for="additionEndDate">תאריך סיום תוספות</label>
+          <label for="additionEndDate">תאריך עדכון תוספות</label>
           <input type="date" id="additionEndDate" name="additionEndDate" />
         </div>
 
@@ -680,6 +680,24 @@
             או לוואטסאפ את טופס עריכת הביטוח, נא להקפיד לציין מי מבקש האישור.
           </div>
         </div>
+        <!-- Installments (Last Year) -->
+        <div class="form-group" id="lastYearInstallmentsGroup">
+          <label for="lastYearInstallments">מספר תשלומים</label>
+          <select id="lastYearInstallments" name="creditInstallments" class="installments-select" required>
+            <option value="1" selected>1 תשלום</option>
+            <option value="2">2 תשלומים</option>
+            <option value="3">3 תשלומים</option>
+            <option value="4">4 תשלומים</option>
+            <option value="5">5 תשלומים</option>
+            <option value="6">6 תשלומים</option>
+            <option value="7">7 תשלומים</option>
+            <option value="8">8 תשלומים</option>
+          </select>
+          <ul>
+            <li>עד 5 תשלומים – ללא ריבית</li>
+            <li>עד 8 תשלומים – בריבית של 4%</li>
+          </ul>
+        </div>
         <p class="talah-info">הכיסוי הביטוחי יכנס לתוקף רק לאחר אישור החברה</p>
         <div class="signature-wrapper">
           <label class="signature-label">חתימה:</label>
@@ -938,7 +956,7 @@
     </div>
     <button type="button" class="popup-close" id="closePrivacyPopupBtn">סגור</button>
   </div>
-  <script src="script.js?v=202607271"></script>
+  <script src="script.js?v=202607302"></script>
 <script type="module">
   import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat@1.2.1/dist/chat.bundle.es.js';
 
