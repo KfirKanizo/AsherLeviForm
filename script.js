@@ -1946,11 +1946,22 @@ function calculatePremium() {
   }
   premiumAmount.dataset.finalPremium = totalPremium;
 
-  // הצגת הפרמיה בפועל לצד הפרמיה השנתית המקורית
-  const annualSuffix = annualPremium !== totalPremium
-    ? `<span class="annual-premium-hint" style="display:block;margin-top:6px;font-size:0.7em;font-weight:400;color:#8a94a6;">פרמיה שנתית: ₪${annualPremium.toLocaleString()}</span>`
-    : '';
-  premiumAmount.innerHTML = `${totalPremium.toLocaleString()} ₪${annualSuffix}`;
+  // הצגת הפרמיה בפועל לצד הפרמיה השנתית המקורית והפירוט היומי
+  let premiumDetailsSuffix = '';
+  if (annualPremium !== totalPremium) {
+    const totalDays = calculateDaysDifference(policyStartDate, policyEndDate);
+    let dailyBreakdown = '';
+    if (totalDays !== null) {
+      const daysDiffFromYear = totalDays - 365;
+      const absDaysDiff = Math.abs(daysDiffFromYear);
+      const dailyRate = (annualPremium / 365).toFixed(2);
+      const diffLabel = totalDays < 365 ? 'הופחתו' : 'נוספו';
+      dailyBreakdown = `<span class="daily-breakdown-hint" style="display:block;margin-top:4px;font-size:0.75em;font-weight:400;color:#9aa5b5;">חושב לפי ${totalDays} ימים (${absDaysDiff} ימים ${diffLabel}) - תעריף יומי: ₪${dailyRate}</span>`;
+    }
+    const annualSuffix = `<span class="annual-premium-hint" style="display:block;margin-top:6px;font-size:0.7em;font-weight:400;color:#8a94a6;">פרמיה שנתית: ₪${annualPremium.toLocaleString()}</span>`;
+    premiumDetailsSuffix = annualSuffix + dailyBreakdown;
+  }
+  premiumAmount.innerHTML = `${totalPremium.toLocaleString()} ₪${premiumDetailsSuffix}`;
 
   // === שלב 7: הצגת הנחות ===
   const discountDisplay = document.getElementById('discountDisplay');
