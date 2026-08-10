@@ -1829,10 +1829,13 @@ function calculatePremium() {
   }
 
   let over3Discount = 0;
-  const hasOver3Children = document.getElementById('hasOver3Children')?.value === 'true';
-  if (hasOver3Children) {
-    const over3ChildrenCount = parseInt(document.getElementById('over3ChildrenCount')?.value) || 0;
-    over3Discount = over3ChildrenCount * 40;
+  const isOver3Track = ['afterSchool', 'over3'].includes(gardenTypeValue);
+  if (!isOver3Track) {
+    const hasOver3Children = document.getElementById('hasOver3Children')?.value === 'true';
+    if (hasOver3Children) {
+      const over3ChildrenCount = parseInt(document.getElementById('over3ChildrenCount')?.value) || 0;
+      over3Discount = over3ChildrenCount * 40;
+    }
   }
 
   // === שלב 4: חישוב ביטוח מבנה, תכולה וחצר ===
@@ -4048,7 +4051,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. האם יש ילדים שמלאו להם 3 בספטמבר של שנת הלימודים של הפוליסה?
     function updateOver3ChildrenGroup() {
       const value = document.getElementById('hasOver3Children').value;
-      document.getElementById('over3ChildrenCountGroup').style.display = value === "true" ? "block" : "none";
+      const isOver3FieldHidden = ['afterSchool', 'over3'].includes(gardenType.value);
+      document.getElementById('over3ChildrenCountGroup').style.display =
+        (!isOver3FieldHidden && value === "true") ? "block" : "none";
       calculatePremium();
       updateCoverageOptionPrices();
     }
@@ -4093,7 +4098,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function triggerYesNoDependenciesAfterUrlPrefill() {
     // עדכון ילדים מעל גיל 3
     const hasOver3Children = document.getElementById('hasOver3Children');
-    if (hasOver3Children && hasOver3Children.value === 'true') {
+    if (hasOver3Children && hasOver3Children.value === 'true' && !['afterSchool', 'over3'].includes(gardenType.value)) {
       document.getElementById('over3ChildrenCountGroup').style.display = 'block';
     }
 
