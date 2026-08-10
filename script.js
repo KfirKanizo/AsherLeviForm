@@ -1706,12 +1706,12 @@ function calculateDaysDifference(startDateStr, endDateStr) {
 function adjustPremiumForPeriod(basePremium, startDateStr, endDateStr) {
   const daysDiff = calculateDaysDifference(startDateStr, endDateStr);
 
-  // אם לא ניתן לחשב או ההפרש הוא עד שנה - החזר את הפרמיה המקורית
-  if (daysDiff === null || daysDiff <= 365) {
+  // אם לא ניתן לחשב את התקופה - החזר את הפרמיה המקורית
+  if (daysDiff === null) {
     return basePremium;
   }
 
-  // אם ההפרש גדול משנה - חשב לפי ימים בפועל
+  // פרופורציה יומית מדויקת לכל תקופת ביטוח (קצרה או ארוכה משנה)
   // פרמיה ליום = פרמיה שנתית / 365
   const dailyRate = basePremium / 365;
   const adjustedPremium = dailyRate * daysDiff;
@@ -1732,6 +1732,7 @@ function calculatePremium() {
   if (!gardenTypeValue || childrenCountValue < 1) {
     premiumAmount.textContent = '0 ₪';
     premiumAmount.dataset.annualPremium = 0;
+    premiumAmount.dataset.finalPremium = 0;
     const discountDisplay = document.getElementById('discountDisplay');
     if (discountDisplay) discountDisplay.textContent = '';
     return;
@@ -1938,12 +1939,18 @@ function calculatePremium() {
   const policyStartDate = document.getElementById('policyStartDate')?.value;
   const policyEndDate = document.getElementById('policyEndDate')?.value;
 
+  const annualPremium = totalPremium;
   if (policyStartDate && policyEndDate) {
-    // חשב את הפרמיה המותאמת לתקופה
+    // חשב את הפרמיה המותאמת לתקופה (פרופורציה יומית)
     totalPremium = adjustPremiumForPeriod(totalPremium, policyStartDate, policyEndDate);
   }
+  premiumAmount.dataset.finalPremium = totalPremium;
 
-  premiumAmount.textContent = totalPremium.toLocaleString() + ' ₪';
+  // הצגת הפרמיה בפועל לצד הפרמיה השנתית המקורית
+  const annualSuffix = annualPremium !== totalPremium
+    ? `<span class="annual-premium-hint" style="display:block;margin-top:6px;font-size:0.7em;font-weight:400;color:#8a94a6;">פרמיה שנתית: ₪${annualPremium.toLocaleString()}</span>`
+    : '';
+  premiumAmount.innerHTML = `${totalPremium.toLocaleString()} ₪${annualSuffix}`;
 
   // === שלב 7: הצגת הנחות ===
   const discountDisplay = document.getElementById('discountDisplay');
@@ -2496,13 +2503,12 @@ function collectFormData() {
 
   // ---------- פרמיה, תשלום, חתימה, קבצים ----------
   const premiumElem = document.getElementById('premiumAmount');
-  let premiumText = premiumElem.textContent.replace(/[^\d.]/g, '');
-  payload['premium'] = formatCurrency(premiumText);
 
-  // הוספת השדה לוובהוק: פרמיה שנתית (לפני התאמת ימים)
-  // אם לא קיים ב-dataset מסיבה כלשהי, נשתמש בפרמיה הסופית כברירת מחדל
-  const annualVal = premiumElem.dataset.annualPremium !== undefined ? premiumElem.dataset.annualPremium : premiumText;
-  payload['annualPremium'] = formatCurrency(annualVal);
+  // הפרמיה בפועל (אחרי פרופורציית ימים) – נקראת מה-dataset כדי לא לפרסר את הטקסט המעוצב
+  const finalVal = premiumElem.dataset.finalPremium !== undefined ? premiumElem.dataset.finalPremium : '';
+  const annualVal = premiumElem.dataset.annualPremium !== undefined ? premiumElem.dataset.annualPremium : '';
+  payload['premium'] = formatCurrency(finalVal || annualVal);
+  payload['annualPremium'] = formatCurrency(annualVal || finalVal);
 
   // ---------- Additions Amount ----------
   payload['additionsAmount'] = formatCurrency(premiumElem.dataset.additionsTotal || '0');
