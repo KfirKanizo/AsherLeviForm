@@ -1770,11 +1770,8 @@ function calculatePremium() {
       basePremium = childrenCountValue <= threshold
         ? min
         : min + (childrenCountValue - threshold) * perChild;
-    } else if (track === 6) {
-      // מסלול 6 (גן מעל גיל 3 / צהרון + ביטוח תכולה ומבנה): נוסחה ייעודית
-      basePremium = childrenCountValue <= 17 ? 1400 : 1400 + (childrenCountValue - 17) * 80;
     } else {
-      // חישוב רגיל לשאר המסלולים
+      // חישוב רגיל לשאר המסלולים (כולל מסלול 6: count * 80, מינימום 1400)
       basePremium = Math.max(childrenCountValue * perChild, min);
     }
   } else {
