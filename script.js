@@ -1711,7 +1711,12 @@ function adjustPremiumForPeriod(basePremium, startDateStr, endDateStr) {
     return basePremium;
   }
 
-  // פרופורציה יומית מדויקת לכל תקופת ביטוח (קצרה או ארוכה משנה)
+  // שנה סטנדרטית (364 או 365 ימים) - פרמיה מלאה, ללא פרופורציה
+  if (daysDiff === 364 || daysDiff === 365) {
+    return basePremium;
+  }
+
+  // פרופורציה יומית מדויקת לכל תקופת ביטוח אחרת (קצרה או ארוכה משנה)
   // פרמיה ליום = פרמיה שנתית / 365
   const dailyRate = basePremium / 365;
   const adjustedPremium = dailyRate * daysDiff;
