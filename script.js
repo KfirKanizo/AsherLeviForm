@@ -2923,52 +2923,6 @@ function addProfessionalLiabilityEmployeeRow(container, data = {}) {
   updateCoverageOptionPrices();
 }
 
-function buildDefaultProofFile() {
-  const getVal = (id) => document.getElementById(id)?.value?.trim() || '';
-
-  const contactName = getVal('customerName');
-  const gardenName = getVal('gardenName');
-  const phoneNumber = getVal('phoneNumber');
-  const idNumber = getVal('idNumber');
-  const childrenCount = getVal('childrenCount');
-
-  const gardenTypeSelect = document.getElementById('gardenType');
-  const gardenTypeText = gardenTypeSelect
-    ? gardenTypeSelect.options[gardenTypeSelect.selectedIndex]?.text || ''
-    : '';
-
-  const policyStartDate = getVal('policyStartDate');
-
-  const toDDMMYYYY = (dateStr) => {
-    if (!dateStr) return '';
-    const parts = dateStr.split('-');
-    if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
-    return dateStr;
-  };
-
-  const today = new Date();
-  const todayStr = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
-  const policyStartFormatted = toDDMMYYYY(policyStartDate);
-
-  const summary = [
-    'שים לב: לא הועלה קובץ אסמכתא.',
-    '',
-    `איש קשר: ${contactName}`,
-    `שם הגן: ${gardenName}`,
-    `סוג הגן: ${gardenTypeText}`,
-    `טלפון: ${phoneNumber}`,
-    `מספר ת.ז: ${idNumber}`,
-    `מספר ילדים: ${childrenCount}`,
-    `תאריך התחלה של הפוליסה: ${policyStartFormatted}`,
-    `תאריך: ${todayStr}`
-  ].join('\n');
-
-  const safeGardenName = (gardenName || 'unknown').replace(/[^a-zA-Z0-9\u0590-\u05FF]/g, '_');
-  const fileName = `אין_אסמכתא_${safeGardenName}_${todayStr}_תחילת_פוליסה-${policyStartFormatted || 'NA'}.txt`;
-
-  return new File([summary], fileName, { type: 'text/plain' });
-}
-
 async function sendToWebhook(payload) {
   try {
     const formData = new FormData();
@@ -2978,18 +2932,14 @@ async function sendToWebhook(payload) {
       formData.append(key, value);
     });
 
-    // טיפול באסמכתא – תמיד נשלח קובץ ל-Make
-    let proofFile = null;
+    // טיפול באסמכתא
     if (selectedPaymentMethod === 'bank') {
-      proofFile = document.getElementById('bankTransferProof').files[0] || null;
+      const file = document.getElementById('bankTransferProof').files[0];
+      if (file) formData.append('proofFile', file);
     } else if (selectedPaymentMethod === 'debit') {
-      proofFile = document.getElementById('debitAuthUpload').files[0] || null;
+      const file = document.getElementById('debitAuthUpload').files[0];
+      if (file) formData.append('proofFile', file);
     }
-
-    if (!proofFile) {
-      proofFile = buildDefaultProofFile();
-    }
-    formData.append('proofFile', proofFile);
 
     // הוספת חתימה
     await appendSignatureToFormData(formData, selectedPaymentMethod);
