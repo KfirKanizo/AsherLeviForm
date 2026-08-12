@@ -3167,6 +3167,7 @@ function prefillCoverageAddonsFromUrl() {
           if (sel) sel.value = urlPrefillData['incomeLossAmount'];
         }
         calculatePremium();
+        updateCoverageOptionPrices();
       }, 100);
     }
     // אם רוצים לא מעוניין
