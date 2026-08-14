@@ -2479,6 +2479,16 @@ function collectFormData() {
     }
   }
 
+  // ---------- תוספת פרמיה עבור אובדן הכנסות ----------
+  // מחושב ישירות מ-getOptionCost: מחזיר 0 אוטומטית אם הכיסוי לא נבחר או לא מוצג
+  // (מסלול לא רלוונטי), ו-0 גם אם השדות ריקים/מוסתרים.
+  const incomeLossPremiumCost = getOptionCost(
+    'incomeLoss',
+    gardenType.value,
+    parseInt(childrenCount.value) || 0,
+    document.getElementById('hasContentBuilding')?.value === 'true'
+  );
+  payload['incomeLossPremium'] = formatCurrency(incomeLossPremiumCost || 0);
 
   // ---------- button-groups ----------
   document.querySelectorAll('.button-group').forEach(group => {
