@@ -31,6 +31,8 @@ const sections = [
   document.getElementById('thankYouSection')
 ];
 let currentSectionIndex = 0;
+let coveragePrefilledFromUrl = false;
+let isRestoringState = false;
 
 const availableOptions = {
   'tamah': [
@@ -684,19 +686,22 @@ function showSection(index) {
       const gardenTypeValue = gardenType.value;
       const expectedOptions = (availableOptions[gardenTypeValue] || []);
 
-      const waitUntilOptionsReady = () => {
-        const allPresent = expectedOptions.every(opt => {
-          return document.querySelector(`.coverage-option[data-option="${opt}"]`);
-        });
+      if (!coveragePrefilledFromUrl) {
+        const waitUntilOptionsReady = () => {
+          const allPresent = expectedOptions.every(opt => {
+            return document.querySelector(`.coverage-option[data-option="${opt}"]`);
+          });
 
-        if (allPresent) {
-          prefillCoverageAddonsFromUrl();
-        } else {
-          setTimeout(waitUntilOptionsReady, 50);
-        }
-      };
+          if (allPresent) {
+            prefillCoverageAddonsFromUrl();
+            coveragePrefilledFromUrl = true;
+          } else {
+            setTimeout(waitUntilOptionsReady, 50);
+          }
+        };
 
-      waitUntilOptionsReady();
+        waitUntilOptionsReady();
+      }
     }
 
     // הצגת פרמיה – רק במסכים הרלוונטיים
@@ -1435,12 +1440,23 @@ function populatePolicyDetails(trackNumber) {
 
 
 function updateCoverageOptions() {
-  const gardenTypeValue = gardenType.value;
+  const savedGardenType = gardenType.value;
   const container = document.getElementById('coverageOptionsContainer');
   const track = determinePolicyTrack();
+
+  const savedSelections = {};
+  container.querySelectorAll('.coverage-option').forEach(opt => {
+    const name = opt.dataset.option;
+    const hidden = opt.querySelector(`input[name="insuranceOptions[${name}]"]`);
+    if (hidden) savedSelections[name] = hidden.value;
+    opt.querySelectorAll('.conditional-section input, .conditional-section select, .conditional-section textarea').forEach(input => {
+      if (input.name || input.id) savedSelections[`${name}__${input.name || input.id}`] = input.value;
+    });
+  });
+
   container.innerHTML = '';
   const templates = document.getElementById('coverageOptionsTemplates');
-  const options = availableOptions[gardenTypeValue] || [];
+  const options = availableOptions[savedGardenType] || [];
 
   options.forEach(option => {
     if (option === 'employerLiability' && [4, 5, 6, 7].includes(track)) return;
@@ -1449,12 +1465,31 @@ function updateCoverageOptions() {
     const template = templates.querySelector(`#coverage-${option}`);
     if (template) {
       const clone = template.cloneNode(true);
-      clone.dataset.option = option; // מאפשר זיהוי
+      clone.dataset.option = option;
       container.appendChild(clone);
       addEventListenersToOption(clone);
-
     }
   });
+
+  container.querySelectorAll('.coverage-option').forEach(opt => {
+    const name = opt.dataset.option;
+    if (savedSelections[name] === 'true') {
+      opt.querySelector('.interested-button')?.click();
+    } else if (savedSelections[name] === 'false') {
+      opt.querySelector('.not-interested-button')?.click();
+    }
+    opt.querySelectorAll('.conditional-section input, .conditional-section select, .conditional-section textarea').forEach(input => {
+      const key = `${name}__${input.name || input.id}`;
+      if (key in savedSelections) {
+        input.value = savedSelections[key];
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  });
+
+  if (gardenType.value !== savedGardenType) {
+    gardenType.value = savedGardenType;
+  }
 
   calculatePremium();
   updateCoverageOptionPrices();
@@ -1697,7 +1732,7 @@ function calculateDaysDifference(startDateStr, endDateStr) {
 
   // חישוב ההפרש בימים
   const timeDiff = endDate - startDate;
-  const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+  const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
 
   return daysDiff;
 }
@@ -1712,7 +1747,7 @@ function adjustPremiumForPeriod(basePremium, startDateStr, endDateStr) {
   }
 
   // שנה סטנדרטית (364 או 365 ימים) - פרמיה מלאה, ללא פרופורציה
-  if (daysDiff === 364 || daysDiff === 365) {
+  if (daysDiff === 365 || daysDiff === 366) {
     return basePremium;
   }
 
@@ -1813,7 +1848,9 @@ function calculatePremium() {
         if (includeContentBuilding) {
           basePremium = childrenCountValue <= 17 ? 1400 : 1400 + (childrenCountValue - 17) * 80;
         } else {
+          const afterSchoolSmallKids = parseInt(document.querySelector('.afterSchoolChildrenCount')?.value) || 0;
           basePremium = childrenCountValue <= 20 ? 1100 : 1100 + (childrenCountValue - 20) * 55;
+          basePremium += afterSchoolSmallKids * 55;
         }
         break;
     }
@@ -1833,7 +1870,7 @@ function calculatePremium() {
 
   let over3Discount = 0;
   const isOver3Track = ['afterSchool', 'over3'].includes(gardenTypeValue);
-  if (!isOver3Track) {
+  if (!isOver3Track && gardenTypeValue !== 'tamah') {
     const hasOver3Children = document.getElementById('hasOver3Children')?.value === 'true';
     if (hasOver3Children) {
       const over3ChildrenCount = parseInt(document.getElementById('over3ChildrenCount')?.value) || 0;
