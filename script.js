@@ -1812,8 +1812,9 @@ function calculatePremium() {
         ? min
         : min + (childrenCountValue - threshold) * perChild;
     } else if (track === 7) {
-      // מסלול 7: עד 12 ילדים (כולל) = 1400 ₪, כל ילד נוסף החל מה-13 +120 ₪
-      basePremium = 1400 + Math.max(0, childrenCountValue - 12) * 120;
+      // מסלול 7: עד 12 ילדים (כולל) = 1400 ₪ קבוע; החל מ-13 ילדים התעריף הקבוע מתבטל
+      // ומחושבים כל הילדים × 120 ₪ (עם הנחת מועדון: ×110 ₪ לילד, באמצעות הנחת ×10 לילד בשלב ההנחות)
+      basePremium = childrenCountValue <= 12 ? 1400 : childrenCountValue * 120;
     } else {
       // חישוב רגיל לשאר המסלולים (כולל מסלול 6: count * 80, מינימום 1400)
       basePremium = Math.max(childrenCountValue * perChild, min);
