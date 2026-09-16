@@ -1297,3 +1297,18 @@ input[type="date"]:focus {
   padding-top: 6px;
   border-top: 2px solid #4362cc;
 }
+
+/* שגיאת גיל גננת – תאונות אישיות */
+input[type="date"].teacher-age-invalid,
+input[name="personalAccidentEmployeeBirthdate[]"].teacher-age-invalid {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.15);
+}
+
+.teacher-age-error {
+  color: #e74c3c;
+  font-size: 0.8em;
+  display: block;
+  margin-top: 2px;
+  font-weight: 600;
+}

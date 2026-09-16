@@ -1079,6 +1079,14 @@ document.querySelectorAll('.next-button').forEach(button => {
                 alert('אנא מלא את כל פרטי הגננת');
                 return;
               }
+
+              // אימות גיל הגננת – עד 65
+              if (!validateTeacherAge(birthdateInput)) {
+                isValid = false;
+                alert('גיל הגננת לא יכול לעלות על 65 שנים');
+                birthdateInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+              }
             }
           }
 
@@ -1308,7 +1316,12 @@ document.querySelector('.bank-button').addEventListener('click', async function 
       btn.style.pointerEvents = 'none';
       try {
         const formValues = collectFormData();
-        await sendToWebhook(formValues);
+        const sent = await sendToWebhook(formValues);
+        if (sent === false) {
+          btn.textContent = originalText;
+          btn.style.pointerEvents = 'auto';
+          return;
+        }
       } catch (e) { console.error(e); }
       btn.textContent = originalText;
       btn.style.pointerEvents = 'auto';
@@ -1328,7 +1341,12 @@ document.querySelector('.credit-button').addEventListener('click', async functio
     btn.style.pointerEvents = 'none';
     try {
       const formValues = collectFormData();
-      await sendToWebhook(formValues);
+      const sent = await sendToWebhook(formValues);
+      if (sent === false) {
+        btn.textContent = originalText;
+        btn.style.pointerEvents = 'auto';
+        return;
+      }
     } catch (e) { console.error(e); }
     btn.textContent = originalText;
     btn.style.pointerEvents = 'auto';
@@ -1347,7 +1365,12 @@ document.querySelector('.debit-auth-button').addEventListener('click', async fun
     btn.style.pointerEvents = 'none';
     try {
       const formValues = collectFormData();
-      await sendToWebhook(formValues);
+      const sent = await sendToWebhook(formValues);
+      if (sent === false) {
+        btn.textContent = originalText;
+        btn.style.pointerEvents = 'auto';
+        return;
+      }
     } catch (e) { console.error(e); }
     btn.textContent = originalText;
     btn.style.pointerEvents = 'auto';
@@ -2293,7 +2316,8 @@ form.addEventListener('submit', async (e) => {
   if (isValid) {
     try {
       const formValues = collectFormData();
-      await sendToWebhook(formValues); // כולל הכל: חתימה, קבצים, ערכים
+      const sent = await sendToWebhook(formValues); // כולל הכל: חתימה, קבצים, ערכים
+      if (sent === false) return;
       showSection(10); // מעבר לעמוד תודה
     } catch (error) {
       alert('שגיאה בשליחת הטופס. אנא נסה שוב.');
@@ -2853,6 +2877,79 @@ function setupPersonalAccidentEmployees() {
   });
 }
 
+// מחזיר תאריך בפורמט input type=date (YYYY-MM-DD) לפי השעון המקומי
+function formatDateInput(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+// מחזיר את התאריך המינימלי המותר (היום פחות 65 שנה)
+function getMinBirthdateForMaxAge() {
+  const today = new Date();
+  return new Date(today.getFullYear() - 65, today.getMonth(), today.getDate());
+}
+
+// מחזיר את התאריך המקסימלי המותר (היום)
+function getMaxBirthdate() {
+  return new Date();
+}
+
+// מחזיר את התאריך המינימלי המותר כתגית input (YYYY-MM-DD)
+function getMinBirthdateString() {
+  return formatDateInput(getMinBirthdateForMaxAge());
+}
+
+// מחזיר את התאריך המקסימלי המותר כתגית input (YYYY-MM-DD)
+function getMaxBirthdateString() {
+  return formatDateInput(getMaxBirthdate());
+}
+
+// מחשב גיל מדויק לפי תאריך לידה
+function calculateAge(dob) {
+  if (!dob) return 0;
+  const parts = String(dob).split('-').map(Number);
+  const birth = new Date(parts[0], (parts[1] || 1) - 1, parts[2] || 1);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+// בודק אם הגיל תקין (עד 65) ומעדכן את סטטוס התקינות של השדה
+function validateTeacherAge(dateInput) {
+  const errorClass = 'teacher-age-error';
+  if (!dateInput.value) {
+    dateInput.setCustomValidity('');
+    dateInput.classList.remove('teacher-age-invalid');
+    const msg = dateInput.parentElement.querySelector('.' + errorClass);
+    if (msg) msg.remove();
+    return true;
+  }
+  const age = calculateAge(dateInput.value);
+  let errorEl = dateInput.parentElement.querySelector('.' + errorClass);
+  if (age > 65) {
+    dateInput.setCustomValidity('גיל הגננת לא יכול לעלות על 65 שנים');
+    dateInput.classList.add('teacher-age-invalid');
+    if (!errorEl) {
+      errorEl = document.createElement('span');
+      errorEl.className = errorClass;
+      dateInput.parentElement.appendChild(errorEl);
+    }
+    errorEl.textContent = 'גיל הגננת לא יכול לעלות על 65 שנים';
+    return false;
+  } else {
+    dateInput.setCustomValidity('');
+    dateInput.classList.remove('teacher-age-invalid');
+    if (errorEl) errorEl.remove();
+    return true;
+  }
+}
+
 // יוצר שורה של גננת
 function addPersonalAccidentEmployeeRow(container, data = {}) {
   // Add null check for container
@@ -2871,12 +2968,22 @@ function addPersonalAccidentEmployeeRow(container, data = {}) {
     <input type="number" name="personalAccidentEmployeeId[]" placeholder="ת.ז גננת" value="${data.id || ''}" style="flex:1" >
     <div style="flex:1">
       <label style="display:block; font-size: 0.85em;">תאריך לידה:</label>
-      <input type="date" name="personalAccidentEmployeeBirthdate[]" value="${data.birthdate || ''}" >
+      <input type="date" name="personalAccidentEmployeeBirthdate[]" value="${data.birthdate || ''}"
+        min="${getMinBirthdateString()}" max="${getMaxBirthdateString()}" required>
     </div>
     <button type="button" class="removePersonalAccidentEmployee" aria-label="הסר גננת"
       style="background: #e74c3c; color: #fff; border:none; border-radius:6px; padding:6px 10px; margin-right:3px;">X</button>
   `;
   container.appendChild(row);
+
+  // אימות גיל הגננת (עד 65) על שינוי ועל הגשה
+  const birthdateInput = row.querySelector('input[name="personalAccidentEmployeeBirthdate[]"]');
+  if (birthdateInput) {
+    const validate = () => validateTeacherAge(birthdateInput);
+    birthdateInput.addEventListener('change', validate);
+    birthdateInput.addEventListener('input', validate);
+    validate();
+  }
 
   // עדכון מחיר גם על שינוי ערך בשדות
   row.querySelectorAll('input, select').forEach(input => {
@@ -2976,6 +3083,16 @@ function addProfessionalLiabilityEmployeeRow(container, data = {}) {
 
 async function sendToWebhook(payload) {
   try {
+    // אימות גיל הגננת לפני שליחה – חוסם גם שליחה ישירה (מצב עדכון)
+    const teacherBirthdates = document.querySelectorAll('input[name="personalAccidentEmployeeBirthdate[]"]');
+    for (const input of teacherBirthdates) {
+      if (!validateTeacherAge(input)) {
+        alert('גיל הגננת לא יכול לעלות על 65 שנים');
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+      }
+    }
+
     const formData = new FormData();
 
     // מוסיפים כל שדה בדיוק בשם ובערך כפי שצריך
@@ -3018,6 +3135,8 @@ async function sendToWebhook(payload) {
 
     const responseText = await response.text();
     console.log('Webhook success response:', responseText);
+
+    return true;
 
   } catch (error) {
     console.error('Webhook error details:', error);
@@ -3695,7 +3814,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // איסוף נתונים (כולל החתימה החדשה) ושליחה ישירה ל-Make
             const payload = collectFormData();
             payload['selectedPaymentMethod'] = 'credit';
-            await sendToWebhook(payload);
+            const sent = await sendToWebhook(payload);
+            if (sent === false) return;
 
             // מעבר ישיר למסך סיום (תודה)
             const thankYouSectionIndex = sections.findIndex(sec => sec.id === 'thankYouSection');
@@ -3777,7 +3897,8 @@ document.addEventListener('DOMContentLoaded', () => {
               payload['selectedPaymentMethod'] = 'credit'; // לעקביות עם השדה הקיים
               payload['payUrl'] = payUrl;
 
-              await sendToWebhook(payload);
+              const sent = await sendToWebhook(payload);
+              if (sent === false) return;
             } catch (err) {
               console.error('Webhook send failed (credit flow):', err);
               // ממשיכים בכל מקרה לפתיחת דף התשלום
@@ -3812,7 +3933,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const payload = collectFormData();
         payload.paymentMethod = 'offer';
         payload.selectedPaymentMethod = 'offer';
-        await sendToWebhook(payload);
+        const sent = await sendToWebhook(payload);
+        if (sent === false) return;
         const thankYouSectionIndex = sections.findIndex(sec => sec.id === 'thankYouSection');
         if (thankYouSectionIndex !== -1) showSection(thankYouSectionIndex);
       } catch (err) {
