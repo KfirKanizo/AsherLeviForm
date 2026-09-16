@@ -1146,6 +1146,13 @@ document.querySelectorAll('.next-button').forEach(button => {
 
     // וידוא בחירת אמצעי תשלום
     if (sections[currentSectionIndex].id === 'paymentSelection') {
+      // בהצעה חדשה "אמצעי תשלום משנה שעברה" אינו זמין – חסום בחירה שאריסה מה-URL
+      if (selectedPaymentMethod === 'last_year' && !isRenewalFlow()) {
+        selectedPaymentMethod = '';
+        isValid = false;
+        alert('אמצעי תשלום משנה שעברה אינו זמין בהצעה חדשה. אנא בחר אמצעי תשלום אחר.');
+        return;
+      }
       if (!selectedPaymentMethod) {
         isValid = false;
         alert('אנא בחר אמצעי תשלום');
@@ -3286,6 +3293,31 @@ function isUpdateModeActive() {
   return window.formAutomationFlag === false;
 }
 
+// קובע אם מדובר בזרימת חידוש פוליסה לפי פרמטר renewal ב-URL
+// renewal=true (לא תלוי אותיות) = חידוש; כל ערך אחר/חסר = הצעה חדשה
+function isRenewalFlow() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const renewalParam = urlParams.get('renewal');
+  return renewalParam !== null && renewalParam.trim().toLowerCase() === 'true';
+}
+
+// מציג/מסתיר את "אמצעי תשלום משנה שעברה" לפי מצב החידוש
+function setupPaymentMethodVisibility() {
+  const lastYearBtn = document.querySelector('.last-year-button');
+  if (!lastYearBtn) return;
+
+  if (!isRenewalFlow()) {
+    // הצעה חדשה – הסתר את אמצעי התשלום הקיים ואיפוס בחירה לא חוקית
+    lastYearBtn.style.display = 'none';
+    if (selectedPaymentMethod === 'last_year') {
+      selectedPaymentMethod = '';
+    }
+    lastYearBtn.classList.remove('selected');
+  } else {
+    lastYearBtn.style.display = '';
+  }
+}
+
 
 function prefillCoverageAddonsFromUrl() {
   if (!urlPrefillData) return;
@@ -3677,6 +3709,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // מעבר בין עמודים
   showSection(0);
+
+  // הצגה/הסתרה של "אמצעי תשלום משנה שעברה" לפי renewal ב-URL
+  setupPaymentMethodVisibility();
 
   // הגדרות לסקשן ביטוח תכולה ומבנה
   console.log('🔧 setup building section');
