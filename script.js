@@ -1908,7 +1908,21 @@ function calculatePremium() {
     const hasOver3Children = document.getElementById('hasOver3Children')?.value === 'true';
     if (hasOver3Children) {
       const over3ChildrenCount = parseInt(document.getElementById('over3ChildrenCount')?.value) || 0;
-      over3Discount = over3ChildrenCount * 40;
+      // חישוב ההנחה לילד בוגר כדי להגיע למחיר היעד המדויק
+      let discountPerOver3Child = 55; // ברירת מחדל: מפחית 55 ש"ח (110 - 55 = 55 ש"ח מחיר סופי)
+      
+      if (isMember) {
+        const currentTrack = determinePolicyTrack();
+        if ([4, 7].includes(currentTrack)) {
+          // חברי קהילה במסלולים אלו כבר מקבלים 10 ש"ח הנחה. נוסיף 50 ש"ח הפחתה כדי להגיע ל-50 ש"ח סופי.
+          discountPerOver3Child = 50; 
+        } else if ([5, 6].includes(currentTrack)) {
+          // למסלולים אלו יש הנחת חבר של 5 ש"ח. הפחתה של 55 תביא למחיר סופי של 50 ש"ח.
+          discountPerOver3Child = 55; 
+        }
+      }
+      
+      over3Discount = over3ChildrenCount * discountPerOver3Child;
     }
   }
 
@@ -2194,7 +2208,7 @@ function getOptionCost(optionName, gardenTypeValue, childrenCountValue, includeC
 
 
     case 'cyberInsurance':
-      return 450;
+      return 500;
 
     case 'incomeLoss':
       // קח את האלמנטים הרלוונטיים מתוך הדיב של אובדן הכנסות
@@ -3298,7 +3312,7 @@ function isUpdateModeActive() {
 function isRenewalFlow() {
   const urlParams = new URLSearchParams(window.location.search);
   const renewalParam = urlParams.get('renewal');
-  return renewalParam !== null && renewalParam.trim().toLowerCase() === 'true';
+  return renewalParam === null || renewalParam.trim().toLowerCase() === 'false';
 }
 
 // מציג/מסתיר את "אמצעי תשלום משנה שעברה" לפי מצב החידוש
@@ -3307,7 +3321,7 @@ function setupPaymentMethodVisibility() {
   if (!lastYearBtn) return;
 
   if (!isRenewalFlow()) {
-    // הצעה חדשה – הסתר את אמצעי התשלום הקיים ואיפוס בחירה לא חוקית
+    // חידוש – הסתר את אמצעי התשלום הקיים ואיפוס בחירה לא חוקית
     lastYearBtn.style.display = 'none';
     if (selectedPaymentMethod === 'last_year') {
       selectedPaymentMethod = '';
