@@ -949,11 +949,11 @@ document.querySelectorAll('.next-button').forEach(button => {
       }
     }
 
-// וידוא בחירה בכפתורי כן/לא בסקשן פרטי ביטוח
+    // וידוא בחירה בכפתורי כן/לא בסקשן פרטי ביטוח
     if (sections[currentSectionIndex].id === 'insuranceDetails') {
       // אין לדרוש "hasOver3Children" אם נבחר גן מעל גיל 3 או צהרון בלבד
       const requireHasOver3 = !(gardenType.value === 'over3' || gardenType.value === 'afterSchool');
-      
+
       // נוסיף תנאי: אין לדרוש "hasContentBuilding" אם נבחר מסלול תמ"ת
       const requireContentBuilding = gardenType.value !== 'tamah';
 
@@ -1909,19 +1909,24 @@ function calculatePremium() {
     if (hasOver3Children) {
       const over3ChildrenCount = parseInt(document.getElementById('over3ChildrenCount')?.value) || 0;
       // חישוב ההנחה לילד בוגר כדי להגיע למחיר היעד המדויק
-      let discountPerOver3Child = 55; // ברירת מחדל: מפחית 55 ש"ח (110 - 55 = 55 ש"ח מחיר סופי)
-      
+      // חישוב ההנחה לילד בוגר כדי להגיע למחיר היעד
+      let discountPerOver3Child = 55; // ברירת מחדל
+
+      if (currentTrack === 7) {
+        discountPerOver3Child = 40; // במסלול 7 בסיס 120 - 40 = 80 ש"ח
+      }
+
       if (isMember) {
-        const currentTrack = determinePolicyTrack();
-        if ([4, 7].includes(currentTrack)) {
-          // חברי קהילה במסלולים אלו כבר מקבלים 10 ש"ח הנחה. נוסיף 50 ש"ח הפחתה כדי להגיע ל-50 ש"ח סופי.
-          discountPerOver3Child = 50; 
+        if (currentTrack === 7) {
+          // בסיס 120 פחות 10 (הנחת מועדון לכל ילד) = 110. נפחית 35 כדי להגיע ל-75 ש"ח
+          discountPerOver3Child = 35;
+        } else if (currentTrack === 4) {
+          discountPerOver3Child = 50;
         } else if ([5, 6].includes(currentTrack)) {
-          // למסלולים אלו יש הנחת חבר של 5 ש"ח. הפחתה של 55 תביא למחיר סופי של 50 ש"ח.
-          discountPerOver3Child = 55; 
+          discountPerOver3Child = 55;
         }
       }
-      
+
       over3Discount = over3ChildrenCount * discountPerOver3Child;
     }
   }
@@ -4182,18 +4187,18 @@ document.addEventListener('DOMContentLoaded', () => {
     hasContentBuilding.addEventListener('change', updateBuildingTypeRequired);
   }
 
-// --- הצגה/הסתרה של צ'קבוקס "האם תרצה לבטח את המבנה ותכולת הגן?" ---
+  // --- הצגה/הסתרה של צ'קבוקס "האם תרצה לבטח את המבנה ותכולת הגן?" ---
   const hasContentBuildingGroup = document.getElementById('hasContentBuildingGroup');
   const gardenTypeSelect = document.getElementById('gardenType');
 
   function updateHasContentBuildingVisibility() {
     if (gardenTypeSelect.value === 'tamah' || gardenTypeSelect.value === '') {
       hasContentBuildingGroup.style.display = 'none';
-      
+
       // התיקון: מדובר בשדה מסוג 'hidden' ולכן מתייחסים אליו כאל value ולא checked
       const hiddenInput = document.getElementById('hasContentBuilding');
       if (hiddenInput) {
-          hiddenInput.value = 'false';
+        hiddenInput.value = 'false';
       }
     } else {
       hasContentBuildingGroup.style.display = '';
