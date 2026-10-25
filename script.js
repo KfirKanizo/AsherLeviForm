@@ -1897,9 +1897,8 @@ function calculatePremium() {
   let minPremium = min;
 
   if (isMember) {
-    const currentTrack = determinePolicyTrack();
-    if ([4, 7].includes(currentTrack)) clubDiscount = childrenCountValue * 10;
-    else if ([5, 6].includes(currentTrack)) clubDiscount = childrenCountValue * 5;
+    if ([4, 7].includes(track)) clubDiscount = childrenCountValue * 10;
+    else if ([5, 6].includes(track)) clubDiscount = childrenCountValue * 5;
   }
 
   let over3Discount = 0;
@@ -1908,21 +1907,21 @@ function calculatePremium() {
     const hasOver3Children = document.getElementById('hasOver3Children')?.value === 'true';
     if (hasOver3Children) {
       const over3ChildrenCount = parseInt(document.getElementById('over3ChildrenCount')?.value) || 0;
-      // חישוב ההנחה לילד בוגר כדי להגיע למחיר היעד המדויק
+
       // חישוב ההנחה לילד בוגר כדי להגיע למחיר היעד
       let discountPerOver3Child = 55; // ברירת מחדל
 
-      if (currentTrack === 7) {
+      if (track === 7) {
         discountPerOver3Child = 40; // במסלול 7 בסיס 120 - 40 = 80 ש"ח
       }
 
       if (isMember) {
-        if (currentTrack === 7) {
+        if (track === 7) {
           // בסיס 120 פחות 10 (הנחת מועדון לכל ילד) = 110. נפחית 35 כדי להגיע ל-75 ש"ח
           discountPerOver3Child = 35;
-        } else if (currentTrack === 4) {
+        } else if (track === 4) {
           discountPerOver3Child = 50;
-        } else if ([5, 6].includes(currentTrack)) {
+        } else if ([5, 6].includes(track)) {
           discountPerOver3Child = 55;
         }
       }
